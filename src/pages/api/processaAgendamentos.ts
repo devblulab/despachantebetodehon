@@ -22,20 +22,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const db = getFirestore(app);
     const agendamentosRef = collection(db, 'AgendamentosSMS');
     const snapshot = await getDocs(agendamentosRef);
-    const agora = getHoraBrasilia();
+    const agoraBrasilia = getHoraBrasilia();
     const toleranciaMs = 2 * 60 * 1000;
     let enviados = 0;
 
-    console.log(`[⏰ AGORA - BRASÍLIA] ${agora.toISOString()}`);
+    console.log(`[⏰ AGORA - BRASÍLIA] ${agoraBrasilia.toISOString()}`);
 
     for (const agendamentoDoc of snapshot.docs) {
       const agendamento = agendamentoDoc.data();
+
+      if (!agendamento.agendarPara) continue;
+
       const agendarPara = new Date(agendamento.agendarPara);
+      const diffMs = Math.abs(agendarPara.getTime() - agoraBrasilia.getTime());
 
       console.log(`🔍 Agendamento: ${agendamentoDoc.id}`);
       console.log(`📅 Programado para: ${agendarPara.toISOString()}`);
+      console.log(`⏱️ Diferença: ${diffMs}ms`);
 
-      const diffMs = agendarPara.getTime() - agora.getTime();
       if (diffMs <= toleranciaMs) {
         console.log(`✅ Dentro da janela de 2 minutos, iniciando envio...`);
 
@@ -46,11 +50,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }
 
           const numeroFormatado = normalizarTelefoneBrasil(contato.numero);
-          const mensagem = agendamento.mensagem
-            ?.replace('{nome}', contato.nome || '')
-            ?.replace('{placa}', contato.placa || '')
-            ?.replace('{marca_modelo}', contato.marca_modelo || '')
-            ?.replace('{seu_nome}', 'Equipe Beto Dehon');
+          const mensagem = (agendamento.mensagem || '')
+            .replace('{nome}', contato.nome || '')
+            .replace('{placa}', contato.placa || '')
+            .replace('{marca_modelo}', contato.marca_modelo || '')
+            .replace('{seu_nome}', 'Equipe Beto Dehon');
 
           console.log(`📤 Enviando SMS para ${numeroFormatado}...`);
 
@@ -64,9 +68,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }
         }
 
-        // ✅ Remove o agendamento após a tentativa de envio
+        // ✅ Remove o agendamento após envio
         await deleteDoc(doc(db, 'AgendamentosSMS', agendamentoDoc.id));
-        console.log(`🧹 Agendamento ${agendamentoDoc.id} removido após envio`);
+        console.log(`🧹 Agendamento ${agendamentoDoc.id} removido`);
       } else {
         console.log(`⏳ Ainda não é hora para ${agendamentoDoc.id}`);
       }
@@ -79,11 +83,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 }
 
-// 🕒 Usa timezone real de Brasília
+// 🕒 Força data atual no fuso de Brasília (UTC-3)
 function getHoraBrasilia(): Date {
-  return new Date(
-    new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' })
-  );
+  const agoraLocal = new Date();
+  const offset = -3 * 60; // UTC-3 em minutos
+  const localUtc = agoraLocal.getTime() + agoraLocal.getTimezoneOffset() * 60000;
+  return new Date(localUtc + offset * 60000);
 }
 
 // 📞 Normaliza número brasileiro para formato internacional
