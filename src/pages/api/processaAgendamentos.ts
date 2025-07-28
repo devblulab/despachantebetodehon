@@ -22,10 +22,12 @@ function normalizarTelefoneBrasil(numero: string): string {
 
 // 🕒 Retorna hora atual em Brasília (UTC-3)
 function getDataHoraBrasilia(): Date {
-  const agoraUTC = new Date();
-  const offsetBrasiliaMs = -3 * 60 * 60 * 1000;
-  return new Date(agoraUTC.getTime() + offsetBrasiliaMs);
+  const agoraBrasilia = new Date(
+    new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' })
+  );
+  return agoraBrasilia;
 }
+
 
 // 🚀 Função principal
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
