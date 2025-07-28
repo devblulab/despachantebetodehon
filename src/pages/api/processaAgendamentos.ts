@@ -1,15 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  deleteDoc,
-  doc
-} from 'firebase/firestore';
+import { getFirestore, collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { app } from '@/logic/firebase/config/app';
-import { enviarSmsViaDigisac } from '@/pages/api/digisac'; // ✅ função de envio real
+import { enviarSmsViaDigisac } from '@/pages/api/digisac';
 
-// 📞 Normaliza número brasileiro para formato internacional
+const db = getFirestore(app);
+
+// 🔁 Converte o número para o padrão internacional brasileiro (ex: 5548999999999)
 function normalizarTelefoneBrasil(numero: string): string {
   let phone = numero.replace(/\D/g, '');
   if (phone.length === 12 && phone.startsWith('0')) phone = phone.slice(1);
@@ -20,74 +16,52 @@ function normalizarTelefoneBrasil(numero: string): string {
   return phone.slice(0, 13);
 }
 
-// 🕒 Retorna hora atual em Brasília (UTC-3)
+// 🕒 Gera o horário atual real de Brasília (UTC-3)
 function getDataHoraBrasilia(): Date {
-  const agoraBrasilia = new Date(
+  return new Date(
     new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' })
   );
-  return agoraBrasilia;
 }
 
-
-// 🚀 Função principal
+// 🔄 Processa os agendamentos na subcoleção "agendamentosPendentes"
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const db = getFirestore(app);
-    const agendamentosRef = collection(db, 'AgendamentosSMS');
+    const agendamentosRef = collection(db, 'agendamentosPendentes');
     const snapshot = await getDocs(agendamentosRef);
+
     const agora = getDataHoraBrasilia();
-    const toleranciaMs = 2 * 60 * 1000;
-    let enviados = 0;
 
-    console.log(`[⏰ AGORA - BRASILIA] ${agora.toISOString()}`);
+    for (const docAgendamento of snapshot.docs) {
+      const agendamento = docAgendamento.data();
 
-    for (const agendamentoDoc of snapshot.docs) {
-      const agendamento = agendamentoDoc.data();
-      const agendarPara = new Date(agendamento.agendarPara);
+      if (!agendamento.agendarPara || !agendamento.contatos || agendamento.contatos.length === 0) {
+        continue;
+      }
 
-      console.log(`🔍 Agendamento: ${agendamentoDoc.id}`);
-      console.log(`📅 Programado para: ${agendarPara.toISOString()}`);
+      const dataAgendada = new Date(agendamento.agendarPara);
 
-      const diffMs = agendarPara.getTime() - agora.getTime();
-      if (diffMs <= toleranciaMs) {
-        console.log(`✅ Dentro da janela, iniciando envio...`);
-
-        for (const contato of agendamento.contatos || []) {
-          if (!contato.numero) {
-            console.warn(`⚠️ Contato sem número válido.`);
-            continue;
-          }
-
-          const numeroFormatado = normalizarTelefoneBrasil(contato.numero);
+      // ✅ Só processa se já passou do horário de Brasília
+      if (agora >= dataAgendada) {
+        for (const contato of agendamento.contatos) {
+          const nome = contato.nome || '';
+          const numero = normalizarTelefoneBrasil(contato.numero);
           const mensagem = agendamento.mensagem
-            ?.replace('{nome}', contato.nome || '')
-            ?.replace('{placa}', contato.placa || '')
-            ?.replace('{marca_modelo}', contato.marca_modelo || '')
-            ?.replace('{seu_nome}', 'Equipe Beto Dehon');
+            .replace('{nome}', nome)
+            .replace('{seu_nome}', 'Equipe Beto')
+            .replace('{marca_modelo}', agendamento.marca_modelo || '')
+            .replace('{placa}', agendamento.placa || '');
 
-          console.log(`📤 Enviando SMS para ${numeroFormatado}...`);
-
-          const sucesso = await enviarSmsViaDigisac(numeroFormatado, mensagem);
-
-          if (sucesso) {
-            console.log(`✅ SMS enviada para ${numeroFormatado}`);
-            enviados++;
-          } else {
-            console.error(`❌ Falha ao enviar para ${numeroFormatado}`);
-          }
+          await enviarSmsViaDigisac(numero, mensagem);
         }
 
-        // ✅ Remove o agendamento apenas após tentativa
-        await deleteDoc(doc(db, 'AgendamentosSMS', agendamentoDoc.id));
-        console.log(`🧹 Agendamento ${agendamentoDoc.id} removido após envio`);
-      } else {
-        console.log(`⏳ Ainda não é hora para ${agendamentoDoc.id}`);
+        // ✅ Remove o agendamento após o envio
+        await deleteDoc(doc(db, 'agendamentosPendentes', docAgendamento.id));
       }
     }
 
-    res.status(200).json({ sucesso: true, enviados });
+    res.status(200).json({ status: 'Agendamentos processados com sucesso.' });
   } catch (error) {
-    console.error('[🔥 ERRO NO AGENDAMENTO]', error);
-    res.status(500).json({ erro: 'Erro ao processar agendamentos' });
+    console.error('Erro ao processar agendamentos:', error);
+    res.status(500).json({ erro: 'Erro ao processar agendamentos.' });
   }
 }
