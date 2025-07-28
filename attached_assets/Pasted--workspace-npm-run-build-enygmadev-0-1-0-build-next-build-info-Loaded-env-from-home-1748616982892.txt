@@ -1,0 +1,504 @@
+~/workspace$ npm run build
+
+> enygmadev@0.1.0 build
+> next build
+
+info  - Loaded env from /home/runner/workspace/.env.local
+warn  - You have enabled experimental feature (optimizeCss) in next.config.js.
+warn  - Experimental features are not covered by semver, and may cause unexpected or broken application behavior. Use at your own risk.
+
+info  - Linting and checking validity of types  
+info  - Compiled successfully
+info  - Collecting page data  
+info  - Creating an optimized production build ...
+Error occurred prerendering page "/beto/dashboard/empresas". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+info  - Creating an optimized production build .
+Error occurred prerendering page "/beto/dashboard". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+
+Error occurred prerendering page "/beto/home". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+
+Error occurred prerendering page "/area-cliente". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+
+Error occurred prerendering page "/beto/dashboard/digital". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+
+Error occurred prerendering page "/admin/system-test". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+
+Error occurred prerendering page "/beto/dashboard/digital/empresas". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+
+Error occurred prerendering page "/beto/digital". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+
+Error occurred prerendering page "/beto/empresas". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+
+Error occurred prerendering page "/beto/digital/empresas". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+
+Error occurred prerendering page "/". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+
+Error occurred prerendering page "/beto/dashboard/fiat". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+info  - Creating an optimized production build ..
+Error occurred prerendering page "/beto". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+
+Error occurred prerendering page "/beto/anuencia". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+[=   ] info  - Generating static pages (14/24)
+Error occurred prerendering page "/beto/requerimento". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+
+Error occurred prerendering page "/contato". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+
+Error occurred prerendering page "/beto/transferencia". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+info  - Creating an optimized production build ...
+Error occurred prerendering page "/404". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+
+Error occurred prerendering page "/beto/localizar". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+
+Error occurred prerendering page "/500". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+
+Error occurred prerendering page "/beto/requerimento/digital". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+info  - Creating an optimized production build .
+Error occurred prerendering page "/colaboradores". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+info  - Creating an optimized production build ...
+Error occurred prerendering page "/avisos". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+[ ===] info  - Generating static pages (23/24)
+Error occurred prerendering page "/usuario". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Cannot find module 'critters'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/server/post-process.js
+- /home/runner/workspace/node_modules/next/dist/server/render.js
+- /home/runner/workspace/node_modules/next/dist/export/worker.js
+- /home/runner/workspace/node_modules/next/dist/build/worker.js
+- /home/runner/workspace/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at mod._resolveFilename (/home/runner/workspace/node_modules/next/dist/build/webpack/require-hook.js:23:32)
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at require (node:internal/modules/helpers:179:18)
+    at /home/runner/workspace/node_modules/next/dist/server/post-process.js:135:30
+    at postProcessHTML (/home/runner/workspace/node_modules/next/dist/server/post-process.js:153:29)
+    at async renderToHTML (/home/runner/workspace/node_modules/next/dist/server/render.js:891:31)
+    at async /home/runner/workspace/node_modules/next/dist/export/worker.js:354:36
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+info  - Generating static pages (24/24)
+
+> Build error occurred
+Error: Export encountered errors on following paths:
+    /
+    /_error: /404
+    /_error: /500
+    /admin/system-test
+    /area-cliente
+    /avisos
+    /beto
+    /beto/anuencia
+    /beto/dashboard
+    /beto/dashboard/digital
+    /beto/dashboard/digital/empresas
+    /beto/dashboard/empresas
+    /beto/dashboard/fiat
+    /beto/digital
+    /beto/digital/empresas
+    /beto/empresas
+    /beto/home
+    /beto/localizar
+    /beto/requerimento
+    /beto/requerimento/digital
+    /beto/transferencia
+    /colaboradores
+    /contato
+    /usuario
+    at /home/runner/workspace/node_modules/next/dist/export/index.js:425:19
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+    at async /home/runner/workspace/node_modules/next/dist/build/index.js:1422:21
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+    at async /home/runner/workspace/node_modules/next/dist/build/index.js:1280:17
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/dist/trace/trace.js:79:20)
+    at async Object.build [as default] (/home/runner/workspace/node_modules/next/dist/build/index.js:73:29)

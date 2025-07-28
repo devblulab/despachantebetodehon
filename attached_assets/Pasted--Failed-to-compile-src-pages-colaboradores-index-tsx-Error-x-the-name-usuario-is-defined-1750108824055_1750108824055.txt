@@ -1,0 +1,606 @@
+
+Failed to compile
+./src/pages/colaboradores/index.tsx
+Error: 
+  x the name `usuario` is defined multiple times
+     ,-[/home/runner/workspace/src/pages/colaboradores/index.tsx:532:1]
+ 532 |   const router = useRouter();
+ 533 |   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+ 534 |   const [tabValue, setTabValue] = useState(0);
+ 535 |   const { usuario, estaAutenticado, carregando } = useContext(AutenticacaoContext);
+     :           ^^^|^^^
+     :              `-- previous definition of `usuario` here
+ 536 |   const [darkMode, setDarkMode] = useState(false);
+ 537 |   const [isLoading, setIsLoading] = useState(false);
+ 538 |   const [isFullscreen, setIsFullscreen] = useState(false);
+ 539 |   const [notifications, setNotifications] = useState<any[]>([]);
+ 540 |   const [speedDialOpen, setSpeedDialOpen] = useState(false);
+ 541 |   const [aiAssistantActive, setAiAssistantActive] = useState(true);
+ 542 |   const [voiceMode, setVoiceMode] = useState(false);
+ 543 |   const [collaboratorsCursor, setCollaboratorsCursor] = useState<any[]>([]);
+ 544 |   const [realtimeUsers, setRealtimeUsers] = useState(3);
+ 545 |   const [systemStatus, setSystemStatus] = useState('optimal');
+ 546 |   const [smartSuggestions, setSmartSuggestions] = useState<any[]>([]);
+ 547 |   const [contextualMenu, setContextualMenu] = useState<any>(null);
+ 548 |   const [usuariosList, setUsuariosList] = useState<any[]>([]);
+ 549 |   const [immersiveMode, setImmersiveMode] = useState(false);
+ 550 |   const [newUserDialogOpen, setNewUserDialogOpen] = useState(false);
+ 551 |   const [newUserData, setNewUserData] = useState({
+ 552 |     nome: '',
+ 553 |     email: '',
+ 554 |     senha: '',
+ 555 |     permissao: 'Visualizador'
+ 556 |   });
+ 557 |   const [editUserDialogOpen, setEditUserDialogOpen] = useState(false);
+ 558 |   const [editUserData, setEditUserData] = useState({
+ 559 |     id: '',
+ 560 |     nome: '',
+ 561 |     email: '',
+ 562 |     permissao: 'Visualizador',
+ 563 |     ativo: true
+ 564 |   });
+ 565 |   const [deleteUserDialogOpen, setDeleteUserDialogOpen] = useState(false);
+ 566 |   const [userToDelete, setUserToDelete] = useState<any>(null);
+ 567 |   const [userMenuAnchor, setUserMenuAnchor] = useState<any>(null);
+ 568 |   const [selectedUser, setSelectedUser] = useState<any>(null);
+ 569 |   const [newProfileDialogOpen, setNewProfileDialogOpen] = useState(false);
+ 570 |   const [newProfileData, setNewProfileData] = useState({
+ 571 |     nome: '',
+ 572 |     descricao: '',
+ 573 |     permissoes: {
+ 574 |       dashboard: false,
+ 575 |       chat: false,
+ 576 |       crm: false,
+ 577 |       relatorios: false,
+ 578 |       usuarios: false,
+ 579 |       configuracoes: false
+ 580 |     }
+ 581 |   });
+ 582 |   const [performanceMetrics, setPerformanceMetrics] = useState({
+ 583 |     cpu: 85,
+ 584 |     memory: 67,
+ 585 |     network: 92,
+ 586 |     storage: 45
+ 587 |   });
+ 588 | 
+ 589 |   // Estados para Gestão de Permissões
+ 590 |   const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
+ 591 |   const [selectedProfile, setSelectedProfile] = useState<any>(null);
+ 592 |   const [profilePermissions, setProfilePermissions] = useState<any>({});
+ 593 |   const [dashboardExpanded, setDashboardExpanded] = useState<string | null>(null);
+ 594 |   const [selectedDashboard, setSelectedDashboard] = useState<string>('');
+ 595 | 
+ 596 |   // Estados para sistema de permissões
+ 597 |   const [selectedUserForPermissions, setSelectedUserForPermissions] = useState<any>(null);
+ 598 |   const [viewingDashboard, setViewingDashboard] = useState<string | null>(null);
+ 599 | 
+ 600 |   // Perfis de Acesso Pré-definidos
+ 601 |   const accessProfiles = [
+ 602 |     {
+ 603 |       id: 'administrador',
+ 604 |       nome: 'Administrador',
+ 605 |       descricao: 'Acesso total ao sistema',
+ 606 |       icon: <Star style={{ color: '#f44336' }} />,
+ 607 |       color: '#f44336',
+ 608 |       usuarios: usuariosList.filter(u => u.permissao === 'Administrador').length,
+ 609 |       permissoes: {
+ 610 |         dashboard: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 611 |         chat: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 612 |         crm: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 613 |         ia: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 614 |         feed: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 615 |         usuarios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 616 |         whatsapp: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 617 |         relatorios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 618 |         configuracoes: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 619 |         permissoes: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true }
+ 620 |       }
+ 621 |     },
+ 622 |     {
+ 623 |       id: 'ceo',
+ 624 |       nome: 'CEO',
+ 625 |       descricao: 'Acesso executivo total',
+ 626 |       icon: <Extension style={{ color: '#9c27b0' }} />,
+ 627 |       color: '#9c27b0',
+ 628 |       usuarios: usuariosList.filter(u => u.permissao === 'CEO').length,
+ 629 |       permissoes: {
+ 630 |         dashboard: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 631 |         chat: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+ 632 |         crm: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 633 |         ia: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+ 634 |         feed: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+ 635 |         usuarios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 636 |         whatsapp: { ativo: true, criar: false, editar: true, excluir: false, visualizar: true },
+ 637 |         relatorios: { ativo: true, criar: true, editar: false, excluir: false, visualizar: true },
+ 638 |         configuracoes: { ativo: true, criar: false, editar: true, excluir: false, visualizar: true },
+ 639 |         permissoes: { ativo: true, criar: false, editar: true, excluir: false, visualizar: true }
+ 640 |       }
+ 641 |     },
+ 642 |     {
+ 643 |       id: 'enygmadeveloper',
+ 644 |       nome: 'EnygmaDeveloper',
+ 645 |       descricao: 'Desenvolvedor do sistema',
+ 646 |       icon: <Code style={{ color: '#00bcd4' }} />,
+ 647 |       color: '#00bcd4',
+ 648 |       usuarios: usuariosList.filter(u => u.permissao === 'EnygmaDeveloper').length,
+ 649 |       permissoes: {
+ 650 |         dashboard: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 651 |         chat: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 652 |         crm: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 653 |         ia: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 654 |         feed: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 655 |         usuarios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 656 |         whatsapp: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 657 |         relatorios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 658 |         configuracoes: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 659 |         permissoes: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true }
+ 660 |       }
+ 661 |     },
+ 662 |     {
+ 663 |       id: 'operador',
+ 664 |       nome: 'Operador',
+ 665 |       descricao: 'Operações básicas',
+ 666 |       icon: <Extension style={{ color: '#ff9800' }} />,
+ 667 |       color: '#ff9800',
+ 668 |       usuarios: usuariosList.filter(u => u.permissao === 'Operador').length,
+ 669 |       permissoes: {
+ 670 |         dashboard: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+ 671 |         chat: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+ 672 |         crm: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+ 673 |         ia: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+ 674 |         feed: { ativo: true, criar: true, editar: false, excluir: false, visualizar: true },
+ 675 |         usuarios: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+ 676 |         whatsapp: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+ 677 |         relatorios: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+ 678 |         configuracoes: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+ 679 |         permissoes: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false }
+ 680 |       }
+ 681 |     },
+ 682 |     {
+ 683 |       id: 'visualizador',
+ 684 |       nome: 'Visualizador',
+ 685 |       descricao: 'Apenas visualização',
+ 686 |       icon: <Visibility style={{ color: '#2196f3' }} />,
+ 687 |       color: '#2196f3',
+ 688 |       usuarios: usuariosList.filter(u => u.permissao === 'Visualizador' || !u.permissao).length,
+ 689 |       permissoes: {
+ 690 |         dashboard: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+ 691 |         chat: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+ 692 |         crm: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+ 693 |         ia: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+ 694 |         feed: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+ 695 |         usuarios: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+ 696 |         whatsapp: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+ 697 |         relatorios: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+ 698 |         configuracoes: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+ 699 |         permissoes: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false }
+ 700 |       }
+ 701 |     }
+ 702 |   ];
+ 703 | 
+ 704 |   // Dashboards Disponíveis
+ 705 |   const dashboardsData = [
+ 706 |     {
+ 707 |       id: 'geral',
+ 708 |       nome: 'Dashboard Geral',
+ 709 |       descricao: 'Visão geral de todos os documentos',
+ 710 |       icon: <DashboardIcon />,
+ 711 |       color: '#4CAF50',
+ 712 |       documentos: 1247,
+ 713 |       acoes: [
+ 714 |         { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+ 715 |         { id: 'relatorio', nome: 'Relatório', icon: <Timeline />, color: '#FF9800' },
+ 716 |         { id: 'exportar', nome: 'Exportar', icon: <GetApp />, color: '#9C27B0' }
+ 717 |       ]
+ 718 |     },
+ 719 |     {
+ 720 |       id: 'requerimentos',
+ 721 |       nome: 'Dashboard Requerimentos',
+ 722 |       descricao: 'Gerenciamento de requerimentos',
+ 723 |       icon: <Assignment />,
+ 724 |       color: '#2196F3',
+ 725 |       documentos: 523,
+ 726 |       acoes: [
+ 727 |         { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+ 728 |         { id: 'processar', nome: 'Processar', icon: <PlayArrow />, color: '#4CAF50' },
+ 729 |         { id: 'aprovar', nome: 'Aprovar', icon: <CheckCircle />, color: '#8BC34A' },
+ 730 |         { id: 'rejeitar', nome: 'Rejeitar', icon: <Cancel />, color: '#F44336' }
+ 731 |       ]
+ 732 |     },
+ 733 |     {
+ 734 |       id: 'transferencias',
+ 735 |       nome: 'Dashboard Transferências',
+ 736 |       descricao: 'Controle de transferências',
+ 737 |       icon: <Extension />,
+ 738 |       color: '#FF9800',
+ 739 |       documentos: 321,
+ 740 |       acoes: [
+ 741 |         { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+ 742 |         { id: 'confirmar', nome: 'Confirmar', icon: <CheckCircle />, color: '#4CAF50' },
+ 743 |         { id: 'aguardar', nome: 'Aguardar', icon: <Schedule />, color: '#FF9800' },
+ 744 |         { id: 'cancelar', nome: 'Cancelar', icon: <Cancel />, color: '#F44336' }
+ 745 |       ]
+ 746 |     },
+ 747 |     {
+ 748 |       id: 'digital',
+ 749 |       nome: 'Dashboard Digital',
+ 750 |       descricao: 'Documentos digitais',
+ 751 |       icon: <Storage />,
+ 752 |       color: '#9C27B0',
+ 753 |       documentos: 892,
+ 754 |       acoes: [
+ 755 |         { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+ 756 |         { id: 'validar', nome: 'Validar', icon: <Security />, color: '#4CAF50' },
+ 757 |         { id: 'assinar', nome: 'Assinar', icon: <Edit />, color: '#2196F3' },
+ 758 |         { id: 'arquivar', nome: 'Arquivar', icon: <Save />, color: '#607D8B' }
+ 759 |       ]
+ 760 |     },
+ 761 |     {
+ 762 |       id: 'empresarial',
+ 763 |       nome: 'Dashboard Empresarial',
+ 764 |       descricao: 'Documentos empresariais',
+ 765 |       icon: <Business />,
+ 766 |       color: '#607D8B',
+ 767 |       documentos: 178,
+ 768 |       acoes: [
+ 769 |         { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+ 770 |         { id: 'analisar', nome: 'Analisar', icon: <Extension />, color: '#9C27B0' },
+ 771 |         { id: 'registrar', nome: 'Registrar', icon: <Add />, color: '#4CAF50' },
+ 772 |         { id: 'notificar', nome: 'Notificar', icon: <NotificationsActive />, color: '#FF9800' }
+ 773 |       ]
+ 774 |     },
+ 775 |     {
+ 776 |       id: 'anuencia',
+ 777 |       nome: 'Dashboard Anuência',
+ 778 |       descricao: 'Controle de anuências',
+ 779 |       icon: <Lock />,
+ 780 |       color: '#795548',
+ 781 |       documentos: 67,
+ 782 |       acoes: [
+ 783 |         { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+ 784 |         { id: 'autorizar', nome: 'Autorizar', icon: <LockOpen />, color: '#4CAF50' },
+ 785 |         { id: 'revisar', nome: 'Revisar', icon: <Visibility />, color: '#2196F3' },
+ 786 |         { id: 'documentar', nome: 'Documentar', icon: <Assignment />, color: '#FF9800' }
+ 787 |       ]
+ 788 |     },
+ 789 |     {
+ 790 |       id: 'documentos',
+ 791 |       nome: 'Dashboard Documentos',
+ 792 |       descricao: 'Gerenciamento de documentos',
+ 793 |       icon: <Assignment />,
+ 794 |       color: '#E91E63',
+ 795 |       documentos: 456,
+ 796 |       acoes: [
+ 797 |         { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+ 798 |         { id: 'upload', nome: 'Upload', icon: <CloudUpload />, color: '#4CAF50' },
+ 799 |         { id: 'organizar', nome: 'Organizar', icon: <Storage />, color: '#2196F3' },
+ 800 |         { id: 'compartilhar', nome: 'Compartilhar', icon: <Share />, color: '#FF9800' },
+ 801 |         { id: 'backup', nome: 'Backup', icon: <Save />, color: '#607D8B' }
+ 802 |       ]
+ 803 |     }
+ 804 |   ];
+ 805 | 
+ 806 |   // Módulos do Sistema
+ 807 |   const systemModules = [
+ 808 |     { id: 'dashboard', nome: 'Dashboard', icon: <DashboardIcon />, descricao: 'Painel principal' },
+ 809 |     { id: 'chat', nome: 'Chat', icon: <Chat />, descricao: 'Comunicação interna' },
+ 810 |     { id: 'crm', nome: 'CRM', icon: <Business />, descricao: 'Gestão de clientes' },
+ 811 |     { id: 'ia', nome: 'IA', icon: <EmojiObjects />, descricao: 'Inteligência artificial' },
+ 812 |     { id: 'feed', nome: 'Feed', icon: <Timeline />, descricao: 'Feed de notícias' },
+ 813 |     { id: 'usuarios', nome: 'Usuários', icon: <People />, descricao: 'Gestão de usuários' },
+ 814 |     { id: 'whatsapp', nome: 'WhatsApp', icon: <WhatsApp />, descricao: 'Integração WhatsApp' },
+ 815 |     { id: 'relatorios', nome: 'Relatórios', icon: <Timeline />, descricao: 'Relatórios gerenciais' },
+ 816 |     { id: 'configuracoes', nome: 'Configurações', icon: <Settings />, descricao: 'Configurações do sistema' },
+ 817 |     { id: 'permissoes', nome: 'Permissões', icon: <Security />, descricao: 'Gestão de permissões' }
+ 818 |   ];
+ 819 | 
+ 820 |   const controls = useAnimation();
+ 821 |   const { usuario, estaAutenticado } = useContext(AutenticacaoContext);
+     :           ^^^|^^^
+     :              `-- `usuario` redefined here
+ 822 | 
+ 823 |   // Verificar se está autenticado
+ 824 |   useEffect(() => {
+     `----
+
+  x the name `estaAutenticado` is defined multiple times
+     ,-[/home/runner/workspace/src/pages/colaboradores/index.tsx:532:1]
+ 532 |   const router = useRouter();
+ 533 |   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+ 534 |   const [tabValue, setTabValue] = useState(0);
+ 535 |   const { usuario, estaAutenticado, carregando } = useContext(AutenticacaoContext);
+     :                    ^^^^^^^|^^^^^^^
+     :                           `-- previous definition of `estaAutenticado` here
+ 536 |   const [darkMode, setDarkMode] = useState(false);
+ 537 |   const [isLoading, setIsLoading] = useState(false);
+ 538 |   const [isFullscreen, setIsFullscreen] = useState(false);
+ 539 |   const [notifications, setNotifications] = useState<any[]>([]);
+ 540 |   const [speedDialOpen, setSpeedDialOpen] = useState(false);
+ 541 |   const [aiAssistantActive, setAiAssistantActive] = useState(true);
+ 542 |   const [voiceMode, setVoiceMode] = useState(false);
+ 543 |   const [collaboratorsCursor, setCollaboratorsCursor] = useState<any[]>([]);
+ 544 |   const [realtimeUsers, setRealtimeUsers] = useState(3);
+ 545 |   const [systemStatus, setSystemStatus] = useState('optimal');
+ 546 |   const [smartSuggestions, setSmartSuggestions] = useState<any[]>([]);
+ 547 |   const [contextualMenu, setContextualMenu] = useState<any>(null);
+ 548 |   const [usuariosList, setUsuariosList] = useState<any[]>([]);
+ 549 |   const [immersiveMode, setImmersiveMode] = useState(false);
+ 550 |   const [newUserDialogOpen, setNewUserDialogOpen] = useState(false);
+ 551 |   const [newUserData, setNewUserData] = useState({
+ 552 |     nome: '',
+ 553 |     email: '',
+ 554 |     senha: '',
+ 555 |     permissao: 'Visualizador'
+ 556 |   });
+ 557 |   const [editUserDialogOpen, setEditUserDialogOpen] = useState(false);
+ 558 |   const [editUserData, setEditUserData] = useState({
+ 559 |     id: '',
+ 560 |     nome: '',
+ 561 |     email: '',
+ 562 |     permissao: 'Visualizador',
+ 563 |     ativo: true
+ 564 |   });
+ 565 |   const [deleteUserDialogOpen, setDeleteUserDialogOpen] = useState(false);
+ 566 |   const [userToDelete, setUserToDelete] = useState<any>(null);
+ 567 |   const [userMenuAnchor, setUserMenuAnchor] = useState<any>(null);
+ 568 |   const [selectedUser, setSelectedUser] = useState<any>(null);
+ 569 |   const [newProfileDialogOpen, setNewProfileDialogOpen] = useState(false);
+ 570 |   const [newProfileData, setNewProfileData] = useState({
+ 571 |     nome: '',
+ 572 |     descricao: '',
+ 573 |     permissoes: {
+ 574 |       dashboard: false,
+ 575 |       chat: false,
+ 576 |       crm: false,
+ 577 |       relatorios: false,
+ 578 |       usuarios: false,
+ 579 |       configuracoes: false
+ 580 |     }
+ 581 |   });
+ 582 |   const [performanceMetrics, setPerformanceMetrics] = useState({
+ 583 |     cpu: 85,
+ 584 |     memory: 67,
+ 585 |     network: 92,
+ 586 |     storage: 45
+ 587 |   });
+ 588 | 
+ 589 |   // Estados para Gestão de Permissões
+ 590 |   const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
+ 591 |   const [selectedProfile, setSelectedProfile] = useState<any>(null);
+ 592 |   const [profilePermissions, setProfilePermissions] = useState<any>({});
+ 593 |   const [dashboardExpanded, setDashboardExpanded] = useState<string | null>(null);
+ 594 |   const [selectedDashboard, setSelectedDashboard] = useState<string>('');
+ 595 | 
+ 596 |   // Estados para sistema de permissões
+ 597 |   const [selectedUserForPermissions, setSelectedUserForPermissions] = useState<any>(null);
+ 598 |   const [viewingDashboard, setViewingDashboard] = useState<string | null>(null);
+ 599 | 
+ 600 |   // Perfis de Acesso Pré-definidos
+ 601 |   const accessProfiles = [
+ 602 |     {
+ 603 |       id: 'administrador',
+ 604 |       nome: 'Administrador',
+ 605 |       descricao: 'Acesso total ao sistema',
+ 606 |       icon: <Star style={{ color: '#f44336' }} />,
+ 607 |       color: '#f44336',
+ 608 |       usuarios: usuariosList.filter(u => u.permissao === 'Administrador').length,
+ 609 |       permissoes: {
+ 610 |         dashboard: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 611 |         chat: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 612 |         crm: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 613 |         ia: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 614 |         feed: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 615 |         usuarios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 616 |         whatsapp: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 617 |         relatorios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 618 |         configuracoes: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 619 |         permissoes: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true }
+ 620 |       }
+ 621 |     },
+ 622 |     {
+ 623 |       id: 'ceo',
+ 624 |       nome: 'CEO',
+ 625 |       descricao: 'Acesso executivo total',
+ 626 |       icon: <Extension style={{ color: '#9c27b0' }} />,
+ 627 |       color: '#9c27b0',
+ 628 |       usuarios: usuariosList.filter(u => u.permissao === 'CEO').length,
+ 629 |       permissoes: {
+ 630 |         dashboard: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 631 |         chat: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+ 632 |         crm: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 633 |         ia: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+ 634 |         feed: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+ 635 |         usuarios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 636 |         whatsapp: { ativo: true, criar: false, editar: true, excluir: false, visualizar: true },
+ 637 |         relatorios: { ativo: true, criar: true, editar: false, excluir: false, visualizar: true },
+ 638 |         configuracoes: { ativo: true, criar: false, editar: true, excluir: false, visualizar: true },
+ 639 |         permissoes: { ativo: true, criar: false, editar: true, excluir: false, visualizar: true }
+ 640 |       }
+ 641 |     },
+ 642 |     {
+ 643 |       id: 'enygmadeveloper',
+ 644 |       nome: 'EnygmaDeveloper',
+ 645 |       descricao: 'Desenvolvedor do sistema',
+ 646 |       icon: <Code style={{ color: '#00bcd4' }} />,
+ 647 |       color: '#00bcd4',
+ 648 |       usuarios: usuariosList.filter(u => u.permissao === 'EnygmaDeveloper').length,
+ 649 |       permissoes: {
+ 650 |         dashboard: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 651 |         chat: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 652 |         crm: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 653 |         ia: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 654 |         feed: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 655 |         usuarios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 656 |         whatsapp: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 657 |         relatorios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 658 |         configuracoes: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+ 659 |         permissoes: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true }
+ 660 |       }
+ 661 |     },
+ 662 |     {
+ 663 |       id: 'operador',
+ 664 |       nome: 'Operador',
+ 665 |       descricao: 'Operações básicas',
+ 666 |       icon: <Extension style={{ color: '#ff9800' }} />,
+ 667 |       color: '#ff9800',
+ 668 |       usuarios: usuariosList.filter(u => u.permissao === 'Operador').length,
+ 669 |       permissoes: {
+ 670 |         dashboard: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+ 671 |         chat: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+ 672 |         crm: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+ 673 |         ia: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+ 674 |         feed: { ativo: true, criar: true, editar: false, excluir: false, visualizar: true },
+ 675 |         usuarios: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+ 676 |         whatsapp: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+ 677 |         relatorios: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+ 678 |         configuracoes: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+ 679 |         permissoes: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false }
+ 680 |       }
+ 681 |     },
+ 682 |     {
+ 683 |       id: 'visualizador',
+ 684 |       nome: 'Visualizador',
+ 685 |       descricao: 'Apenas visualização',
+ 686 |       icon: <Visibility style={{ color: '#2196f3' }} />,
+ 687 |       color: '#2196f3',
+ 688 |       usuarios: usuariosList.filter(u => u.permissao === 'Visualizador' || !u.permissao).length,
+ 689 |       permissoes: {
+ 690 |         dashboard: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+ 691 |         chat: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+ 692 |         crm: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+ 693 |         ia: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+ 694 |         feed: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+ 695 |         usuarios: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+ 696 |         whatsapp: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+ 697 |         relatorios: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+ 698 |         configuracoes: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+ 699 |         permissoes: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false }
+ 700 |       }
+ 701 |     }
+ 702 |   ];
+ 703 | 
+ 704 |   // Dashboards Disponíveis
+ 705 |   const dashboardsData = [
+ 706 |     {
+ 707 |       id: 'geral',
+ 708 |       nome: 'Dashboard Geral',
+ 709 |       descricao: 'Visão geral de todos os documentos',
+ 710 |       icon: <DashboardIcon />,
+ 711 |       color: '#4CAF50',
+ 712 |       documentos: 1247,
+ 713 |       acoes: [
+ 714 |         { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+ 715 |         { id: 'relatorio', nome: 'Relatório', icon: <Timeline />, color: '#FF9800' },
+ 716 |         { id: 'exportar', nome: 'Exportar', icon: <GetApp />, color: '#9C27B0' }
+ 717 |       ]
+ 718 |     },
+ 719 |     {
+ 720 |       id: 'requerimentos',
+ 721 |       nome: 'Dashboard Requerimentos',
+ 722 |       descricao: 'Gerenciamento de requerimentos',
+ 723 |       icon: <Assignment />,
+ 724 |       color: '#2196F3',
+ 725 |       documentos: 523,
+ 726 |       acoes: [
+ 727 |         { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+ 728 |         { id: 'processar', nome: 'Processar', icon: <PlayArrow />, color: '#4CAF50' },
+ 729 |         { id: 'aprovar', nome: 'Aprovar', icon: <CheckCircle />, color: '#8BC34A' },
+ 730 |         { id: 'rejeitar', nome: 'Rejeitar', icon: <Cancel />, color: '#F44336' }
+ 731 |       ]
+ 732 |     },
+ 733 |     {
+ 734 |       id: 'transferencias',
+ 735 |       nome: 'Dashboard Transferências',
+ 736 |       descricao: 'Controle de transferências',
+ 737 |       icon: <Extension />,
+ 738 |       color: '#FF9800',
+ 739 |       documentos: 321,
+ 740 |       acoes: [
+ 741 |         { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+ 742 |         { id: 'confirmar', nome: 'Confirmar', icon: <CheckCircle />, color: '#4CAF50' },
+ 743 |         { id: 'aguardar', nome: 'Aguardar', icon: <Schedule />, color: '#FF9800' },
+ 744 |         { id: 'cancelar', nome: 'Cancelar', icon: <Cancel />, color: '#F44336' }
+ 745 |       ]
+ 746 |     },
+ 747 |     {
+ 748 |       id: 'digital',
+ 749 |       nome: 'Dashboard Digital',
+ 750 |       descricao: 'Documentos digitais',
+ 751 |       icon: <Storage />,
+ 752 |       color: '#9C27B0',
+ 753 |       documentos: 892,
+ 754 |       acoes: [
+ 755 |         { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+ 756 |         { id: 'validar', nome: 'Validar', icon: <Security />, color: '#4CAF50' },
+ 757 |         { id: 'assinar', nome: 'Assinar', icon: <Edit />, color: '#2196F3' },
+ 758 |         { id: 'arquivar', nome: 'Arquivar', icon: <Save />, color: '#607D8B' }
+ 759 |       ]
+ 760 |     },
+ 761 |     {
+ 762 |       id: 'empresarial',
+ 763 |       nome: 'Dashboard Empresarial',
+ 764 |       descricao: 'Documentos empresariais',
+ 765 |       icon: <Business />,
+ 766 |       color: '#607D8B',
+ 767 |       documentos: 178,
+ 768 |       acoes: [
+ 769 |         { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+ 770 |         { id: 'analisar', nome: 'Analisar', icon: <Extension />, color: '#9C27B0' },
+ 771 |         { id: 'registrar', nome: 'Registrar', icon: <Add />, color: '#4CAF50' },
+ 772 |         { id: 'notificar', nome: 'Notificar', icon: <NotificationsActive />, color: '#FF9800' }
+ 773 |       ]
+ 774 |     },
+ 775 |     {
+ 776 |       id: 'anuencia',
+ 777 |       nome: 'Dashboard Anuência',
+ 778 |       descricao: 'Controle de anuências',
+ 779 |       icon: <Lock />,
+ 780 |       color: '#795548',
+ 781 |       documentos: 67,
+ 782 |       acoes: [
+ 783 |         { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+ 784 |         { id: 'autorizar', nome: 'Autorizar', icon: <LockOpen />, color: '#4CAF50' },
+ 785 |         { id: 'revisar', nome: 'Revisar', icon: <Visibility />, color: '#2196F3' },
+ 786 |         { id: 'documentar', nome: 'Documentar', icon: <Assignment />, color: '#FF9800' }
+ 787 |       ]
+ 788 |     },
+ 789 |     {
+ 790 |       id: 'documentos',
+ 791 |       nome: 'Dashboard Documentos',
+ 792 |       descricao: 'Gerenciamento de documentos',
+ 793 |       icon: <Assignment />,
+ 794 |       color: '#E91E63',
+ 795 |       documentos: 456,
+ 796 |       acoes: [
+ 797 |         { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+ 798 |         { id: 'upload', nome: 'Upload', icon: <CloudUpload />, color: '#4CAF50' },
+ 799 |         { id: 'organizar', nome: 'Organizar', icon: <Storage />, color: '#2196F3' },
+ 800 |         { id: 'compartilhar', nome: 'Compartilhar', icon: <Share />, color: '#FF9800' },
+ 801 |         { id: 'backup', nome: 'Backup', icon: <Save />, color: '#607D8B' }
+ 802 |       ]
+ 803 |     }
+ 804 |   ];
+ 805 | 
+ 806 |   // Módulos do Sistema
+ 807 |   const systemModules = [
+ 808 |     { id: 'dashboard', nome: 'Dashboard', icon: <DashboardIcon />, descricao: 'Painel principal' },
+ 809 |     { id: 'chat', nome: 'Chat', icon: <Chat />, descricao: 'Comunicação interna' },
+ 810 |     { id: 'crm', nome: 'CRM', icon: <Business />, descricao: 'Gestão de clientes' },
+ 811 |     { id: 'ia', nome: 'IA', icon: <EmojiObjects />, descricao: 'Inteligência artificial' },
+ 812 |     { id: 'feed', nome: 'Feed', icon: <Timeline />, descricao: 'Feed de notícias' },
+ 813 |     { id: 'usuarios', nome: 'Usuários', icon: <People />, descricao: 'Gestão de usuários' },
+ 814 |     { id: 'whatsapp', nome: 'WhatsApp', icon: <WhatsApp />, descricao: 'Integração WhatsApp' },
+ 815 |     { id: 'relatorios', nome: 'Relatórios', icon: <Timeline />, descricao: 'Relatórios gerenciais' },
+ 816 |     { id: 'configuracoes', nome: 'Configurações', icon: <Settings />, descricao: 'Configurações do sistema' },
+ 817 |     { id: 'permissoes', nome: 'Permissões', icon: <Security />, descricao: 'Gestão de permissões' }
+ 818 |   ];
+ 819 | 
+ 820 |   const controls = useAnimation();
+ 821 |   const { usuario, estaAutenticado } = useContext(AutenticacaoContext);
+     :                    ^^^^^^^|^^^^^^^
+     :                           `-- `estaAutenticado` redefined here
+ 822 | 
+ 823 |   // Verificar se está autenticado
+ 824 |   useEffect(() => {
+     `----
+This error occurred during the build process and can only be dismissed by fixing the error.

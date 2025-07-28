@@ -1,0 +1,2408 @@
+
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { useRouter } from 'next/router';
+import {
+  Paper,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  Tab,
+  Tabs,
+  Chip,
+  Avatar,
+  Badge,
+  IconButton,
+  Tooltip,
+  Zoom,
+  Fade,
+  Backdrop,
+  CircularProgress,
+  LinearProgress,
+  Switch,
+  FormControlLabel,
+  Button,
+  ButtonGroup,
+  Fab,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Snackbar,
+  AppBar,
+  Toolbar,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  ListItemSecondaryAction,
+  Divider,
+  useMediaQuery,
+  Container,
+  CssBaseline,
+  Table,
+  TableBody,
+  TableCell,
+
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  Menu,
+} from '@material-ui/core';
+import ToggleOnIcon from '@material-ui/icons/ToggleOn';
+import ToggleOffIcon from '@material-ui/icons/ToggleOff';
+
+
+
+import { Alert, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@material-ui/lab';
+import {
+  People,
+  Dashboard as DashboardIcon,
+  Chat,
+  EmojiObjects,
+  Business,
+  Timeline,
+  NotificationsActive,
+  Settings,
+  Brightness4,
+  Brightness7,
+  Fullscreen,
+  FullscreenExit,
+  Refresh,
+  Security,
+  Extension,
+  Visibility,
+  VisibilityOff,
+  Lock,
+  LockOpen,
+  Star,
+  StarBorder,
+  Bookmark,
+  BookmarkBorder,
+  Share,
+  GetApp,
+  Print,
+  Email,
+  Phone,
+  VideoCall,
+  ScreenShare,
+  RecordVoiceOver,
+  Mic,
+  MicOff,
+  VolumeUp,
+  VolumeOff,
+  Headset,
+  Forum,
+  QuestionAnswer,
+  LiveHelp,
+  Help,
+  Info,
+  Warning,
+  Error,
+  CheckCircle,
+  Cancel,
+  PlayArrow,
+  Pause,
+  Stop,
+  SkipNext,
+  SkipPrevious,
+  Loop,
+  Shuffle,
+  MoreVert,
+  MoreHoriz,
+  Close,
+  ArrowBack,
+  ArrowForward,
+  KeyboardArrowUp,
+  KeyboardArrowDown,
+  ExpandMore,
+  ExpandLess,
+  Add,
+  Edit,
+  Delete,
+  Save,
+  SaveAlt,
+  Publish,
+  Schedule,
+  Today,
+  DateRange,
+  AccessTime,
+  History,
+  Update,
+  Sync,
+  SyncDisabled,
+  CloudDone,
+  CloudOff,
+  CloudUpload,
+  WifiOff,
+  Wifi,
+  SignalWifi4Bar,
+  Battery90,
+  BatteryChargingFull,
+  PowerSettingsNew,
+  PowerOff,
+  WhatsApp,
+  Code,
+  DataUsage,
+  Storage,
+  Memory,
+  SpeedOutlined,
+  Assignment
+} from '@material-ui/icons';
+import Collapse from '@material-ui/core/Collapse';
+
+
+import ChatInterno from '@/components/chat/ChatInterno';
+import ChatIA from '@/components/chat/ChatIA';
+import CRM from '@/components/crm/CRM';
+import DashboardIA from '@/components/dashboard/DashboardIA';
+import Feed from '@/components/feed/Feed';
+import { motion, AnimatePresence, useAnimation } from 'framer-motion';
+import WhatsAppDigisac from '@/components/whatsapp/WhatsAppDigisac';
+import PermissionManager from '@/logic/core/permissions/PermissionManager';
+import PermissionManagerComponent from '@/components/permissions/PermissionManager';
+import BetoDashboard from '@/pages/beto/dashboard/index';
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    minHeight: '100vh',
+    background: theme.palette.type === 'dark' 
+      ? 'linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 50%, #2d2d2d 100%)'
+      : 'linear-gradient(135deg,rgb(150, 150, 150) 0%, #c3cfe2 100%)',
+    transition: 'all 0.3s ease',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  header: {
+    padding: theme.spacing(4),
+    background: theme.palette.type === 'dark'
+      ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+      : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    color: 'black',
+    textAlign: 'center',
+    position: 'relative',
+    overflow: 'hidden',
+    borderRadius: '0 0 30px 30px',
+    boxShadow: theme.shadows[10],
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%)',
+      animation: '$shimmer 3s infinite',
+    },
+  },
+  '@keyframes shimmer': {
+    '0%': { transform: 'translateX(-100%)' },
+    '100%': { transform: 'translateX(100%)' },
+  },
+  tabsContainer: {
+    backgroundColor: theme.palette.background.paper,
+    borderRadius: theme.spacing(2),
+    margin: theme.spacing(2),
+    boxShadow: theme.shadows[8],
+    overflow: 'hidden',
+    color: 'black',
+    position: 'relative',
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 4,
+      background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+    },
+  },
+  tabPanel: {
+    padding: 0,
+    minHeight: 'calc(100vh - 400px)',
+  },
+  welcomeCard: {
+    margin: theme.spacing(2),
+    background: theme.palette.type === 'dark'
+      ? 'linear-gradient(135deg, #2d3748 0%, #4a5568 100%)'
+      : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    color: 'white',
+    borderRadius: theme.spacing(3),
+    position: 'relative',
+    overflow: 'hidden',
+    boxShadow: theme.shadows[12],
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      width: '200px',
+      height: '200px',
+      background: 'rgba(255,255,255,0.1)',
+      borderRadius: '50%',
+      transform: 'translate(50px, -50px)',
+    },
+  },
+  moduleCard: {
+    textAlign: 'center',
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+    cursor: 'pointer',
+    borderRadius: theme.spacing(2),
+    position: 'relative',
+    overflow: 'hidden',
+      color: '#222',
+    background: theme.palette.background.paper,
+    boxShadow: theme.shadows[4],
+    '&:hover': {
+      transform: 'translateY(-8px) scale(1.02)',
+      boxShadow: theme.shadows[16],
+      '& $moduleIcon': {
+        transform: 'scale(1.2) rotate(5deg)',
+        filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
+      },
+    },
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 6,
+      background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+      transform: 'scaleX(0)',
+      transition: 'transform 0.3s ease',
+    },
+    '&:hover::before': {
+      transform: 'scaleX(1)',
+    },
+  },
+  moduleIcon: {
+    fontSize: 64,
+    marginBottom: theme.spacing(2),
+    transition: 'all 0.3s ease',
+    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))',
+  },
+  aiAssistant: {
+    position: 'fixed',
+    bottom: 20,
+    right: 20,
+    zIndex: 1000,
+  },
+  speedDial: {
+    '& .MuiFab-primary': {
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      boxShadow: theme.shadows[8],
+    },
+  },
+  notification: {
+    position: 'fixed',
+    top: 20,
+    right: 20,
+    zIndex: 1000,
+  },
+  statusBar: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 4,
+
+    background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+    zIndex: 1000,
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(0,0,0,0.7)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+  },
+  smartWidget: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    background: theme.palette.background.paper,
+    borderRadius: theme.spacing(2),
+    padding: theme.spacing(2),
+    minWidth: 200,
+    color: 'rgba(0,0,0,0.7)',
+    boxShadow: theme.shadows[8],
+    border: `2px solid ${theme.palette.primary.main}`,
+  },
+  analyticsPanel: {
+    background: theme.palette.background.paper,
+    borderRadius: theme.spacing(2),
+    padding: theme.spacing(3),
+    margin: theme.spacing(2),
+     color: 'rgba(0,0,0,0.7)',
+    boxShadow: theme.shadows[6],
+    border: `1px solid ${theme.palette.divider}`,
+  },
+  performanceMetrics: {
+    display: 'flex',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+
+    marginTop: theme.spacing(2),
+  },
+  metricItem: {
+    textAlign: 'center',
+
+    padding: theme.spacing(1),
+  },
+  pulsingIcon: {
+    animation: '$pulse 2s infinite',
+  },
+  '@keyframes pulse': {
+    '0%': { opacity: 1, transform: 'scale(1)' },
+    '50%': { opacity: 0.7, transform: 'scale(1.1)' },
+    '100%': { opacity: 1, transform: 'scale(1)' },
+  },
+  glowEffect: {
+    animation: '$glow 2s ease-in-out infinite alternate',
+  },
+  '@keyframes glow': {
+    from: { boxShadow: `0 0 10px ${theme.palette.primary.main}` },
+    to: { boxShadow: `0 0 20px ${theme.palette.primary.main}` },
+  },
+  floatingWidget: {
+    position: 'fixed',
+    bottom: 100,
+    left: 20,
+    background: theme.palette.background.paper,
+    borderRadius: '50%',
+    width: 80,
+    height: 80,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: theme.shadows[12],
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      transform: 'scale(1.1)',
+      boxShadow: theme.shadows[20],
+    },
+  },
+  smartNotification: {
+    position: 'fixed',
+    top: 80,
+    right: 20,
+    maxWidth: 300,
+    background: theme.palette.background.paper,
+    borderRadius: theme.spacing(2),
+    padding: theme.spacing(2),
+    boxShadow: theme.shadows[10],
+    border: `2px solid ${theme.palette.success.main}`,
+    zIndex: 1000,
+  },
+  contextualMenu: {
+    position: 'absolute',
+      color: 'rgba(0,0,0,0.7)',
+    background: theme.palette.background.paper,
+    borderRadius: theme.spacing(1),
+
+    boxShadow: theme.shadows[8],
+    padding: theme.spacing(1),
+    minWidth: 150,
+    zIndex: 1000,
+  },
+  immersiveMode: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: '#000',
+    zIndex: 9999,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  voiceIndicator: {
+    position: 'fixed',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    background: 'rgba(102, 96, 96, 0.8)',
+    color: 'black',
+    padding: theme.spacing(3),
+    borderRadius: '50%',
+    width: 120,
+    height: 120,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    zIndex: 10000,
+  },
+  collaborativePointer: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+    borderRadius: '50%',
+    background: theme.palette.secondary.main,
+    border: '2px solid white',
+    pointerEvents: 'none',
+    zIndex: 1000,
+    transition: 'all 0.1s ease',
+  },
+  realtimeStatus: {
+    position: 'fixed',
+    bottom: 180,
+    right: 20,
+    background: theme.palette.background.paper,
+    borderRadius: theme.spacing(3),
+    padding: theme.spacing(1, 2),
+    boxShadow: theme.shadows[6],
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.spacing(1),
+  },
+  card: {
+    borderRadius: theme.spacing(2),
+    boxShadow: theme.shadows[4],
+    background: theme.palette.background.paper,
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: theme.shadows[8],
+    },
+  },
+}));
+
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+  const classes = useStyles();
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`tabpanel-${index}`}
+      aria-labelledby={`tab-${index}`}
+      className={classes.tabPanel}
+      {...other}
+    >
+      {value === index && (
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -30, scale: 0.95 }}
+            transition={{ 
+              duration: 0.4,
+              type: "spring",
+              stiffness: 300,
+              damping: 30
+            }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
+      )}
+    </div>
+  );
+}
+
+const Colaboradores: React.FC = () => {
+  const classes = useStyles();
+  const theme = useTheme();
+  const router = useRouter();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [tabValue, setTabValue] = useState(0);
+  const [darkMode, setDarkMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [speedDialOpen, setSpeedDialOpen] = useState(false);
+  const [aiAssistantActive, setAiAssistantActive] = useState(true);
+  const [voiceMode, setVoiceMode] = useState(false);
+  const [collaboratorsCursor, setCollaboratorsCursor] = useState<any[]>([]);
+  const [realtimeUsers, setRealtimeUsers] = useState(3);
+  const [systemStatus, setSystemStatus] = useState('optimal');
+  const [smartSuggestions, setSmartSuggestions] = useState<any[]>([]);
+  const [contextualMenu, setContextualMenu] = useState<any>(null);
+  const [usuariosList, setUsuariosList] = useState<any[]>([]);
+  const [immersiveMode, setImmersiveMode] = useState(false);
+  const [newUserDialogOpen, setNewUserDialogOpen] = useState(false);
+  const [newUserData, setNewUserData] = useState({
+    nome: '',
+    email: '',
+    senha: '',
+    permissao: 'Visualizador'
+  });
+  const [editUserDialogOpen, setEditUserDialogOpen] = useState(false);
+  const [editUserData, setEditUserData] = useState({
+    id: '',
+    nome: '',
+    email: '',
+    permissao: 'Visualizador',
+    ativo: true
+  });
+  const [deleteUserDialogOpen, setDeleteUserDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<any>(null);
+  const [userMenuAnchor, setUserMenuAnchor] = useState<any>(null);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [newProfileDialogOpen, setNewProfileDialogOpen] = useState(false);
+  const [newProfileData, setNewProfileData] = useState({
+    nome: '',
+    descricao: '',
+    permissoes: {
+      dashboard: false,
+      chat: false,
+      crm: false,
+      relatorios: false,
+      usuarios: false,
+      configuracoes: false
+    }
+  });
+  const [performanceMetrics, setPerformanceMetrics] = useState({
+    cpu: 85,
+    memory: 67,
+    network: 92,
+    storage: 45
+  });
+
+  // Estados para Gestão de Permissões
+  const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState<any>(null);
+  const [profilePermissions, setProfilePermissions] = useState<any>({});
+  const [dashboardExpanded, setDashboardExpanded] = useState<string | null>(null);
+  const [selectedDashboard, setSelectedDashboard] = useState<string>('');
+
+  // Estados para sistema de permissões
+  const [selectedUserForPermissions, setSelectedUserForPermissions] = useState<any>(null);
+  const [viewingDashboard, setViewingDashboard] = useState<string | null>(null);
+
+  // Perfis de Acesso Pré-definidos
+  const accessProfiles = [
+    {
+      id: 'administrador',
+      nome: 'Administrador',
+      descricao: 'Acesso total ao sistema',
+      icon: <Star style={{ color: '#f44336' }} />,
+      color: '#f44336',
+      usuarios: usuariosList.filter(u => u.permissao === 'Administrador').length,
+      permissoes: {
+        dashboard: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        chat: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        crm: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        ia: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        feed: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        usuarios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        whatsapp: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        relatorios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        configuracoes: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        permissoes: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true }
+      }
+    },
+    {
+      id: 'ceo',
+      nome: 'CEO',
+      descricao: 'Acesso executivo total',
+      icon: <Extension style={{ color: '#9c27b0' }} />,
+      color: '#9c27b0',
+      usuarios: usuariosList.filter(u => u.permissao === 'CEO').length,
+      permissoes: {
+        dashboard: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        chat: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+        crm: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        ia: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+        feed: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+        usuarios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        whatsapp: { ativo: true, criar: false, editar: true, excluir: false, visualizar: true },
+        relatorios: { ativo: true, criar: true, editar: false, excluir: false, visualizar: true },
+        configuracoes: { ativo: true, criar: false, editar: true, excluir: false, visualizar: true },
+        permissoes: { ativo: true, criar: false, editar: true, excluir: false, visualizar: true }
+      }
+    },
+    {
+      id: 'enygmadeveloper',
+      nome: 'EnygmaDeveloper',
+      descricao: 'Desenvolvedor do sistema',
+      icon: <Code style={{ color: '#00bcd4' }} />,
+      color: '#00bcd4',
+      usuarios: usuariosList.filter(u => u.permissao === 'EnygmaDeveloper').length,
+      permissoes: {
+        dashboard: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        chat: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        crm: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        ia: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        feed: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        usuarios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        whatsapp: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        relatorios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        configuracoes: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        permissoes: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true }
+      }
+    },
+    {
+      id: 'operador',
+      nome: 'Operador',
+      descricao: 'Operações básicas',
+      icon: <Extension style={{ color: '#ff9800' }} />,
+      color: '#ff9800',
+      usuarios: usuariosList.filter(u => u.permissao === 'Operador').length,
+      permissoes: {
+        dashboard: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+        chat: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+        crm: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+        ia: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+        feed: { ativo: true, criar: true, editar: false, excluir: false, visualizar: true },
+        usuarios: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+        whatsapp: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+        relatorios: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+        configuracoes: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+        permissoes: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false }
+      }
+    },
+    {
+      id: 'visualizador',
+      nome: 'Visualizador',
+      descricao: 'Apenas visualização',
+      icon: <Visibility style={{ color: '#2196f3' }} />,
+      color: '#2196f3',
+      usuarios: usuariosList.filter(u => u.permissao === 'Visualizador' || !u.permissao).length,
+      permissoes: {
+        dashboard: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+        chat: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+        crm: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+        ia: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+        feed: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+        usuarios: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+        whatsapp: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+        relatorios: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+        configuracoes: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+        permissoes: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false }
+      }
+    }
+  ];
+
+  // Dashboards Disponíveis
+  const dashboardsData = [
+    {
+      id: 'geral',
+      nome: 'Dashboard Geral',
+      descricao: 'Visão geral de todos os documentos',
+      icon: <DashboardIcon />,
+      color: '#4CAF50',
+      documentos: 1247,
+      acoes: [
+        { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+        { id: 'relatorio', nome: 'Relatório', icon: <Timeline />, color: '#FF9800' },
+        { id: 'exportar', nome: 'Exportar', icon: <GetApp />, color: '#9C27B0' }
+      ]
+    },
+    {
+      id: 'requerimentos',
+      nome: 'Dashboard Requerimentos',
+      descricao: 'Gerenciamento de requerimentos',
+      icon: <Assignment />,
+      color: '#2196F3',
+      documentos: 523,
+      acoes: [
+        { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+        { id: 'processar', nome: 'Processar', icon: <PlayArrow />, color: '#4CAF50' },
+        { id: 'aprovar', nome: 'Aprovar', icon: <CheckCircle />, color: '#8BC34A' },
+        { id: 'rejeitar', nome: 'Rejeitar', icon: <Cancel />, color: '#F44336' }
+      ]
+    },
+    {
+      id: 'transferencias',
+      nome: 'Dashboard Transferências',
+      descricao: 'Controle de transferências',
+      icon: <Extension />,
+      color: '#FF9800',
+      documentos: 321,
+      acoes: [
+        { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+        { id: 'confirmar', nome: 'Confirmar', icon: <CheckCircle />, color: '#4CAF50' },
+        { id: 'aguardar', nome: 'Aguardar', icon: <Schedule />, color: '#FF9800' },
+        { id: 'cancelar', nome: 'Cancelar', icon: <Cancel />, color: '#F44336' }
+      ]
+    },
+    {
+      id: 'digital',
+      nome: 'Dashboard Digital',
+      descricao: 'Documentos digitais',
+      icon: <Storage />,
+      color: '#9C27B0',
+      documentos: 892,
+      acoes: [
+        { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+        { id: 'validar', nome: 'Validar', icon: <Security />, color: '#4CAF50' },
+        { id: 'assinar', nome: 'Assinar', icon: <Edit />, color: '#2196F3' },
+        { id: 'arquivar', nome: 'Arquivar', icon: <Save />, color: '#607D8B' }
+      ]
+    },
+    {
+      id: 'empresarial',
+      nome: 'Dashboard Empresarial',
+      descricao: 'Documentos empresariais',
+      icon: <Business />,
+      color: '#607D8B',
+      documentos: 178,
+      acoes: [
+        { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+        { id: 'analisar', nome: 'Analisar', icon: <Extension />, color: '#9C27B0' },
+        { id: 'registrar', nome: 'Registrar', icon: <Add />, color: '#4CAF50' },
+        { id: 'notificar', nome: 'Notificar', icon: <NotificationsActive />, color: '#FF9800' }
+      ]
+    },
+    {
+      id: 'anuencia',
+      nome: 'Dashboard Anuência',
+      descricao: 'Controle de anuências',
+      icon: <Lock />,
+      color: '#795548',
+      documentos: 67,
+      acoes: [
+        { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+        { id: 'autorizar', nome: 'Autorizar', icon: <LockOpen />, color: '#4CAF50' },
+        { id: 'revisar', nome: 'Revisar', icon: <Visibility />, color: '#2196F3' },
+        { id: 'documentar', nome: 'Documentar', icon: <Assignment />, color: '#FF9800' }
+      ]
+    },
+    {
+      id: 'documentos',
+      nome: 'Dashboard Documentos',
+      descricao: 'Gerenciamento de documentos',
+      icon: <Assignment />,
+      color: '#E91E63',
+      documentos: 456,
+      acoes: [
+        { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+        { id: 'upload', nome: 'Upload', icon: <CloudUpload />, color: '#4CAF50' },
+        { id: 'organizar', nome: 'Organizar', icon: <Storage />, color: '#2196F3' },
+        { id: 'compartilhar', nome: 'Compartilhar', icon: <Share />, color: '#FF9800' },
+        { id: 'backup', nome: 'Backup', icon: <Save />, color: '#607D8B' }
+      ]
+    }
+  ];
+
+  // Módulos do Sistema
+  const systemModules = [
+    { id: 'dashboard', nome: 'Dashboard', icon: <DashboardIcon />, descricao: 'Painel principal' },
+    { id: 'chat', nome: 'Chat', icon: <Chat />, descricao: 'Comunicação interna' },
+    { id: 'crm', nome: 'CRM', icon: <Business />, descricao: 'Gestão de clientes' },
+    { id: 'ia', nome: 'IA', icon: <EmojiObjects />, descricao: 'Inteligência artificial' },
+    { id: 'feed', nome: 'Feed', icon: <Timeline />, descricao: 'Feed de notícias' },
+    { id: 'usuarios', nome: 'Usuários', icon: <People />, descricao: 'Gestão de usuários' },
+    { id: 'whatsapp', nome: 'WhatsApp', icon: <WhatsApp />, descricao: 'Integração WhatsApp' },
+    { id: 'relatorios', nome: 'Relatórios', icon: <Timeline />, descricao: 'Relatórios gerenciais' },
+    { id: 'configuracoes', nome: 'Configurações', icon: <Settings />, descricao: 'Configurações do sistema' },
+    { id: 'permissoes', nome: 'Permissões', icon: <Security />, descricao: 'Gestão de permissões' }
+  ];
+
+  const controls = useAnimation();
+
+  // Função para carregar usuários do Firebase
+  const carregarUsuarios = async () => {
+    try {
+      const { default: Colecao } = await import('@/logic/firebase/db/Colecao');
+      const colecao = new Colecao();      const usuarios = await colecao.consultar('usuarios', 'nome');
+      console.log('📋 Usuários carregados:', usuarios);
+      setUsuariosList(usuarios || []);
+    } catch (error) {
+      console.error('❌ Erro ao carregar usuários:', error);
+    }
+  };
+
+  const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+        setIsLoading(true);
+    setTimeout(() => {
+      setTabValue(newValue);
+      setIsLoading(false);
+    }, 300);
+  };
+
+  const modules = useMemo(() => [
+    {
+      title: 'Dashboard Inteligente',
+      description: 'Analytics avançado com IA',
+      icon: <DashboardIcon className={classes.moduleIcon} style={{ color: '#4CAF50' }} />,
+      color: '#4CAF50',
+      features: ['ML Analytics', 'Previsões', 'Alertas Inteligentes'],
+      status: 'active',
+      lastUsed: '2 min atrás',
+      performance: 98,
+    },
+    {
+      title: 'Chat Colaborativo',
+      description: 'Comunicação em tempo real',
+      icon: <Chat className={classes.moduleIcon} style={{ color: '#2196F3' }} />,
+      color: '#2196F3',
+      features: ['Video Chat', 'Screen Share', 'Threads'],
+      status: 'active',
+      lastUsed: '5 min atrás',
+      performance: 94,
+    },
+    {
+      title: 'IA Lívia Avançada',
+      description: 'Assistente com GPT-4 Turbo',
+      icon: <EmojiObjects className={`${classes.moduleIcon} ${classes.pulsingIcon}`} style={{ color: '#9C27B0' }} />,
+      color: '#9C27B0',
+      features: ['NLP Avançado', 'Automação', 'Insights'],
+      status: 'learning',
+      lastUsed: 'Agora',
+      performance: 99,
+    },
+    {
+      title: 'CRM Neural',
+      description: 'Gestão inteligente de clientes',
+      icon: <Business className={classes.moduleIcon} style={{ color: '#FF9800' }} />,
+      color: '#FF9800',
+      features: ['Lead Scoring', 'Segmentação IA', 'Automação'],
+      status: 'active',
+      lastUsed: '10 min atrás',
+      performance: 91,
+    },
+    {
+      title: 'Feed Inteligente',
+      description: 'Notificações contextuais',
+      icon: <Timeline className={classes.moduleIcon} style={{ color: '#607D8B' }} />,
+      color: '#607D8B',
+      features: ['Filtros IA', 'Priorização', 'Trending'],
+      status: 'active',
+      lastUsed: '1 min atrás',
+      performance: 96,
+    },
+    {
+      title: 'Cadastro de Usuário',
+      description: 'Gestão completa de usuários',
+      icon: <People className={classes.moduleIcon} style={{ color: '#795548' }} />,
+      color: '#795548',
+      features: ['Perfis', 'Permissões', 'Auditoria'],
+      status: 'active',
+      lastUsed: '3 min atrás',
+      performance: 95,
+    },
+    {
+      title: 'WhatsApp Business',
+      description: 'Integração Digisac avançada',
+      icon: <WhatsApp className={classes.moduleIcon} style={{ color: '#25D366' }} />,
+      color: '#25D366',
+      features: ['CRM Integrado', 'IA Vendas', 'Automação'],
+      status: 'active',
+      lastUsed: 'Agora',
+      performance: 98,
+    },
+  ], [classes]);
+
+  const speedDialActions = [
+    { icon: <Extension />, name: 'IA Assistant', color: '#9C27B0' },
+    { icon: <Extension />, name: 'Brain Mode', color: '#FF5722' },
+    { icon: <Extension />, name: 'Magic Tools', color: '#4CAF50' },
+    { icon: <Extension />, name: 'Quick Actions', color: '#2196F3' },
+    { icon: <Extension />, name: 'Extensions', color: '#FF9800' },
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPerformanceMetrics(prev => ({
+        cpu: Math.max(20, Math.min(100, prev.cpu + (Math.random() - 0.5) * 10)),
+        memory: Math.max(20, Math.min(100, prev.memory + (Math.random() - 0.5) * 8)),
+        network: Math.max(50, Math.min(100, prev.network + (Math.random() - 0.5) * 5)),
+        storage: Math.max(10, Math.min(100, prev.storage + (Math.random() - 0.5) * 3)),
+      }));
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    // Carregar usuários quando o componente montar
+    carregarUsuarios();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRealtimeUsers(prev => Math.max(1, prev + Math.floor((Math.random() - 0.5) * 3)));
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    setContextualMenu({
+      x: event.clientX,
+      y: event.clientY,
+    });
+  };
+
+  const toggleVoiceMode = () => {
+    setVoiceMode(!voiceMode);
+    if (!voiceMode) {
+      setTimeout(() => setVoiceMode(false), 3000);
+    }
+  };
+
+  const handleSmartAction = (action: string) => {
+    setIsLoading(true);
+    console.log(`Executando ação inteligente: ${action}`);
+    setTimeout(() => setIsLoading(false), 1000);
+  };
+
+  const handleNewUserSubmit = async () => {
+    try {
+      setIsLoading(true);
+
+      // Importar a classe de serviços
+      const { default: ServicosUsuario } = await import('@/logic/core/usuario/ServicosUsuario');
+      const servicosUsuario = new ServicosUsuario();
+
+      // Criar o objeto usuário no formato correto
+      const novoUsuario = {
+        email: newUserData.email,
+        nome: newUserData.nome,
+        imagemUrl: '/betologo.jpg',
+        permissao: newUserData.permissao,
+        ativo: true,
+        dataCriacao: new Date(),
+        ultimoAcesso: null,
+        id: newUserData.email
+      };
+
+      // Salvar no Firebase
+      await servicosUsuario.salvar(novoUsuario);
+
+      console.log('✅ Usuário criado com sucesso:', novoUsuario);
+
+      // Mostrar notificação de sucesso
+      setNotifications([{
+        id: Date.now(),
+        message: `Usuário ${newUserData.nome} criado com sucesso!`,
+        type: 'success'
+      }]);
+
+      // Fechar dialog e limpar dados
+      setNewUserDialogOpen(false);
+      setNewUserData({
+        nome: '',
+        email: '',
+        senha: '',
+        permissao: 'Visualizador'
+      });
+
+      // Atualizar a lista de usuários
+      await carregarUsuarios();
+
+    } catch (error) {
+      console.error('❌ Erro ao criar usuário:', error);
+      setNotifications([{
+        id: Date.now(),
+        message: 'Erro ao criar usuário. Tente novamente.',
+        type: 'error'
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleNewUserInputChange = (field: string, value: string) => {
+    setNewUserData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleEditUser = (usuario: any) => {
+    setEditUserData({
+      id: usuario.id || usuario.email,
+      nome: usuario.nome || '',
+      email: usuario.email || '',
+      permissao: usuario.permissao || 'Visualizador',
+      ativo: usuario.ativo !== false
+    });
+    setEditUserDialogOpen(true);
+    setUserMenuAnchor(null);
+  };
+
+  const handleEditUserInputChange = (field: string, value: string | boolean) => {
+    setEditUserData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleEditUserSubmit = async () => {
+    try {
+      setIsLoading(true);
+
+      const { default: ServicosUsuario } = await import('@/logic/core/usuario/ServicosUsuario');
+      const servicosUsuario = new ServicosUsuario();
+
+      const usuarioAtualizado = {
+        email: editUserData.email,
+        nome: editUserData.nome,
+        permissao: editUserData.permissao,
+        ativo: editUserData.ativo,
+        ultimoAcesso: new Date(),
+        id: editUserData.id
+      };
+
+      await servicosUsuario.salvar(usuarioAtualizado);
+
+      console.log('✅ Usuário atualizado com sucesso:', usuarioAtualizado);
+
+      setNotifications([{
+        id: Date.now(),
+        message: `Usuário ${editUserData.nome} atualizado com sucesso!`,
+        type: 'success'
+      }]);
+
+      setEditUserDialogOpen(false);
+      setEditUserData({
+        id: '',
+        nome: '',
+        email: '',
+        permissao: 'Visualizador',
+        ativo: true
+      });
+
+      await carregarUsuarios();
+
+    } catch (error) {
+      console.error('❌ Erro ao atualizar usuário:', error);
+      setNotifications([{
+        id: Date.now(),
+        message: 'Erro ao atualizar usuário. Tente novamente.',
+        type: 'error'
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteUser = (usuario: any) => {
+    setUserToDelete(usuario);
+    setDeleteUserDialogOpen(true);
+    setUserMenuAnchor(null);
+  };
+
+  const confirmDeleteUser = async () => {
+    try {
+      setIsLoading(true);
+
+      const { default: Colecao } = await import('@/logic/firebase/db/Colecao');
+      const colecao = new Colecao();
+
+      await colecao.excluir('usuarios', userToDelete.id || userToDelete.email);
+
+      console.log('✅ Usuário removido com sucesso:', userToDelete);
+
+      setNotifications([{
+        id: Date.now(),
+        message: `Usuário ${userToDelete.nome} removido com sucesso!`,
+        type: 'success'
+      }]);
+
+      setDeleteUserDialogOpen(false);
+      setUserToDelete(null);
+
+      await carregarUsuarios();
+
+    } catch (error) {
+      console.error('❌ Erro ao remover usuário:', error);
+      setNotifications([{
+        id: Date.now(),
+        message: 'Erro ao remover usuário. Tente novamente.',
+        type: 'error'
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleToggleUserStatus = async (usuario: any) => {
+    try {
+      setIsLoading(true);
+
+      const { default: ServicosUsuario } = await import('@/logic/core/usuario/ServicosUsuario');
+      const servicosUsuario = new ServicosUsuario();
+
+      const usuarioAtualizado = {
+        ...usuario,
+        ativo: !usuario.ativo,
+        ultimoAcesso: new Date()
+      };
+
+      await servicosUsuario.salvar(usuarioAtualizado);
+
+      console.log('✅ Status do usuário alterado:', usuarioAtualizado);
+
+      setNotifications([{
+        id: Date.now(),
+        message: `Status do usuário ${usuario.nome} alterado para ${!usuario.ativo ? 'Ativo' : 'Inativo'}!`,
+        type: 'success'
+      }]);
+
+      await carregarUsuarios();
+
+    } catch (error) {
+      console.error('❌ Erro ao alterar status do usuário:', error);
+      setNotifications([{
+        id: Date.now(),
+        message: 'Erro ao alterar status do usuário. Tente novamente.',
+        type: 'error'
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+    setUserMenuAnchor(null);
+  };
+
+  const handleUserMenuClick = (event: React.MouseEvent<HTMLElement>, usuario: any) => {
+    setUserMenuAnchor(event.currentTarget);
+    setSelectedUser(usuario);
+  };
+
+  const handleUserMenuClose = () => {
+    setUserMenuAnchor(null);
+    setSelectedUser(null);
+  };
+
+  const handleNewProfileSubmit = () => {
+    console.log('Criando novo perfil:', newProfileData);
+    // Aqui você pode adicionar a lógica para salvar o perfil
+    setNewProfileDialogOpen(false);
+    setNewProfileData({
+      nome: '',
+      descricao: '',
+      permissoes: {
+        dashboard: false,
+        chat: false,
+        crm: false,
+        relatorios: false,
+        usuarios: false,
+        configuracoes: false
+      }
+    });
+  };
+
+  const handleNewProfileInputChange = (field: string, value: string | boolean) => {
+    if (field.startsWith('permissoes.')) {
+      const permissionKey = field.split('.')[1];
+      setNewProfileData(prev => ({
+        ...prev,
+        permissoes: {
+          ...prev.permissoes,
+          [permissionKey]: value
+        }
+      }));
+    } else {
+      setNewProfileData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
+  };
+
+  // Funções para Gestão de Permissões
+  const handleOpenPermissionDialog = (profile: any) => {
+    setSelectedProfile(profile);
+    setProfilePermissions({ ...profile.permissoes });
+    setPermissionDialogOpen(true);
+  };
+
+  const handleClosePermissionDialog = () => {
+    setPermissionDialogOpen(false);
+    setSelectedProfile(null);
+    setProfilePermissions({});
+  };
+
+  const handlePermissionChange = (module: string, permission: string, value: boolean) => {
+    setProfilePermissions((prev: any) => ({
+      ...prev,
+      [module]: {
+        ...prev[module],
+        [permission]: value
+      }
+    }));
+  };
+
+  const handleModuleToggle = (module: string, value: boolean) => {
+    setProfilePermissions((prev: any) => ({
+      ...prev,
+      [module]: {
+        ...prev[module],
+        ativo: value,
+        // Se desativar módulo, desativa todas as permissões
+        ...(value ? {} : {
+          criar: false,
+          editar: false,
+          excluir: false,
+          visualizar: false
+        })
+      }
+    }));
+  };
+
+  const handleSavePermissions = () => {
+    console.log('Salvando permissões:', profilePermissions);
+    // Aqui você pode adicionar a lógica para salvar as permissões
+    setNotifications([{
+      id: Date.now(),
+      message: `Permissões do perfil ${selectedProfile?.nome} atualizadas com sucesso!`,
+      type: 'success'
+    }]);
+    handleClosePermissionDialog();
+  };
+
+  const handleDashboardExpand = (dashboardId: string) => {
+    setDashboardExpanded(dashboardExpanded === dashboardId ? null : dashboardId);
+  };
+
+  const handleDashboardSelect = (dashboardId: string) => {
+    setSelectedDashboard(dashboardId);
+  };
+
+  const handleDashboardAction = (dashboardId: string, actionId: string) => {
+    // Switch to Dashboard tab and show the corresponding component
+    if (actionId === 'visualizar') {
+      // Set which dashboard is being viewed
+      setViewingDashboard(dashboardId);
+      
+      // Always switch to Dashboard tab (index 0) to show the dashboard component
+      setTabValue(0);
+      
+      // Hide Dashboard Documentos tab if currently active
+      if (tabValue === 8) { // Dashboard Documentos tab index
+        setTabValue(0); // Switch to Dashboard tab
+      }
+      
+      setNotifications([{
+        id: Date.now(),
+        message: `Visualizando ${dashboardsData.find(d => d.id === dashboardId)?.nome || dashboardId} no Dashboard`,
+        type: 'success'
+      }]);
+      return;
+    }
+
+    // Handle other dashboard actions by switching to appropriate tab
+    switch (dashboardId) {
+      case 'requerimentos':
+        if (actionId === 'processar' || actionId === 'aprovar' || actionId === 'rejeitar') {
+          setTabValue(0); // Switch to Dashboard tab
+          setNotifications([{
+            id: Date.now(),
+            message: `${actionId} requerimento - visualizando no Dashboard`,
+            type: 'success'
+          }]);
+          return;
+        }
+        break;
+      case 'transferencias':
+        if (actionId === 'confirmar' || actionId === 'aguardar' || actionId === 'cancelar') {
+          setTabValue(0); // Switch to Dashboard tab
+          setNotifications([{
+            id: Date.now(),
+            message: `${actionId} transferência - visualizando no Dashboard`,
+            type: 'success'
+          }]);
+          return;
+        }
+        break;
+      case 'anuencia':
+        if (actionId === 'autorizar' || actionId === 'revisar' || actionId === 'documentar') {
+          setTabValue(0); // Switch to Dashboard tab
+          setNotifications([{
+            id: Date.now(),
+            message: `${actionId} anuência - visualizando no Dashboard`,
+            type: 'success'
+          }]);
+          return;
+        }
+        break;
+      case 'empresarial':
+        if (actionId === 'analisar' || actionId === 'registrar' || actionId === 'notificar') {
+          setTabValue(0); // Switch to Dashboard tab
+          setNotifications([{
+            id: Date.now(),
+            message: `${actionId} empresarial - visualizando no Dashboard`,
+            type: 'success'
+          }]);
+          return;
+        }
+        break;
+      default:
+        break;
+    }
+
+    console.log(`Executando ação ${actionId} no dashboard ${dashboardId}`);
+    setNotifications([{
+      id: Date.now(),
+      message: `Ação ${actionId} executada no dashboard ${dashboardId}`,
+      type: 'success'
+    }]);
+  };
+
+  const renderPermissionDialog = () => (
+    <Dialog
+      open={permissionDialogOpen}
+      onClose={handleClosePermissionDialog}
+      maxWidth="lg"
+      fullWidth
+    >
+      <DialogTitle>
+        <Typography variant="h6" style={{ display: 'flex', alignItems: 'center' }}>
+          <Security style={{ marginRight: 8, color: '#1976d2' }} />
+          Gerenciar Permissões - {selectedProfile?.nome}
+        </Typography>
+      </DialogTitle>
+      <DialogContent>
+        <Grid container spacing={3}>
+          {systemModules.map((module) => (
+            <Grid item xs={12} md={6} key={module.id}>
+              <Card className={classes.card}>
+                <CardContent>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={profilePermissions[module.id]?.ativo || false}
+                        onChange={(e) => handleModuleToggle(module.id, e.target.checked)}
+                        color="primary"
+                      />
+                    }
+                    label={
+                      <Typography variant="h6" style={{ display: 'flex', alignItems: 'center' }}>
+                        {module.icon}
+                        <span style={{ marginLeft: 8 }}>{module.nome}</span>
+                      </Typography>
+                    }
+                  />
+                  <Typography variant="body2" color="textSecondary" style={{ marginLeft: 24 }}>
+                    {module.descricao}
+                  </Typography>
+
+                  {profilePermissions[module.id]?.ativo && (
+                    <Grid container spacing={1} style={{ marginTop: 16, marginLeft: 24 }}>
+                      {['visualizar', 'criar', 'editar', 'excluir'].map((permission) => (
+                        <Grid item key={permission}>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={profilePermissions[module.id]?.[permission] || false}
+                                onChange={(e) => handlePermissionChange(module.id, permission, e.target.checked)}
+                                size="small"
+                                color="primary"
+                              />
+                            }
+                            label={permission.charAt(0).toUpperCase() + permission.slice(1)}
+                          />
+                        </Grid>
+                      ))}
+                    </Grid>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClosePermissionDialog} color="secondary">
+          Cancelar
+        </Button>
+        <Button onClick={handleSavePermissions} color="primary" variant="contained">
+          Salvar Permissões
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+
+  const handleOpenPermissionManager = (user: any) => {
+    setSelectedUserForPermissions(user);
+    setPermissionDialogOpen(true);
+    setUserMenuAnchor(null);
+  };
+
+  return (
+    <div className={classes.root} onContextMenu={handleContextMenu}>
+      <CssBaseline />
+
+      {/* Barra de Status */}
+      <div className={classes.statusBar} />
+
+      {/* Widget Inteligente */}
+      <motion.div 
+        className={classes.smartWidget}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        <Typography variant="body2" style={{ fontWeight: 'bold', marginBottom: 8 }}>
+          🧠 Sistema Neural
+        </Typography>
+        <Typography variant="caption">
+          {realtimeUsers} usuários online
+        </Typography>
+        <LinearProgress 
+          variant="determinate" 
+          value={performanceMetrics.cpu} 
+          style={{ marginTop: 4, height: 4, borderRadius: 2 }}
+        />
+      </motion.div>
+
+      {/* Notificação Inteligente */}
+      <AnimatePresence>
+        {notifications.length > 0 && (
+          <motion.div
+            className={classes.smartNotification}
+            initial={{ opacity: 0, x: 300 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 300 }}
+          >
+            <Alert severity="success" onClose={() => setNotifications([])}>
+              {notifications[0]?.message}
+            </Alert>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Header Principal */}
+      <Paper className={classes.header}>
+        <motion.div
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <Typography variant="h3" style={{ fontWeight: 900, marginBottom: 16 }}>
+            🚀 Enygma Colaboradores
+          </Typography>
+          <Typography variant="h6" style={{ opacity: 0.9 }}>
+            Plataforma Corporativa Inteligente
+          </Typography>
+
+          {/* Métricas de Performance */}
+          <div className={classes.performanceMetrics}>
+            <div className={classes.metricItem}>
+              <Typography variant="caption">CPU</Typography>
+              <LinearProgress 
+                variant="determinate" 
+                value={performanceMetrics.cpu} 
+                style={{ width: 60, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.3)' }}
+              />
+              <Typography variant="caption">{Math.round(performanceMetrics.cpu)}%</Typography>
+            </div>
+            <div className={classes.metricItem}>
+              <Typography variant="caption">RAM</Typography>
+              <LinearProgress 
+                variant="determinate" 
+                value={performanceMetrics.memory} 
+                style={{ width: 60, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.3)' }}
+              />
+              <Typography variant="caption">{Math.round(performanceMetrics.memory)}%</Typography>
+            </div>
+            <div className={classes.metricItem}>
+              <Typography variant="caption">NET</Typography>
+              <LinearProgress 
+                variant="determinate" 
+                value={performanceMetrics.network} 
+                style={{ width: 60, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.3)' }}
+              />
+              <Typography variant="caption">{Math.round(performanceMetrics.network)}%</Typography>
+            </div>
+          </div>
+        </motion.div>
+      </Paper>
+
+      {/* Container Principal */}
+      <Container maxWidth="xl">
+        {/* Cartão de Boas-Vindas */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className={classes.welcomeCard}>
+            <CardContent style={{ padding: '32px' }}>
+              <Grid container alignItems="center" spacing={3}>
+                <Grid item xs={12} md={8}>
+                  <Typography variant="h4" style={{ fontWeight: 'bold', marginBottom: 8 }}>
+                    Bem-vindo ao Futuro da Colaboração! 🌟
+                  </Typography>
+                  <Typography variant="body1" style={{ opacity: 0.9, marginBottom: 16 }}>
+                    Sua plataforma corporativa com IA avançada, automação inteligente e colaboração em tempo real.
+                  </Typography>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <Chip 
+                      label="🤖 IA Lívia Ativa" 
+                      style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: 'white' }}
+                    />
+                    <Chip 
+                      label="⚡ Sistema Neural" 
+                      style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: 'white' }}
+                    />
+                    <Chip 
+                      label="🔐 Segurança Avançada" 
+                      style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: 'white' }}
+                    />
+                  </div>
+                </Grid>
+                <Grid item xs={12} md={4} style={{ textAlign: 'center' }}>
+                  <div className={classes.realtimeStatus}>
+                    <div style={{ 
+                      width: 12, 
+                      height: 12, 
+                      borderRadius: '50%', 
+                      backgroundColor: '#4CAF50',
+                      animation: 'pulse 2s infinite'
+                    }} />
+                    <Typography variant="body2">{realtimeUsers} Online</Typography>
+                  </div>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Sistema de Tabs */}
+        <Paper className={classes.tabsContainer}>
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            variant="scrollable"
+            scrollButtons="auto"
+            style={{ borderBottom: '1px solid #e0e0e0' }}
+          >
+            <Tab 
+              label={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <DashboardIcon style={{ marginRight: 8 }} />
+                  Dashboard
+                </div>
+              } 
+            />
+            <Tab 
+              label={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <Chat style={{ marginRight: 8 }} />
+                  Chat
+                </div>
+              } 
+            />
+            <Tab 
+              label={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <EmojiObjects style={{ marginRight: 8 }} />
+                  IA Lívia
+                </div>
+              } 
+            />
+            <Tab 
+              label={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <Business style={{ marginRight: 8 }} />
+                  CRM
+                </div>
+              } 
+            />
+            <Tab 
+              label={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <Timeline style={{ marginRight: 8 }} />
+                  Feed
+                </div>
+              } 
+            />
+            <Tab 
+              label={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <People style={{ marginRight: 8 }} />
+                  Usuários
+                </div>
+              } 
+            />
+            <Tab 
+              label={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <WhatsApp style={{ marginRight: 8 }} />
+                  WhatsApp
+                </div>
+              } 
+            />
+            <Tab 
+              label={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <Security style={{ marginRight: 8 }} />
+                  Permissões
+                </div>
+              } 
+            />
+            <Tab 
+              label={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <Assignment style={{ marginRight: 8 }} />
+                  Dashboard Documentos
+                </div>
+              } 
+            />
+          </Tabs>
+
+          {/* Tab Panels */}
+          <TabPanel value={tabValue} index={0}>
+            {viewingDashboard ? (
+              <div style={{ position: 'relative' }}>
+                {/* Header para mostrar qual dashboard está sendo visualizado */}
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  padding: '16px 24px',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white',
+                  borderRadius: '12px 12px 0 0',
+                  marginBottom: 0
+                }}>
+                  <Typography variant="h6" style={{ fontWeight: 'bold' }}>
+                    📊 {dashboardsData.find(d => d.id === viewingDashboard)?.nome || 'Dashboard'}
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => setViewingDashboard(null)}
+                    style={{ 
+                      borderColor: 'rgba(255,255,255,0.5)',
+                      color: 'white',
+                      backgroundColor: 'rgba(255,255,255,0.1)'
+                    }}
+                    startIcon={<ArrowBack />}
+                  >
+                    Voltar ao Dashboard Principal
+                  </Button>
+                </div>
+                
+                {/* Conteúdo do Dashboard específico */}
+                {viewingDashboard === 'requerimentos' && (
+                  <div style={{ 
+                    border: '1px solid #e0e0e0',
+                    borderTop: 'none',
+                    borderRadius: '0 0 12px 12px',
+                    overflow: 'hidden'
+                  }}>
+                    <BetoDashboard />
+                  </div>
+                )}
+                
+                {viewingDashboard === 'geral' && (
+                  <div style={{ 
+                    padding: '24px',
+                    border: '1px solid #e0e0e0',
+                    borderTop: 'none',
+                    borderRadius: '0 0 12px 12px',
+                    textAlign: 'center'
+                  }}>
+                    <Typography variant="h6" style={{ marginBottom: 16 }}>
+                      🎯 Dashboard Geral - Visão Completa
+                    </Typography>
+                    <Typography variant="body1" color="textSecondary">
+                      Dashboard com visão geral de todos os documentos será implementado aqui.
+                    </Typography>
+                  </div>
+                )}
+                
+                {viewingDashboard === 'transferencias' && (
+                  <div style={{ 
+                    padding: '24px',
+                    border: '1px solid #e0e0e0',
+                    borderTop: 'none',
+                    borderRadius: '0 0 12px 12px',
+                    textAlign: 'center'
+                  }}>
+                    <Typography variant="h6" style={{ marginBottom: 16 }}>
+                      🚗 Dashboard Transferências
+                    </Typography>
+                    <Typography variant="body1" color="textSecondary">
+                      Dashboard de controle de transferências será implementado aqui.
+                    </Typography>
+                  </div>
+                )}
+                
+                {viewingDashboard === 'digital' && (
+                  <div style={{ 
+                    padding: '24px',
+                    border: '1px solid #e0e0e0',
+                    borderTop: 'none',
+                    borderRadius: '0 0 12px 12px',
+                    textAlign: 'center'
+                  }}>
+                    <Typography variant="h6" style={{ marginBottom: 16 }}>
+                      💾 Dashboard Digital
+                    </Typography>
+                    <Typography variant="body1" color="textSecondary">
+                      Dashboard de documentos digitais será implementado aqui.
+                    </Typography>
+                  </div>
+                )}
+                
+                {viewingDashboard === 'empresarial' && (
+                  <div style={{ 
+                    padding: '24px',
+                    border: '1px solid #e0e0e0',
+                    borderTop: 'none',
+                    borderRadius: '0 0 12px 12px',
+                    textAlign: 'center'
+                  }}>
+                    <Typography variant="h6" style={{ marginBottom: 16 }}>
+                      🏢 Dashboard Empresarial
+                    </Typography>
+                    <Typography variant="body1" color="textSecondary">
+                      Dashboard de documentos empresariais será implementado aqui.
+                    </Typography>
+                  </div>
+                )}
+                
+                {viewingDashboard === 'anuencia' && (
+                  <div style={{ 
+                    padding: '24px',
+                    border: '1px solid #e0e0e0',
+                    borderTop: 'none',
+                    borderRadius: '0 0 12px 12px',
+                    textAlign: 'center'
+                  }}>
+                    <Typography variant="h6" style={{ marginBottom: 16 }}>
+                      🔐 Dashboard Anuência
+                    </Typography>
+                    <Typography variant="body1" color="textSecondary">
+                      Dashboard de controle de anuências será implementado aqui.
+                    </Typography>
+                  </div>
+                )}
+                
+                {viewingDashboard === 'documentos' && (
+                  <div style={{ 
+                    padding: '24px',
+                    border: '1px solid #e0e0e0',
+                    borderTop: 'none',
+                    borderRadius: '0 0 12px 12px',
+                    textAlign: 'center'
+                  }}>
+                    <Typography variant="h6" style={{ marginBottom: 16 }}>
+                      📄 Dashboard Documentos
+                    </Typography>
+                    <Typography variant="body1" color="textSecondary">
+                      Dashboard de gerenciamento de documentos será implementado aqui.
+                    </Typography>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <DashboardIA />
+            )}
+          </TabPanel>
+
+          <TabPanel value={tabValue} index={1}>
+            <ChatInterno />
+          </TabPanel>
+
+          <TabPanel value={tabValue} index={2}>
+            <ChatIA />
+          </TabPanel>
+
+          <TabPanel value={tabValue} index={3}>
+            <CRM />
+          </TabPanel>
+
+          <TabPanel value={tabValue} index={4}>
+            <Feed />
+          </TabPanel>
+
+          <TabPanel value={tabValue} index={5}>
+            {/* Gestão de Usuários */}
+            <Container maxWidth="lg" style={{ padding: '24px 0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                <Typography variant="h4" style={{ fontWeight: 'bold', color: '#1976d2' }}>
+                  👥 Gestão de Usuários
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<Add />}
+                  onClick={() => setNewUserDialogOpen(true)}
+                  style={{ borderRadius: 8 }}
+                >
+                  Novo Usuário
+                </Button>
+              </div>
+
+              <TableContainer component={Paper} style={{ borderRadius: 12, boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }}>
+                <Table>
+                  <TableHead style={{ backgroundColor: '#f5f5f5' }}>
+                    <TableRow>
+                      <TableCell><strong>Usuário</strong></TableCell>
+                      <TableCell><strong>Email</strong></TableCell>
+                      <TableCell><strong>Permissão</strong></TableCell>
+                      <TableCell><strong>Status</strong></TableCell>
+                      <TableCell><strong>Ações</strong></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {usuariosList.map((usuario, index) => (
+                      <TableRow key={usuario.id || index} hover>
+                        <TableCell>
+                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <Avatar
+                              src={usuario.imagemUrl}
+                              style={{ width: 40, height: 40, marginRight: 12 }}
+                            >
+                              {usuario.nome?.charAt(0)?.toUpperCase()}
+                            </Avatar>
+                            <div>
+                              <Typography variant="body1" style={{ fontWeight: 'bold' }}>
+                                {usuario.nome || 'Nome não informado'}
+                              </Typography>
+                              <Typography variant="caption" color="textSecondary">
+                                ID: {usuario.id}
+                              </Typography>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2">
+                            {usuario.email}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={usuario.permissao || 'Visualizador'}
+                            color={usuario.permissao === 'Administrador' ? 'secondary' : 'default'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <FormControlLabel
+                            control={
+                              <Switch
+                                checked={usuario.ativo !== false}
+                                onChange={() => handleToggleUserStatus(usuario)}
+                                color="primary"
+                                size="small"
+                              />
+                            }
+                            label={usuario.ativo !== false ? 'Ativo' : 'Inativo'}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <IconButton
+                            onClick={(e) => handleUserMenuClick(e, usuario)}
+                            size="small"
+                          >
+                            <MoreVert />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+
+              {/* Menu de Contexto do Usuário */}
+              <Menu
+                anchorEl={userMenuAnchor}
+                open={Boolean(userMenuAnchor)}
+                onClose={handleUserMenuClose}
+              >
+                <MenuItem onClick={() => handleOpenPermissionManager(selectedUser)}>
+                  <ListItemIcon>
+                    <Security />
+                  </ListItemIcon>
+                  <ListItemText primary="Gerenciar Permissões" />
+                </MenuItem>
+                <MenuItem onClick={() => handleEditUser(selectedUser)}>
+                  <ListItemIcon><Edit fontSize="small" /></ListItemIcon>
+                  <ListItemText>Editar</ListItemText>
+                </MenuItem>
+                <MenuItem onClick={() => handleDeleteUser(selectedUser)}>
+                  <ListItemIcon><Delete fontSize="small" /></ListItemIcon>
+                  <ListItemText>Excluir</ListItemText>
+                </MenuItem>
+              </Menu>
+            </Container>
+          </TabPanel>
+
+          <TabPanel value={tabValue} index={6}>
+            <WhatsAppDigisac />
+          </TabPanel>
+
+          <TabPanel value={tabValue} index={7}>
+            {/* Sistema de Permissões */}
+            <Container maxWidth="lg" style={{ padding: '24px 0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                <Typography variant="h4" style={{ fontWeight: 'bold', color: '#1976d2' }}>
+                  🔐 Sistema de Permissões
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<Add />}
+                  onClick={() => setNewProfileDialogOpen(true)}
+                  style={{ borderRadius: 8 }}
+                >
+                  Novo Perfil
+                </Button>
+              </div>
+
+              <Grid container spacing={3}>
+                {accessProfiles.map((profile) => (
+                  <Grid item xs={12} md={6} lg={4} key={profile.id}>
+                    <Card className={classes.card} style={{ height: '100%' }}>
+                      <CardContent>
+                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+                          {profile.icon}
+                          <Typography variant="h6" style={{ marginLeft: 8, fontWeight: 'bold' }}>
+                            {profile.nome}
+                          </Typography>
+                        </div>
+                        <Typography variant="body2" color="textSecondary" style={{ marginBottom: 16 }}>
+                          {profile.descricao}
+                        </Typography>
+                        <div style={{ marginBottom: 16 }}>
+                          <Chip
+                            label={`${profile.usuarios} usuários`}
+                            size="small"
+                            style={{ backgroundColor: profile.color, color: 'white' }}
+                          />
+                        </div>
+                        <Button
+                          fullWidth
+                          variant="outlined"
+                          color="primary"
+                          onClick={() => handleOpenPermissionDialog(profile)}
+                          startIcon={<Settings />}
+                        >
+                          Configurar Permissões
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </Container>
+          </TabPanel>
+
+          <TabPanel value={tabValue} index={8}>
+            {/* Dashboard Documentos */}
+            <Container maxWidth="lg" style={{ padding: '24px 0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                <Typography variant="h4" style={{ fontWeight: 'bold', color: '#1976d2' }}>
+                  📊 Dashboard Documentos
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<Add />}
+                  style={{ borderRadius: 8 }}
+                >
+                  Novo Dashboard
+                </Button>
+              </div>
+
+              <Grid container spacing={3}>
+                {dashboardsData.map((dashboard) => (
+                  <Grid item xs={12} md={6} key={dashboard.id}>
+                    <Card className={classes.card}>
+                      <CardContent>
+                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+                          {dashboard.icon}
+                          <div style={{ marginLeft: 12, flex: 1 }}>
+                            <Typography variant="h6" style={{ fontWeight: 'bold' }}>
+                              {dashboard.nome}
+                            </Typography>
+                            <Typography variant="body2" color="textSecondary">
+                              {dashboard.descricao}
+                            </Typography>
+                            <Typography variant="caption" style={{ color: dashboard.color }}>
+                              {dashboard.documentos} documentos
+                            </Typography>
+                          </div>
+                          <IconButton
+                            onClick={() => handleDashboardExpand(dashboard.id)}
+                            size="small"
+                          >
+                            {dashboardExpanded === dashboard.id ? <ExpandLess /> : <ExpandMore />}
+                          </IconButton>
+                        </div>
+
+                        <Collapse in={dashboardExpanded === dashboard.id}>
+                          <Typography variant="subtitle2" style={{ marginBottom: 8, fontWeight: 'bold' }}>
+                            Ações Disponíveis:
+                          </Typography>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                            {dashboard.acoes.map((acao) => (
+                              <Button
+                                key={acao.id}
+                                size="small"
+                                variant="outlined"
+                                startIcon={acao.icon}
+                                onClick={() => handleDashboardAction(dashboard.id, acao.id)}
+                                style={{ borderColor: acao.color, color: acao.color }}
+                              >
+                                {acao.nome}
+                              </Button>
+                            ))}
+                          </div>
+                        </Collapse>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </Container>
+          </TabPanel>
+        </Paper>
+      </Container>
+
+      {/* SpeedDial IA */}
+      <div className={classes.aiAssistant}>
+        <SpeedDial
+          ariaLabel="IA Assistant"
+          className={classes.speedDial}
+          icon={<SpeedDialIcon icon={<EmojiObjects />} openIcon={<Close />} />}
+          onClose={() => setSpeedDialOpen(false)}
+          onOpen={() => setSpeedDialOpen(true)}
+          open={speedDialOpen}
+        >
+          {speedDialActions.map((action) => (
+            <SpeedDialAction
+              key={action.name}
+              icon={action.icon}
+              tooltipTitle={action.name}
+              onClick={() => handleSmartAction(action.name)}
+              style={{ backgroundColor: action.color }}
+            />
+          ))}
+        </SpeedDial>
+      </div>
+
+      {/* Widget Flutuante */}
+      <motion.div
+        className={classes.floatingWidget}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={toggleVoiceMode}
+      >
+        {voiceMode ? <MicOff /> : <Mic />}
+      </motion.div>
+
+      {/* Indicador de Voz */}
+      <AnimatePresence>
+        {voiceMode && (
+          <motion.div
+            className={classes.voiceIndicator}
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+          >
+            <RecordVoiceOver className={classes.pulsingIcon} />
+            <Typography variant="caption">Escutando...</Typography>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Menu Contextual */}
+      {contextualMenu && (
+        <div
+          className={classes.contextualMenu}
+          style={{
+            top: contextualMenu.y,
+            left: contextualMenu.x,
+          }}
+          onClick={() => setContextualMenu(null)}
+        >
+          <List dense>
+            <ListItem button onClick={() => handleSmartAction('quick-action')}>
+              <ListItemIcon><Extension /></ListItemIcon>
+              <ListItemText primary="Ação Rápida" />
+            </ListItem>
+            <ListItem button onClick={() => handleSmartAction('analyze')}>
+              <ListItemIcon><Extension /></ListItemIcon>
+              <ListItemText primary="Analisar" />
+            </ListItem>
+          </List>
+        </div>
+      )}
+
+      {/* Overlay de Carregamento */}
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            className={classes.loadingOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <CircularProgress size={60} style={{ color: '#667eea' }} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Dialog - Novo Usuário */}
+      <Dialog open={newUserDialogOpen} onClose={() => setNewUserDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          <Typography variant="h6" style={{ display: 'flex', alignItems: 'center' }}>
+            <Add style={{ marginRight: 8 }} />
+            Adicionar Novo Usuário
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} style={{ marginTop: 8 }}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Nome Completo"
+                value={newUserData.nome}
+                onChange={(e) => handleNewUserInputChange('nome', e.target.value)}
+                variant="outlined"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Email"
+                type="email"
+                value={newUserData.email}
+                onChange={(e) => handleNewUserInputChange('email', e.target.value)}
+                variant="outlined"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Senha"
+                type="password"
+                value={newUserData.senha}
+                onChange={(e) => handleNewUserInputChange('senha', e.target.value)}
+                variant="outlined"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth variant="outlined">
+                <InputLabel>Permissão</InputLabel>
+                <Select
+                  value={newUserData.permissao}
+                  onChange={(e) => handleNewUserInputChange('permissao', e.target.value as string)}
+                  label="Permissão"
+                >
+                  <MenuItem value="Visualizador">Visualizador</MenuItem>
+                  <MenuItem value="Operador">Operador</MenuItem>
+                  <MenuItem value="Administrador">Administrador</MenuItem>
+                  <MenuItem value="CEO">CEO</MenuItem>
+                  <MenuItem value="EnygmaDeveloper">EnygmaDeveloper</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setNewUserDialogOpen(false)} color="secondary">
+            Cancelar
+          </Button>
+          <Button onClick={handleNewUserSubmit} color="primary" variant="contained">
+            Criar Usuário
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog - Editar Usuário */}
+      <Dialog open={editUserDialogOpen} onClose={() => setEditUserDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          <Typography variant="h6" style={{ display: 'flex', alignItems: 'center' }}>
+            <Edit style={{ marginRight: 8 }} />
+            Editar Usuário
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} style={{ marginTop: 8 }}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Nome Completo"
+                value={editUserData.nome}
+                onChange={(e) => handleEditUserInputChange('nome', e.target.value)}
+                variant="outlined"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Email"
+                type="email"
+                value={editUserData.email}
+                onChange={(e) => handleEditUserInputChange('email', e.target.value)}
+                variant="outlined"
+                disabled
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth variant="outlined">
+                <InputLabel>Permissão</InputLabel>
+                <Select
+                  value={editUserData.permissao}
+                  onChange={(e) => handleEditUserInputChange('permissao', e.target.value as string)}
+                  label="Permissão"
+                >
+                  <MenuItem value="Visualizador">Visualizador</MenuItem>
+                  <MenuItem value="Operador">Operador</MenuItem>
+                  <MenuItem value="Administrador">Administrador</MenuItem>
+                  <MenuItem value="CEO">CEO</MenuItem>
+                  <MenuItem value="EnygmaDeveloper">EnygmaDeveloper</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={editUserData.ativo}
+                    onChange={(e) => handleEditUserInputChange('ativo', e.target.checked)}
+                    color="primary"
+                  />
+                }
+                label="Usuário Ativo"
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditUserDialogOpen(false)} color="secondary">
+            Cancelar
+          </Button>
+          <Button onClick={handleEditUserSubmit} color="primary" variant="contained">
+            Salvar Alterações
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog - Confirmar Exclusão */}
+      <Dialog open={deleteUserDialogOpen} onClose={() => setDeleteUserDialogOpen(false)}>
+        <DialogTitle>Confirmar Exclusão</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Tem certeza que deseja excluir o usuário <strong>{userToDelete?.nome}</strong>?
+            Esta ação não pode ser desfeita.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteUserDialogOpen(false)} color="secondary">
+            Cancelar
+          </Button>
+          <Button onClick={confirmDeleteUser} color="primary" variant="contained">
+            Confirmar Exclusão
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog - Novo Perfil */}
+      <Dialog open={newProfileDialogOpen} onClose={() => setNewProfileDialogOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>
+          <Typography variant="h6" style={{ display: 'flex', alignItems: 'center' }}>
+            <Add style={{ marginRight: 8 }} />
+            Criar Novo Perfil de Acesso
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Grid container spacing={3} style={{ marginTop: 8 }}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Nome do Perfil"
+                value={newProfileData.nome}
+                onChange={(e) => handleNewProfileInputChange('nome', e.target.value)}
+                variant="outlined"
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Descrição"
+                value={newProfileData.descricao}
+                onChange={(e) => handleNewProfileInputChange('descricao', e.target.value)}
+                variant="outlined"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="h6" style={{ marginTop: 16, marginBottom: 16 }}>
+                Permissões do Módulo
+              </Typography>
+              <Grid container spacing={2}>
+                {Object.keys(newProfileData.permissoes).map((permissao) => (
+                  <Grid item xs={12} sm={6} md={4} key={permissao}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={newProfileData.permissoes[permissao as keyof typeof newProfileData.permissoes]}
+                          onChange={(e) => handleNewProfileInputChange(`permissoes.${permissao}`, e.target.checked)}
+                          color="primary"
+                        />
+                      }
+                      label={permissao.charAt(0).toUpperCase() + permissao.slice(1)}
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setNewProfileDialogOpen(false)} color="secondary">
+            Cancelar
+          </Button>
+          <Button onClick={handleNewProfileSubmit} color="primary" variant="contained">
+            Criar Perfil
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog de Permissões */}
+      {renderPermissionDialog()}
+
+      {/* Snackbar para Notificações */}
+      <Snackbar
+        open={notifications.length > 0}
+        autoHideDuration={6000}
+        onClose={() => setNotifications([])}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert severity="success" onClose={() => setNotifications([])}>
+          {notifications[0]?.message}
+        </Alert>
+      </Snackbar>
+
+      {/* Gerenciador de Permissões */}
+      <PermissionManagerComponent
+        open={permissionDialogOpen}
+        onClose={() => {
+          setPermissionDialogOpen(false);
+          setSelectedUserForPermissions(null);
+        }}
+        userId={selectedUserForPermissions?.uid}
+        userProfile={selectedUserForPermissions?.permissionProfile || selectedUserForPermissions?.permissao}
+      />
+    </div>
+  );
+};
+
+export default Colaboradores;

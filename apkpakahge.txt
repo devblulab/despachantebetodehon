@@ -1,0 +1,8 @@
+npm run build
+npm run export
+npm install @capacitor/core @capacitor/cli
+npx cap init
+npx cap add android
+npx cap sync android
+npx cap open android
+# Compile no Android Studio e gere o APK

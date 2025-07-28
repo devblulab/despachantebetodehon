@@ -1,0 +1,123 @@
+Crie uma página `/serviços` com as seguintes características:
+
+1. **Layout Principal**:
+- Menu fixo no topo ocupando 100% da largura
+- Campo de busca centralizado abaixo do menu
+- Grid responsivo de cards (4 colunas desktop, 2 mobile)
+- Usar sistema de cores: #2563eb (azul) para primário, #f3f4f6 (cinza) para fundo
+- Manter padrão de espaçamento: gap-6 entre cards, padding-4 nos elementos
+
+2. **Componente de Busca**:
+- Placeholder: "Digite o nome do serviço..."
+- Funcionalidade: Filtro em tempo real que mostra cards correspondentes aos caracteres digitados
+- Design: Input com ícone de lupa (🔍) à direita, bordas arredondadas
+- Implementar debounce (300ms) para performance
+
+3. **Cards de Serviços**:
+- Estrutura:
+  • Ícone relevante (usar biblioteca Heroicons)
+  • Nome do serviço em negrito
+  • Categoria em tag colorida
+- Comportamento:
+  • Efeito hover: scale-105 e sombra
+  • Ao clicar: redireciona para `/servico/[id]`
+- Dados: Mapear todos os serviços categorizados do PDF
+
+4. **Página de Detalhes**:
+- Rota: `/servico/[id]` 
+- Conteúdo:
+  • Título do serviço
+  • Ícone e categoria
+  • Descrição detalhada
+  • Seção "Documentos Necessários" (lista)
+  • Valor e tipo (TAXAS/OUTRAS DESPESAS)
+- Botão "Voltar" para retornar à lista
+
+5. **Integrações**:
+- Usar componentes existentes:
+  • Navbar
+  • Footer
+  • Sistema de cores global
+- Usar hook useRouter para navegação
+- Gerenciar estado da busca com useState
+
+6. **Dados dos Serviços** (exemplo):
+const servicos = [
+  {
+    id: 1017,
+    nome: "ADESIVO ANTT",
+    categoria: "Serviços de ANTT e Transporte",
+    icone: "TruckIcon",
+    descricao: "Certificação obrigatória para veículos de transporte de cargas...",
+    documentos: ["CRLV atualizado", "Documento de identificação"],
+    valor: "20,00",
+    tipo: "TAXAS"
+  },
+  {
+    id: 1093,
+    nome: "VISTORIA CARRO",
+    categoria: "Vistorias e Inspeções",
+    icone: "CarIcon",
+    descricao: "Inspeção técnica obrigatória para renovação do licenciamento...",
+    documentos: ["CRLV original", "Comprovante de IPVA"],
+    valor: "240,00",
+    tipo: "TAXAS"
+  }
+  // ... outros serviços
+];
+
+7. **Implementação Técnica**:
+- Next.js para roteamento dinâmico
+- Tailwind CSS para estilização responsiva
+- Framer Motion para animações
+- Pré-carregar dados dos serviços
+- Dynamic import para ícones
+
+8. **Tratamento de Erros**:
+- Página 404 para serviços não encontrados
+- Loading state durante carregamento
+- Validação de parâmetros da URL
+
+9. **Estilo Visual**:
+- Cards: border-radius: 12px, shadow-md
+- Tags de categoria: bg-azul-100 text-azul-800
+- Animação de hover: transition duration-300
+- Layout mobile-first
+
+10. **Otimizações**:
+- SSG (Static Site Generation) para páginas de detalhes
+- Lazy loading de imagens
+- Agrupamento por categorias na página principal
+
+Pontos-chave de implementação:
+
+// Componente de busca
+const [termoBusca, setTermoBusca] = useState('');
+const servicosFiltrados = servicos.filter(servico => 
+  servico.nome.toLowerCase().includes(termoBusca.toLowerCase())
+);
+
+// Grid responsivo
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  {servicosFiltrados.map(servico => (
+    <CardServico key={servico.id} servico={servico} />
+  ))}
+</div>
+
+// Página de detalhes (servico/[id].js)
+export async function getStaticPaths() {
+  const paths = servicos.map(servico => ({
+    params: { id: servico.id.toString() }
+  }));
+  return { paths, fallback: false };
+}
+
+export async function getStaticProps({ params }) {
+  const servico = servicos.find(s => s.id.toString() === params.id);
+  return { props: { servico } };
+}
+
+// Ícones dinâmicos
+const Icone = dynamic(() => 
+  import('@heroicons/react/24/outline').then(mod => mod[servico.icone])
+);

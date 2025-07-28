@@ -1,0 +1,46 @@
+./src/pages/colaboradores/index.tsx
+Error: 
+  x Expected ';', '}' or <eof>
+      ,-[/home/runner/workspace/src/pages/colaboradores/index.tsx:977:1]
+  977 |             ...prev,
+  978 |             [field]: value
+  979 |           }));
+  980 | ,->     ```typescript
+  981 | |       }
+  982 | |     };
+  983 | |   
+  984 | |     const generateUserReport = () => {
+  985 | |       // Simular dados do relatório
+  986 | |       const reportData = {
+  987 | |         totalUsuarios: 24,
+  988 | |         usuariosAtivos: 18,
+  989 | |         usuariosInativos: 6,
+  990 | |         perfisCriados: 5,
+  991 | |         ultimosAcessos: [
+  992 | |           { usuario: 'João Silva', email: 'joao.silva@empresa.com', ultimoAcesso: 'Há 2 horas', perfil: 'Administrador' },
+  993 | |           { usuario: 'Maria Santos', email: 'maria.santos@empresa.com', ultimoAcesso: 'Há 1 dia', perfil: 'Operador' },
+  994 | |           { usuario: 'Carlos Oliveira', email: 'carlos.oliveira@empresa.com', ultimoAcesso: 'Há 1 semana', perfil: 'Visualizador' },
+  995 | |           { usuario: 'Ana Costa', email: 'ana.costa@empresa.com', ultimoAcesso: 'Há 3 dias', perfil: 'Operador' },
+  996 | |           { usuario: 'Pedro Lima', email: 'pedro.lima@empresa.com', ultimoAcesso: 'Há 5 dias', perfil: 'Visualizador' }
+  997 | |         ],
+  998 | |         atividadesRecentes: [
+  999 | |           { acao: 'Login realizado', usuario: 'João Silva', data: new Date().toLocaleString() },
+ 1000 | |           { acao: 'Usuário criado', usuario: 'Maria Santos', data: new Date(Date.now() - 86400000).toLocaleString() },
+ 1001 | |           { acao: 'Permissão alterada', usuario: 'Carlos Oliveira', data: new Date(Date.now() - 172800000).toLocaleString() },
+ 1002 | |           { acao: 'Perfil criado', usuario: 'Admin', data: new Date(Date.now() - 259200000).toLocaleString() },
+ 1003 | |           { acao: 'Login realizado', usuario: 'Ana Costa', data: new Date(Date.now() - 345600000).toLocaleString() }
+ 1004 | |         ]
+ 1005 | |       };
+ 1006 | |   
+ 1007 | |       // Criar conteúdo HTML do relatório
+ 1008 | |       const reportHTML = `
+ 1009 | |->       <!DOCTYPE html>
+      : `---                ^^^^
+      : `---- This is the expression part of an expression statement
+ 1010 |           <html>
+ 1011 |             <head>
+ 1012 |               <title>Relatório Completo de Usuários - ${new Date().toLocaleDateString()}</title>
+      `----
+
+Caused by:
+    Syntax Error

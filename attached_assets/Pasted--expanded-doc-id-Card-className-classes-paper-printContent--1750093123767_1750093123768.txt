@@ -1,0 +1,65 @@
+ {expanded === doc.id && (
+                       <Card className={`${classes.paper} printContent`} id="printable-content">
+
+                          <div className={classes.header}>
+                            <Typography className={classes.title2}>Estado de Santa Catarina</Typography>
+                            <Typography className={classes.subtitle}>Secretaria de Estado de Segurança Pública</Typography>
+                            <Typography className={classes.subtitle}>Departamento Estadual de Trânsito</Typography>
+                            <Typography className={classes.subtitle}>Diretoria de Veículo</Typography>
+                          </div>
+                          
+                          <Typography className={classes.title} style={{ textAlign: 'center' }}>
+                            Requerimento de Intenção de Venda
+                          </Typography>
+                          
+                          <div key={doc.placa}>
+                            <Typography className={classes.sectionTitle}>Identificação do Veículo</Typography>
+                            <Typography className={classes.field}><strong>Placa:</strong> {doc.id}</Typography>
+                            <Typography className={classes.field}><strong>Renavam:</strong> {doc.renavam}</Typography>
+                            <Typography className={classes.field}><strong>CRV:</strong> {doc.crv}</Typography>
+                            <Typography className={classes.field}><strong>Valor de Venda:</strong> R$ {doc.valordevenda}</Typography>
+                          
+                            <Typography className={classes.sectionTitle}>Identificação do Vendedor</Typography>
+                            <Typography className={classes.field}><strong>Nome:</strong> {doc.nomevendedor}</Typography>
+                            <Typography className={classes.field}><strong>CPF/CNPJ:</strong> {doc.cpfvendedor}</Typography>
+                            <Typography className={classes.field}><strong>E-mail:</strong> {doc.emailvendedor}</Typography>
+                          
+                            <Typography className={classes.sectionTitle}>Identificação do Comprador</Typography>
+                            <Typography className={classes.field}><strong>Nome:</strong> {doc.nomecomprador}</Typography>
+                            <Typography className={classes.field}><strong>CPF/CNPJ:</strong> {doc.cpfcomprador}</Typography>
+                            <Typography className={classes.field}><strong>CEP:</strong> {doc.cepcomprador}</Typography>
+                            <Typography className={classes.field}><strong>Endereço:</strong> {doc.enderecocomprador}</Typography>
+                            <Typography className={classes.field}><strong>Bairro:</strong> {doc.bairrocomprador}</Typography>
+                            <Typography className={classes.field}><strong>Município:</strong> {doc.municipiocomprador}</Typography>
+                            <Typography className={classes.field}><strong>Estado:</strong> {doc.complementocomprador}</Typography>
+                            <Typography className={classes.field}><strong>E-mail:</strong> {doc.emailcomprador}</Typography>
+                            <Typography className={classes.field}><strong>CEL/TEL:</strong> {doc.celtelcomprador}</Typography>
+                          
+                            <Typography className={classes.sectionTitle}></Typography>
+                            <Typography className={classes.field2} style={{ marginTop: '20px' }}>
+                              Eu <strong>VENDEDOR</strong>, com base na Resolução do CONTRAN nº 809, de 15 de dezembro 2020,
+                              informo ao Departamento Estadual de Trânsito de Santa Catarina (DETRAN-SC) a,
+                              <strong>INTENÇÃO DE VENDA</strong> em {formatDate(doc.dataCriacao)}, para o <strong>COMPRADOR</strong> conforme indicado acima.
+                            </Typography>
+                            {doc.signature && (
+                              <div className={classes.signatureSection}>
+                                <img src={doc.signature} alt="Assinatura do Cliente" style={{ maxWidth: '100%' }} />
+                              </div>
+                            )}
+                          
+                            <div className={classes.signatureSection}>
+                              <div className={classes.signatureBlock}>
+                                Assinatura do Vendedor ou Responsável
+                              </div>
+                            </div>
+                          
+                            <Typography className={classes.sectionTitle4}>b3certificacao@gmail.com</Typography>
+                            <Typography className={classes.sectionTitle3}>Documentação Básica</Typography>
+                            <Typography className={classes.field3}>Pessoa Física: Cópia da CNH ou RG/CPF</Typography>
+                            <Typography className={classes.field3}>Pessoa Jurídica: Cópia do ato constitutivo e Cartão CNPJ</Typography>
+                            <Typography className={classes.field3}>Obs: Cópia autenticada de procuração e cópia da CNH ou RG/CPF do procurador caso solicitado por terceiro.</Typography>
+   
+  
+                            <Button onClick={handlePrintDocument} className={`${classes.downloadButton} ${classes.noPrint}`}>
+  Imprimir Documento
+</Button>

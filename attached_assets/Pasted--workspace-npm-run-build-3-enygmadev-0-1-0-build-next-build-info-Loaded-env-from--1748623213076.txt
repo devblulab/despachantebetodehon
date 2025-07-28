@@ -1,0 +1,65 @@
+~/workspace$ npm run build
+^[[3~
+> enygmadev@0.1.0 build
+> next build
+
+info  - Loaded env from /home/runner/workspace/.env.local
+info  - Linting and checking validity of types  
+info  - Compiled successfully
+info  - Creating an optimized production build .info  - Collecti
+info  - Collecting page data  
+info  - Generating static pages (25/25)
+info  - Creating an optimized production build .info  - Finalizi
+info  - Finalizing page optimization  
+
+Route (pages)                              Size     First Load JS
+┌ ○ /                                      2.15 kB         288 kB
+├   /_app                                  0 B             286 kB
+├ ○ /404                                   185 B           287 kB
+├ ○ /admin/system-test                     3.08 kB         289 kB
+├ λ /api/aprimorarTexto                    0 B             286 kB
+├ λ /api/atpvs/[id]                        0 B             286 kB
+├ λ /api/atpvs/atualizar                   0 B             286 kB
+├ λ /api/atpvs/listar                      0 B             286 kB
+├ λ /api/atpvs/obter                       0 B             286 kB
+├ λ /api/bludata                           0 B             286 kB
+├ λ /api/cnpj                              0 B             286 kB
+├ λ /api/consultarFipe                     0 B             286 kB
+├ λ /api/consultarVeiculo                  0 B             286 kB
+├ λ /api/cpf                               0 B             286 kB
+├ λ /api/health                            0 B             286 kB
+├ λ /api/hello                             0 B             286 kB
+├ λ /api/ia                                0 B             286 kB
+├ ○ /area-cliente                          6.62 kB         344 kB
+├ ○ /avisos (1798 ms)                      5.56 kB         431 kB
+├   └ css/1fa5da8c9935506c.css             252 B
+├ ○ /beto (395 ms)                         3.43 kB         324 kB
+├ ○ /beto/anuencia                         11.5 kB         482 kB
+├ ○ /beto/dashboard                        8.36 kB         297 kB
+├ ○ /beto/dashboard/digital (411 ms)       7.15 kB         533 kB
+├ ○ /beto/dashboard/digital/empresas       5.34 kB         531 kB
+├ ○ /beto/dashboard/empresas               5.33 kB         531 kB
+├ ○ /beto/dashboard/fiat (320 ms)          17.1 kB         486 kB
+├ ○ /beto/digital (790 ms)                 1.57 kB         322 kB
+├ ○ /beto/digital/empresas (412 ms)        1.56 kB         322 kB
+├ ○ /beto/empresas (434 ms)                2.91 kB         323 kB
+├ ○ /beto/home                             3.83 kB         336 kB
+├ ○ /beto/localizar (353 ms)               332 B           454 kB
+├ ○ /beto/requerimento                     11.4 kB         490 kB
+├ ○ /beto/requerimento/digital (442 ms)    10.8 kB         475 kB
+├ ○ /beto/transferencia                    11.9 kB         487 kB
+├ ○ /colaboradores                         150 kB          490 kB
+├ ○ /contato                               3.03 kB         324 kB
+├ ○ /teste                                 2.48 kB         289 kB
+└ ○ /usuario                               10.7 kB         436 kB
++ First Load JS shared by all              293 kB
+  ├ chunks/framework-ce84985cd166733a.js   45.2 kB
+  ├ chunks/main-d9baf02227ea75f0.js        27 kB
+  ├ chunks/pages/_app-cdc44db6df1b7d72.js  212 kB
+  ├ chunks/webpack-c82b0e7a9460b9ea.js     2.05 kB
+  └ css/c0986b06a18a44b0.css               6.92 kB
+
+ƒ Middleware                               29 kB
+
+λ  (Server)  server-side renders at runtime (uses getInitialProps or getServerSideProps)
+○  (Static)  automatically rendered as static HTML (uses no initial props)

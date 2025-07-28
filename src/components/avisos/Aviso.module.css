@@ -1,0 +1,27 @@
+.avisoPost {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.flexCenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.inputField {
+  background-color: #ffffff;
+  border-radius: 4px;
+ 
+ 
+}
+
+.addButton {
+  margin-top: 1.5rem;
+}

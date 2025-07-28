@@ -1,0 +1,179 @@
+dashboardHeader: {
+    marginBottom: theme.spacing(2),
+    padding: theme.spacing(),
+    borderRadius: theme.shape.borderRadius,
+    boxShadow: theme.shadows[3],
+    backgroundColor: '#000'
+  },
+  statCard: {
+    padding: '10px',
+    textAlign: 'center',
+    backgroundColor: '#fff',
+    transition: 'transform 0.3s, box-shadow 0.3s',
+    '&:hover': {
+      transform: 'translateY(-5px)',
+      boxShadow: theme.shadows[10],
+    },
+    width: '100px',
+    maxWidth: '100px',
+    margin: '0 auto',
+  },
+  dateFilter: {
+    minWidth: '150px',
+  },
+  statIcon: {
+    fontSize: '2rem',
+    marginBottom: theme.spacing(2),
+    color: theme.palette.primary.main,
+  },
+  paper: {
+    padding: theme.spacing(4),
+    margin: '20px auto',
+    maxWidth: '1000px',
+    backgroundColor: theme.palette.background.paper,
+    borderRadius: '12px',
+    boxShadow: theme.shadows[5],
+  },
+  filterContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.spacing(2),
+    marginBottom: theme.spacing(4),
+    flexWrap: 'wrap',
+  },
+  searchField: {
+    flex: 1,
+    minWidth: '250px',
+  },
+  title: {
+    fontSize: '1.9rem',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+  },
+  title2: {
+    fontSize: '1.2rem',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+  },
+  subtitle: {
+    fontSize: '0.8rem',
+    marginTop: theme.spacing(1),
+    fontWeight: 'bold',
+  },
+  button: {
+    whiteSpace: 'nowrap',
+    margin: theme.spacing(0.5),
+  },
+  listItemExpanded: {
+    backgroundColor: theme.palette.action.hover,
+    borderRadius: '8px',
+    marginBottom: theme.spacing(1),
+  },
+  sectionTitle: {
+    fontSize: '1.2rem',
+    fontWeight: 'bold',
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(2),
+    borderBottom: `2px solid ${theme.palette.divider}`,
+  },
+  field: {
+    fontSize: '1rem',
+    marginBottom: theme.spacing(-1),
+    padding: theme.spacing(1),
+    backgroundColor: theme.palette.action.hover,
+    borderRadius: '4px',
+  },
+  chartHeader: {
+    width: '400px',
+    height: '200px',
+    marginBottom: theme.spacing(4),
+    borderRadius: '12px',
+    boxShadow: theme.shadows[3],
+    overflow: 'hidden',
+  },
+  listItemPendente: {
+    backgroundColor: '#FFCDD2',
+  },
+  listItemConcluido: {
+    backgroundColor: '#C8E6C9',
+  },
+  field3: {
+    fontSize: '0.7rem',
+    marginBottom: theme.spacing(1),
+  },
+  field2: {
+    fontSize: '1.3rem',
+    marginBottom: theme.spacing(1),
+  },
+  sectionTitle3: {
+    fontSize: '1rem',
+    fontWeight: 'bold',
+    marginTop: theme.spacing(0),
+    marginBottom: theme.spacing(2),
+    borderBottom: '1px solid #ccc',
+    paddingBottom: theme.spacing(0),
+  },
+  sectionTitle4: {
+    fontSize: '1rem',
+    fontWeight: 'bold',
+    marginTop: theme.spacing(5),
+    marginBottom: theme.spacing(2),
+    borderBottom: '1px solid #ccc',
+    paddingBottom: theme.spacing(0),
+  },
+  signatureSection: {
+    marginTop: theme.spacing(20),
+    display: 'flex',
+    justifyContent: 'center',
+    textAlign: 'center',
+    width: '100%',
+  },
+  signatureBlock: {
+    textAlign: 'center',
+    width: 'auto',
+    borderTop: '2px solid #000',
+    paddingTop: theme.spacing(1),
+    margin: '0 auto',
+  },
+  header: {
+    textAlign: 'center',
+    marginBottom: theme.spacing(4),
+    fontSize: '1.0rem',
+    fontWeight: 'bold',
+  },
+  noPrint: {
+    '@media print': {
+      display: 'none !important',
+    },
+  },
+  downloadButton: {
+    marginTop: theme.spacing(1),
+    backgroundColor: '#4CAF50',
+    color: '#fff',
+    '&:hover': {
+      backgroundColor: '#45a049',
+    },
+  },
+
+  imagemDashboard: {
+    width: 200,
+    marginTop: 8,
+    maxWidth: '100%',
+    display: 'block',
+    Shadow: '0 2px 4px rgb(224, 18, 207)',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
+  textoBrancoDiva: {
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: 600,
+    fontSize: '2rem',
+    fontFamily: '"Playfair Display", serif',
+    textTransform: 'uppercase',
+    textShadow: '0 2px 4px rgb(224, 18, 207)',
+    marginTop: 16,
+  },
+  
+  
+}));

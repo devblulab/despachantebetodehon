@@ -1,0 +1,46 @@
+/src/pages/colaboradores/index.tsx
+Error: 
+  x the name `permissionDialogOpen` is defined multiple times
+     ,-[/home/runner/workspace/src/pages/colaboradores/index.tsx:580:1]
+ 580 |   });
+ 581 | 
+ 582 |   // Estados para Gestão de Permissões
+ 583 |   const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
+     :          ^^^^^^^^^^|^^^^^^^^^
+     :                    `-- previous definition of `permissionDialogOpen` here
+ 584 |   const [selectedProfile, setSelectedProfile] = useState<any>(null);
+ 585 |   const [profilePermissions, setProfilePermissions] = useState<any>({});
+ 586 |   const [dashboardExpanded, setDashboardExpanded] = useState<string | null>(null);
+ 587 |   const [selectedDashboard, setSelectedDashboard] = useState<string>('');
+ 588 | 
+ 589 |   // Estados para sistema de permissões
+ 590 |   const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
+     :          ^^^^^^^^^^|^^^^^^^^^
+     :                    `-- `permissionDialogOpen` redefined here
+ 591 |   const [selectedUserForPermissions, setSelectedUserForPermissions] = useState<any>(null);
+ 592 | 
+ 593 |   // Perfis de Acesso Pré-definidos
+     `----
+
+  x the name `setPermissionDialogOpen` is defined multiple times
+     ,-[/home/runner/workspace/src/pages/colaboradores/index.tsx:580:1]
+ 580 |   });
+ 581 | 
+ 582 |   // Estados para Gestão de Permissões
+ 583 |   const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
+     :                                ^^^^^^^^^^^|^^^^^^^^^^^
+     :                                           `-- previous definition of `setPermissionDialogOpen` here
+ 584 |   const [selectedProfile, setSelectedProfile] = useState<any>(null);
+ 585 |   const [profilePermissions, setProfilePermissions] = useState<any>({});
+ 586 |   const [dashboardExpanded, setDashboardExpanded] = useState<string | null>(null);
+ 587 |   const [selectedDashboard, setSelectedDashboard] = useState<string>('');
+ 588 | 
+ 589 |   // Estados para sistema de permissões
+ 590 |   const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
+     :                                ^^^^^^^^^^^|^^^^^^^^^^^
+     :                                           `-- `setPermissionDialogOpen` redefined here
+ 591 |   const [selectedUserForPermissions, setSelectedUserForPermissions] = useState<any>(null);
+ 592 | 
+ 593 |   // Perfis de Acesso Pré-definidos
+     `----
+This error occurred during the build process and can only be dismissed by fixing the error.

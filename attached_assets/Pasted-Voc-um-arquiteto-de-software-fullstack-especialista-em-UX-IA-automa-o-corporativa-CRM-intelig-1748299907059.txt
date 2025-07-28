@@ -1,0 +1,79 @@
+Você é um arquiteto de software fullstack especialista em UX, IA, automação corporativa, CRM inteligente e sistemas escaláveis. Sua missão é criar uma área de colaboradores avançada, com inteligência artificial nativa, que funcione como uma central de operações para o Despachante Beto Dheon, localizado em Tubarão, Santa Catarina.
+
+O projeto já está desenvolvido em Next.js com TypeScript, Firebase, estilização com Material-UI (@mui/styles MakeStyles Core) e usa Firestore como banco de dados.
+
+Requisitos principais:
+	1.	Menu Lateral Avançado
+
+	•	Navegação dinâmica que muda os componentes .tsx sem recarregar ou mudar de página.
+	•	Interface fluida, responsiva e moderna.
+	•	Inspirado no Monday.com, Notion e interfaces corporativas premium.
+
+	2.	Dashboard Completo com IA
+
+	•	Dashboard inteligente que exibe:
+	•	Contador de documentos por coleção (exceto Feed e IA).
+	•	Cards separados para cada setor: Documentos, ATPV, CNH, Financeiro, Ordens de Serviço, etc.
+	•	Sistema de busca e localização avançada de qualquer dado no banco Firebase.
+	•	Gráficos, relatórios e análises com IA integrada.
+
+	3.	Chat Interno Profissional
+
+	•	Chat em tempo real entre colaboradores.
+	•	Criação de chats privados, grupos e salas por setores.
+	•	Ver quem está online, status dos colaboradores, e atividade recente.
+	•	Histórico de mensagens, envio de arquivos (PDF, imagens, documentos).
+
+	4.	Chat de IA Especializada
+
+	•	Chat com IA chamada “Lívia”, uma especialista com mais de 50 anos de experiência, que domina todas as leis do Detran de Tubarão, SC, e de Santa Catarina.
+	•	A IA responde sobre procedimentos, leis, documentos, prazos, processos, além de sugerir melhorias operacionais, atualizar rotinas e dar recomendações jurídicas e operacionais.
+
+	5.	CRM Embutido com IA Automatizada
+
+	•	Funil de vendas inteligente com IA.
+	•	Cards de clientes nos estágios: Novo Lead, Contato Feito, Documentação, Em Processamento, Finalizado e Pós-Venda.
+	•	IA que sugere ações, envia notificações, recomenda melhorias, detecta gargalos e sugere estratégias.
+	•	Dashboard CRM com visão geral, metas, histórico de atendimentos, e desempenho dos colaboradores.
+
+	6.	Área de Feed com IA
+
+	•	Feed interno para comunicação, avisos, novidades e atualizações da equipe.
+	•	IA que sugere textos, gera automaticamente postagens, cria avisos e interações.
+	•	Sistema de comentários, reações e enquetes internas.
+
+	7.	Organização Modular e Componentizada
+
+	•	Cada funcionalidade em seu próprio componente .tsx, com organização limpa em pastas como:
+	•	/components/dashboard/
+	•	/components/crm/
+	•	/components/chat/
+	•	/components/feed/
+	•	/components/ia/
+	•	Arquitetura escalável, profissional e moderna.
+
+	8.	Experiência Profissional de Alto Nível
+
+	•	Interface pensada em UX com mais de 50 anos de know-how aplicado.
+	•	IA utilizando LLMs (como Gemini, DeepSeek, OpenAI) com estratégias de vendas, gestão, produtividade, atendimento, marketing e operações.
+	•	Integração nativa com Firebase, Firestore e APIs externas.
+
+	9.	Notificações Inteligentes e Proativas
+
+	•	IA avisa sobre pendências, documentos faltando, oportunidades de venda, erros operacionais e melhorias sugeridas.
+	•	Sistema de alertas por toast, push e e-mail interno.
+
+	10.	Sem Troca de Páginas — Tudo Dinâmico
+
+	•	Navegação e mudança de telas usando apenas React State, ContextAPI ou Zustand.
+	•	Sem reload, sem redirecionamento.
+	•	UX fluida, instantânea e profissional.
+
+Desafio:
+	•	Crie todos os arquivos .tsx já organizados, com MakeStyles aplicado, hooks, contextos e integração Firebase funcional.
+	•	As telas devem estar prontas para rodar imediatamente.
+	•	Cada área (dashboard, chat, crm, feed, IA) deve ser completamente funcional, com IA integrada, estilização refinada e comportamento profissional.
+	•	A IA deve ser proativa, sugerindo textos, otimizando tarefas, criando estratégias e melhorando continuamente a operação.
+
+Finalidade:
+O projeto serve como uma central de operações para colaboradores do Despachante Beto Dheon, focada em produtividade, gestão inteligente, organização, atendimento eficiente e otimização com IA.”**

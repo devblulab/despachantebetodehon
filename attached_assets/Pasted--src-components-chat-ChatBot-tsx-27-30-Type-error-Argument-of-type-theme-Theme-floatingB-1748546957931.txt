@@ -1,0 +1,17 @@
+./src/components/chat/ChatBot.tsx:27:30
+Type error: Argument of type '(theme: Theme) => { floatingButton: { position: "fixed"; bottom: string; right: string; zIndex: number; background: string; color: string; width: string; height: string; boxShadow: string; transition: string; border: string; '&:hover': { ...; }; }; ... 13 more ...; welcomeMessage: { ...; }; }' is not assignable to parameter of type 'Styles<Theme, {}, "dialog" | "inputField" | "floatingButton" | "dialogTitle" | "dialogContent" | "messagesContainer" | "messageUser" | "messageBot" | "actionButtons" | ... 5 more ... | "welcomeMessage">'.
+  Type '(theme: Theme) => { floatingButton: { position: "fixed"; bottom: string; right: string; zIndex: number; background: string; color: string; width: string; height: string; boxShadow: string; transition: string; border: string; '&:hover': { ...; }; }; ... 13 more ...; welcomeMessage: { ...; }; }' is not assignable to type 'StyleRulesCallback<Theme, {}, "dialog" | "inputField" | "floatingButton" | "dialogTitle" | "dialogContent" | "messagesContainer" | "messageUser" | "messageBot" | "actionButtons" | ... 5 more ... | "welcomeMessage">'.
+    Call signature return types '{ floatingButton: { position: "fixed"; bottom: string; right: string; zIndex: number; background: string; color: string; width: string; height: string; boxShadow: string; transition: string; border: string; '&:hover': { ...; }; }; ... 13 more ...; welcomeMessage: { ...; }; }' and 'StyleRules<{}, "dialog" | "inputField" | "floatingButton" | "dialogTitle" | "dialogContent" | "messagesContainer" | "messageUser" | "messageBot" | "actionButtons" | "actionButton" | ... 4 more ... | "welcomeMessage">' are incompatible.
+      The types of 'avatarBot' are incompatible between these types.
+        Type '{ background: string; color: string; width: string; height: string; marginRight: string; fontFamily: string; fontWeight: "600"; }' is not assignable to type 'CSSProperties | CreateCSSProperties<{}> | PropsFunc<{}, CreateCSSProperties<{}>>'.
+          Type '{ background: string; color: string; width: string; height: string; marginRight: string; fontFamily: string; fontWeight: "600"; }' is not assignable to type 'CreateCSSProperties<{}>'.
+            Types of property 'fontWeight' are incompatible.
+              Type '"600"' is not assignable to type 'FontWeightProperty | PropsFunc<{}, FontWeightProperty | undefined> | undefined'.
+
+  25 | import { makeStyles, Theme } from '@material-ui/core/styles';
+  26 | 
+> 27 | const useStyles = makeStyles((theme: Theme) => ({
+     |                              ^
+  28 |   floatingButton: {
+  29 |     position: 'fixed',
+  30 |     bottom: '24px',

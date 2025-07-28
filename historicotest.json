@@ -1,0 +1,29 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-07-23T20:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v8.2.0",
+  "resources": [
+    {
+      "_id": "req_digisac_historico",
+      "parentId": "__WORKSPACE_ID__",
+      "_type": "request",
+      "name": "Buscar histórico por número",
+      "method": "GET",
+      "url": "http://localhost:3000/api/mensagensPorContato/5548999450642",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": -1,
+      "isPrivate": false
+    },
+    {
+      "_id": "__WORKSPACE_ID__",
+      "parentId": null,
+      "_type": "workspace",
+      "name": "Digisac Integração",
+      "description": ""
+    }
+  ]
+}

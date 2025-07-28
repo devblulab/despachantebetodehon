@@ -1,0 +1,41 @@
+Warning: Failed %s type: %s%s prop Material-UI: `overlap="rectangle"` was deprecated. Use `overlap="rectangular"` instead. 
+    at Badge (webpack-internal:///./node_modules/@material-ui/core/esm/Badge/Badge.js:276:35)
+    at WithStyles (webpack-internal:///./node_modules/@material-ui/styles/esm/withStyles/withStyles.js:61:31)
+    at span
+    at button
+    at ButtonBase (webpack-internal:///./node_modules/@material-ui/core/esm/ButtonBase/ButtonBase.js:89:22)
+    at WithStyles (webpack-internal:///./node_modules/@material-ui/styles/esm/withStyles/withStyles.js:61:31)
+    at IconButton (webpack-internal:///./node_modules/@material-ui/core/esm/IconButton/IconButton.js:124:27)
+    at WithStyles (webpack-internal:///./node_modules/@material-ui/styles/esm/withStyles/withStyles.js:61:31)
+    at div
+    at div
+    at div
+    at div
+    at ChatInterno (webpack-internal:///./src/components/chat/ChatInterno.tsx:385:21)
+    at div
+    at MotionComponent (webpack-internal:///./node_modules/framer-motion/dist/es/motion/index.mjs:49:65)
+    at PresenceChild (webpack-internal:///./node_modules/framer-motion/dist/es/components/AnimatePresence/PresenceChild.mjs:15:26)
+    at AnimatePresence (webpack-internal:///./node_modules/framer-motion/dist/es/components/AnimatePresence/index.mjs:72:28)
+    at div
+    at TabPanel (webpack-internal:///./src/pages/colaboradores/index.tsx:356:13)
+    at div
+    at Paper (webpack-internal:///./node_modules/@material-ui/core/esm/Paper/Paper.js:48:23)
+    at WithStyles (webpack-internal:///./node_modules/@material-ui/styles/esm/withStyles/withStyles.js:61:31)
+    at div
+    at Container (webpack-internal:///./node_modules/@material-ui/core/esm/Container/Container.js:85:23)
+    at WithStyles (webpack-internal:///./node_modules/@material-ui/styles/esm/withStyles/withStyles.js:61:31)
+    at div
+    at Colaboradores (webpack-internal:///./src/pages/colaboradores/index.tsx:415:21)
+    at div
+    at AutenticacaoProvider (webpack-internal:///./src/data/contexts/AutenticacaoContext.tsx:24:88)
+    at ThemeProvider (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:94:50)
+    at MantineProvider (webpack-internal:///./node_modules/@mantine/styles/esm/theme/MantineProvider.js:78:3)
+    at ot (webpack-internal:///./node_modules/styled-components/dist/styled-components.browser.esm.js:30:20467)
+    at ThemeProvider (webpack-internal:///./node_modules/@material-ui/styles/esm/ThemeProvider/ThemeProvider.js:42:24)
+    at App (webpack-internal:///./src/pages/_app.tsx:55:11)
+    at PathnameContextProviderAdapter (webpack-internal:///./node_modules/next/dist/shared/lib/router/adapters.js:62:11)
+    at ErrorBoundary (webpack-internal:///./node_modules/next/dist/compiled/@next/react-dev-overlay/dist/client.js:303:63)
+    at ReactDevOverlay (webpack-internal:///./node_modules/next/dist/compiled/@next/react-dev-overlay/dist/client.js:852:919)
+    at Container (webpack-internal:///./node_modules/next/dist/client/index.js:62:1)
+    at AppContainer (webpack-internal:///./node_modules/next/dist/client/index.js:172:11)
+    at Root (webpack-internal:///./node_modules/next/dist/client/index.js:347:11)

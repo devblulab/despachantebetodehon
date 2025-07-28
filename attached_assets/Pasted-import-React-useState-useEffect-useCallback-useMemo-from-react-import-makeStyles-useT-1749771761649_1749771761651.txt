@@ -1,0 +1,3234 @@
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import {
+  Paper,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  Tab,
+  Tabs,
+  Chip,
+  Avatar,
+  Badge,
+  IconButton,
+  Tooltip,
+  Zoom,
+  Fade,
+  Backdrop,
+  CircularProgress,
+  LinearProgress,
+  Switch,
+  FormControlLabel,
+  Button,
+  ButtonGroup,
+  Fab,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Snackbar,
+  AppBar,
+  Toolbar,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  ListItemSecondaryAction,
+  Divider,
+  useMediaQuery,
+  Container,
+  CssBaseline,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  Menu,
+} from '@material-ui/core';
+import ToggleOnIcon from '@material-ui/icons/ToggleOn';
+import ToggleOffIcon from '@material-ui/icons/ToggleOff';
+import Dashloja from '@/pages/beto/dashboard';
+import DashDigital from '@/pages/beto/dashboard/digital';
+import DashAnuencia from '@/pages/beto/anuencia';
+import DashTransferencia from '@/pages/beto/transferencia';
+import DashEmpresas from '@/pages/beto/dashboard/empresas';
+
+
+
+
+import { Alert, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@material-ui/lab';
+import {
+  People,
+  Dashboard as DashboardIcon,
+  Chat,
+  EmojiObjects,
+  Business,
+  Timeline,
+  NotificationsActive,
+  Settings,
+  Brightness4,
+  Brightness7,
+  Fullscreen,
+  FullscreenExit,
+  Refresh,
+  Security,
+  Extension,
+  Visibility,
+  VisibilityOff,
+  Lock,
+  LockOpen,
+  Star,
+  StarBorder,
+  Bookmark,
+  BookmarkBorder,
+  Share,
+  GetApp,
+  Print,
+  Email,
+  Phone,
+  VideoCall,
+  ScreenShare,
+  RecordVoiceOver,
+  Mic,
+  MicOff,
+  VolumeUp,
+  VolumeOff,
+  Headset,
+  Forum,
+  QuestionAnswer,
+  LiveHelp,
+  Help,
+  Info,
+  Warning,
+  Error,
+  CheckCircle,
+  Cancel,
+  PlayArrow,
+  Pause,
+  Stop,
+  SkipNext,
+  SkipPrevious,
+  Loop,
+  Shuffle,
+  MoreVert,
+ 
+  ExpandMore,
+  ExpandLess,
+  Add,
+  Edit,
+  Delete,
+  Save,
+  SaveAlt,
+  Publish,
+  Schedule,
+  Today,
+  DateRange,
+  AccessTime,
+  History,
+  Update,
+  Sync,
+  SyncDisabled,
+  CloudDone,
+  CloudOff,
+  WifiOff,
+  Wifi,
+  SignalWifi4Bar,
+  Battery90,
+  BatteryChargingFull,
+  PowerSettingsNew,
+  PowerOff,
+  WhatsApp,
+  Code,
+  DataUsage,
+  Storage,
+  Memory,
+  SpeedOutlined,
+  Assignment
+} from '@material-ui/icons';
+
+import ChatInterno from '@/components/chat/ChatInterno';
+import ChatIA from '@/components/chat/ChatIA';
+import CRM from '@/components/crm/CRM';
+import DashboardIA from '@/components/dashboard/DashboardIA';
+import Feed from '@/components/feed/Feed';
+import { motion, AnimatePresence, useAnimation } from 'framer-motion';
+import WhatsAppDigisac from '@/components/whatsapp/WhatsAppDigisac';
+
+
+type ModulePermissions = {
+  ativo: boolean;
+  criar: boolean;
+  editar: boolean;
+  excluir: boolean;
+  visualizar: boolean;
+};
+
+type ProfilePermissions = Record<string, ModulePermissions>;
+
+
+interface PerformanceMetrics {
+  cpu: number;
+  memory: number;
+  network: number;
+  storage: number;
+}
+
+
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    minHeight: '100vh',
+    background: theme.palette.type === 'dark' 
+      ? 'linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 50%, #2d2d2d 100%)'
+      : 'linear-gradient(135deg,rgb(150, 150, 150) 0%, #c3cfe2 100%)',
+    transition: 'all 0.3s ease',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  header: {
+    padding: theme.spacing(4),
+    background: theme.palette.type === 'dark'
+      ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+      : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    color: 'black',
+    textAlign: 'center',
+    position: 'relative',
+    overflow: 'hidden',
+    borderRadius: '0 0 30px 30px',
+    boxShadow: theme.shadows[10],
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%)',
+      animation: '$shimmer 3s infinite',
+    },
+  },
+  '@keyframes shimmer': {
+    '0%': { transform: 'translateX(-100%)' },
+    '100%': { transform: 'translateX(100%)' },
+  },
+  tabsContainer: {
+    backgroundColor: theme.palette.background.paper,
+    borderRadius: theme.spacing(2),
+    margin: theme.spacing(2),
+    boxShadow: theme.shadows[8],
+    overflow: 'hidden',
+    color: 'black',
+    position: 'relative',
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 4,
+      background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+    },
+  },
+  tabPanel: {
+    padding: 0,
+    minHeight: 'calc(100vh - 400px)',
+  },
+  welcomeCard: {
+    margin: theme.spacing(2),
+    background: theme.palette.type === 'dark'
+      ? 'linear-gradient(135deg, #2d3748 0%, #4a5568 100%)'
+      : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    color: 'white',
+    borderRadius: theme.spacing(3),
+    position: 'relative',
+    overflow: 'hidden',
+    boxShadow: theme.shadows[12],
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      width: '200px',
+      height: '200px',
+      background: 'rgba(255,255,255,0.1)',
+      borderRadius: '50%',
+      transform: 'translate(50px, -50px)',
+    },
+  },
+  moduleCard: {
+    textAlign: 'center',
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+    cursor: 'pointer',
+    borderRadius: theme.spacing(2),
+    position: 'relative',
+    overflow: 'hidden',
+      color: '#222',
+    background: theme.palette.background.paper,
+    boxShadow: theme.shadows[4],
+    '&:hover': {
+      transform: 'translateY(-8px) scale(1.02)',
+      boxShadow: theme.shadows[16],
+      '& $moduleIcon': {
+        transform: 'scale(1.2) rotate(5deg)',
+        filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
+      },
+    },
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 6,
+      background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+      transform: 'scaleX(0)',
+      transition: 'transform 0.3s ease',
+    },
+    '&:hover::before': {
+      transform: 'scaleX(1)',
+    },
+  },
+  moduleIcon: {
+    fontSize: 64,
+    marginBottom: theme.spacing(2),
+    transition: 'all 0.3s ease',
+    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))',
+  },
+  aiAssistant: {
+    position: 'fixed',
+    bottom: 20,
+    right: 20,
+    zIndex: 1000,
+  },
+  speedDial: {
+    '& .MuiFab-primary': {
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      boxShadow: theme.shadows[8],
+    },
+  },
+  notification: {
+    position: 'fixed',
+    top: 20,
+    right: 20,
+    zIndex: 1000,
+  },
+  statusBar: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 4,
+
+    background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+    zIndex: 1000,
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(0,0,0,0.7)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+  },
+  smartWidget: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    background: theme.palette.background.paper,
+    borderRadius: theme.spacing(2),
+    padding: theme.spacing(2),
+    minWidth: 200,
+    color: 'rgba(0,0,0,0.7)',
+    boxShadow: theme.shadows[8],
+    border: `2px solid ${theme.palette.primary.main}`,
+  },
+  analyticsPanel: {
+    background: theme.palette.background.paper,
+    borderRadius: theme.spacing(2),
+    padding: theme.spacing(3),
+    margin: theme.spacing(2),
+     color: 'rgba(0,0,0,0.7)',
+    boxShadow: theme.shadows[6],
+    border: `1px solid ${theme.palette.divider}`,
+  },
+  performanceMetrics: {
+    display: 'flex',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+
+    marginTop: theme.spacing(2),
+  },
+  metricItem: {
+    textAlign: 'center',
+
+    padding: theme.spacing(1),
+  },
+  pulsingIcon: {
+    animation: '$pulse 2s infinite',
+  },
+  '@keyframes pulse': {
+    '0%': { opacity: 1, transform: 'scale(1)' },
+    '50%': { opacity: 0.7, transform: 'scale(1.1)' },
+    '100%': { opacity: 1, transform: 'scale(1)' },
+  },
+  glowEffect: {
+    animation: '$glow 2s ease-in-out infinite alternate',
+  },
+  '@keyframes glow': {
+    from: { boxShadow: `0 0 10px ${theme.palette.primary.main}` },
+    to: { boxShadow: `0 0 20px ${theme.palette.primary.main}` },
+  },
+  floatingWidget: {
+    position: 'fixed',
+    bottom: 100,
+    left: 20,
+    background: theme.palette.background.paper,
+    borderRadius: '50%',
+    width: 80,
+    height: 80,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: theme.shadows[12],
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      transform: 'scale(1.1)',
+      boxShadow: theme.shadows[20],
+    },
+  },
+  smartNotification: {
+    position: 'fixed',
+    top: 80,
+    right: 20,
+    maxWidth: 300,
+    background: theme.palette.background.paper,
+    borderRadius: theme.spacing(2),
+    padding: theme.spacing(2),
+    boxShadow: theme.shadows[10],
+    border: `2px solid ${theme.palette.success.main}`,
+    zIndex: 1000,
+  },
+  contextualMenu: {
+    position: 'absolute',
+      color: 'rgba(0,0,0,0.7)',
+    background: theme.palette.background.paper,
+    borderRadius: theme.spacing(1),
+
+    boxShadow: theme.shadows[8],
+    padding: theme.spacing(1),
+    minWidth: 150,
+    zIndex: 1000,
+  },
+  immersiveMode: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: '#000',
+    zIndex: 9999,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  voiceIndicator: {
+    position: 'fixed',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    background: 'rgba(102, 96, 96, 0.8)',
+    color: 'black',
+    padding: theme.spacing(3),
+    borderRadius: '50%',
+    width: 120,
+    height: 120,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    zIndex: 10000,
+  },
+  collaborativePointer: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+    borderRadius: '50%',
+    background: theme.palette.secondary.main,
+    border: '2px solid white',
+    pointerEvents: 'none',
+    zIndex: 1000,
+    transition: 'all 0.1s ease',
+  },
+  realtimeStatus: {
+    position: 'fixed',
+    bottom: 180,
+    right: 20,
+    background: theme.palette.background.paper,
+    borderRadius: theme.spacing(3),
+    padding: theme.spacing(1, 2),
+    boxShadow: theme.shadows[6],
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.spacing(1),
+  },
+  card: {
+    borderRadius: theme.spacing(2),
+    boxShadow: theme.shadows[4],
+    background: theme.palette.background.paper,
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: theme.shadows[8],
+    },
+  },
+}));
+
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+  const classes = useStyles();
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`tabpanel-${index}`}
+      aria-labelledby={`tab-${index}`}
+      className={classes.tabPanel}
+      {...other}
+    >
+      {value === index && (
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -30, scale: 0.95 }}
+            transition={{ 
+              duration: 0.4,
+              type: "spring",
+              stiffness: 300,
+              damping: 30
+            }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
+      )}
+    </div>
+  );
+}
+
+const Colaboradores: React.FC = () => {
+  const classes = useStyles();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [tabValue, setTabValue] = useState(0);
+  const [darkMode, setDarkMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [speedDialOpen, setSpeedDialOpen] = useState(false);
+  const [aiAssistantActive, setAiAssistantActive] = useState(true);
+  const [voiceMode, setVoiceMode] = useState(false);
+  const [collaboratorsCursor, setCollaboratorsCursor] = useState<any[]>([]);
+
+  const [systemStatus, setSystemStatus] = useState('optimal');
+  const [smartSuggestions, setSmartSuggestions] = useState<any[]>([]);
+  const [contextualMenu, setContextualMenu] = useState<any>(null);
+  const [usuariosList, setUsuariosList] = useState<any[]>([]);
+  const [immersiveMode, setImmersiveMode] = useState(false);
+  const [newUserDialogOpen, setNewUserDialogOpen] = useState(false);
+  const [newUserData, setNewUserData] = useState({
+    nome: '',
+    email: '',
+    senha: '',
+    permissao: 'Visualizador'
+  });
+  const [editUserDialogOpen, setEditUserDialogOpen] = useState(false);
+  const [performanceMetrics, setPerformanceMetrics] = useState<PerformanceMetrics>({
+  cpu: 85,
+  memory: 67,
+  network: 92,
+  storage: 45
+});
+  const [editUserData, setEditUserData] = useState({
+    id: '',
+    nome: '',
+    email: '',
+    permissao: 'Visualizador',
+    ativo: true
+  });
+  const [deleteUserDialogOpen, setDeleteUserDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<any>(null);
+  const [userMenuAnchor, setUserMenuAnchor] = useState<any>(null);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [newProfileDialogOpen, setNewProfileDialogOpen] = useState(false);
+  const [profilePermissions, setProfilePermissions] = useState<ProfilePermissions>({});
+
+  const [newProfileData, setNewProfileData] = useState({
+    nome: '',
+    descricao: '',
+    permissoes: {
+      dashboard: false,
+      chat: false,
+      crm: false,
+      relatorios: false,
+      usuarios: false,
+      configuracoes: false
+    }
+  });
+ 
+
+  // Estados para Gestão de Permissões
+  const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState<any>(null);
+  
+  const [dashboardExpanded, setDashboardExpanded] = useState<string | null>(null);
+  const [selectedDashboard, setSelectedDashboard] = useState<string>('');
+const [realtimeUsers, setRealtimeUsers] = useState<number>(3);
+  // Perfis de Acesso Pré-definidos
+  const accessProfiles = [
+    {
+      id: 'administrador',
+      nome: 'Administrador',
+      descricao: 'Acesso total ao sistema',
+      icon: <Star style={{ color: '#f44336' }} />,
+      color: '#f44336',
+      usuarios: usuariosList.filter(u => u.permissao === 'Administrador').length,
+      permissoes: {
+        dashboard: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        chat: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        crm: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        ia: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        feed: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        usuarios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        whatsapp: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        relatorios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        configuracoes: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        permissoes: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true }
+      }
+    },
+    {
+      id: 'ceo',
+      nome: 'CEO',
+      descricao: 'Acesso executivo total',
+      icon: <Extension style={{ color: '#9c27b0' }} />,
+      color: '#9c27b0',
+      usuarios: usuariosList.filter(u => u.permissao === 'CEO').length,
+      permissoes: {
+        dashboard: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        chat: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+        crm: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        ia: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+        feed: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+        usuarios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        whatsapp: { ativo: true, criar: false, editar: true, excluir: false, visualizar: true },
+        relatorios: { ativo: true, criar: true, editar: false, excluir: false, visualizar: true },
+        configuracoes: { ativo: true, criar: false, editar: true, excluir: false, visualizar: true },
+        permissoes: { ativo: true, criar: false, editar: true, excluir: false, visualizar: true }
+      }
+    },
+    {
+      id: 'enygmadeveloper',
+      nome: 'EnygmaDeveloper',
+      descricao: 'Desenvolvedor do sistema',
+      icon: <Code style={{ color: '#00bcd4' }} />,
+      color: '#00bcd4',
+      usuarios: usuariosList.filter(u => u.permissao === 'EnygmaDeveloper').length,
+      permissoes: {
+        dashboard: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        chat: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        crm: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        ia: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        feed: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        usuarios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        whatsapp: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        relatorios: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        configuracoes: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true },
+        permissoes: { ativo: true, criar: true, editar: true, excluir: true, visualizar: true }
+      }
+    },
+    {
+      id: 'operador',
+      nome: 'Operador',
+      descricao: 'Operações básicas',
+      icon: <Extension style={{ color: '#ff9800' }} />,
+      color: '#ff9800',
+      usuarios: usuariosList.filter(u => u.permissao === 'Operador').length,
+      permissoes: {
+        dashboard: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+        chat: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+        crm: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+        ia: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+        feed: { ativo: true, criar: true, editar: false, excluir: false, visualizar: true },
+        usuarios: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+        whatsapp: { ativo: true, criar: true, editar: true, excluir: false, visualizar: true },
+        relatorios: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+        configuracoes: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+        permissoes: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false }
+      }
+    },
+    {
+      id: 'visualizador',
+      nome: 'Visualizador',
+      descricao: 'Apenas visualização',
+      icon: <Visibility style={{ color: '#2196f3' }} />,
+      color: '#2196f3',
+      usuarios: usuariosList.filter(u => u.permissao === 'Visualizador' || !u.permissao).length,
+      permissoes: {
+        dashboard: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+        chat: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+        crm: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+        ia: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+        feed: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+        usuarios: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+        whatsapp: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+        relatorios: { ativo: true, criar: false, editar: false, excluir: false, visualizar: true },
+        configuracoes: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false },
+        permissoes: { ativo: false, criar: false, editar: false, excluir: false, visualizar: false }
+      }
+    }
+  ];
+
+  // Dashboards Disponíveis
+  const dashboardsData = [
+    {
+      id: 'geral',
+      nome: 'Dashboard Geral',
+      descricao: 'Visão geral de todos os documentos',
+      icon: <DashboardIcon />,
+      color: '#4CAF50',
+      documentos: 1247,
+      acoes: [
+        { id: 'visualizar', nome: 'Visualizar', icon: <Visibility />, color: '#2196F3' },
+        { id: 'relatorio', nome: 'Relatório', icon: <Timeline />, color: '#FF9800' },
+        { id: 'exportar', nome: 'Exportar', icon: <GetApp />, color: '#9C27B0' }
+      ]
+    },
+    {
+      id: 'requerimentos',
+      nome: 'Dashboard Requerimentos',
+      descricao: 'Gerenciamento de requerimentos',
+      icon: <Assignment />,
+      color: '#2196F3',
+      documentos: 523,
+      acoes: [
+        { id: 'processar', nome: 'Processar', icon: <PlayArrow />, color: '#4CAF50' },
+        { id: 'aprovar', nome: 'Aprovar', icon: <CheckCircle />, color: '#8BC34A' },
+        { id: 'rejeitar', nome: 'Rejeitar', icon: <Cancel />, color: '#F44336' }
+      ]
+    },
+    {
+      id: 'transferencias',
+      nome: 'Dashboard Transferências',
+      descricao: 'Controle de transferências',
+      icon: <Extension />,
+      color: '#FF9800',
+      documentos: 321,
+      acoes: [
+        { id: 'confirmar', nome: 'Confirmar', icon: <CheckCircle />, color: '#4CAF50' },
+        { id: 'aguardar', nome: 'Aguardar', icon: <Schedule />, color: '#FF9800' },
+        { id: 'cancelar', nome: 'Cancelar', icon: <Cancel />, color: '#F44336' }
+      ]
+    },
+    {
+      id: 'digital',
+      nome: 'Dashboard Digital',
+      descricao: 'Documentos digitais',
+      icon: <Storage />,
+      color: '#9C27B0',
+      documentos: 892,
+      acoes: [
+        { id: 'validar', nome: 'Validar', icon: <Security />, color: '#4CAF50' },
+        { id: 'assinar', nome: 'Assinar', icon: <Edit />, color: '#2196F3' },
+        { id: 'arquivar', nome: 'Arquivar', icon: <Save />, color: '#607D8B' }
+      ]
+    },
+    {
+      id: 'empresarial',
+      nome: 'Dashboard Empresarial',
+      descricao: 'Documentos empresariais',
+      icon: <Business />,
+      color: '#607D8B',
+      documentos: 178,
+      acoes: [
+        { id: 'analisar', nome: 'Analisar', icon: <Extension />, color: '#9C27B0' },
+        { id: 'registrar', nome: 'Registrar', icon: <Add />, color: '#4CAF50' },
+        { id: 'notificar', nome: 'Notificar', icon: <NotificationsActive />, color: '#FF9800' }
+      ]
+    },
+    {
+      id: 'anuencia',
+      nome: 'Dashboard Anuência',
+      descricao: 'Controle de anuências',
+      icon: <Lock />,
+      color: '#795548',
+      documentos: 67,
+      acoes: [
+        { id: 'autorizar', nome: 'Autorizar', icon: <LockOpen />, color: '#4CAF50' },
+        { id: 'revisar', nome: 'Revisar', icon: <Visibility />, color: '#2196F3' },
+        { id: 'documentar', nome: 'Documentar', icon: <Assignment />, color: '#FF9800' }
+      ]
+    }
+  ];
+
+  // Módulos do Sistema
+  const systemModules = [
+    { id: 'dashboard', nome: 'Dashboard', icon: <DashboardIcon />, descricao: 'Painel principal' },
+    { id: 'chat', nome: 'Chat', icon: <Chat />, descricao: 'Comunicação interna' },
+    { id: 'crm', nome: 'CRM', icon: <Business />, descricao: 'Gestão de clientes' },
+    { id: 'ia', nome: 'IA', icon: <EmojiObjects />, descricao: 'Inteligência artificial' },
+    { id: 'feed', nome: 'Feed', icon: <Timeline />, descricao: 'Feed de notícias' },
+    { id: 'usuarios', nome: 'Usuários', icon: <People />, descricao: 'Gestão de usuários' },
+    { id: 'whatsapp', nome: 'WhatsApp', icon: <WhatsApp />, descricao: 'Integração WhatsApp' },
+    { id: 'relatorios', nome: 'Relatórios', icon: <Timeline />, descricao: 'Relatórios gerenciais' },
+    { id: 'configuracoes', nome: 'Configurações', icon: <Settings />, descricao: 'Configurações do sistema' },
+    { id: 'permissoes', nome: 'Permissões', icon: <Security />, descricao: 'Gestão de permissões' }
+  ];
+
+  const controls = useAnimation();
+
+  // Função para carregar usuários do Firebase
+  const carregarUsuarios = async () => {
+    try {
+      const { default: Colecao } = await import('@/logic/firebase/db/Colecao');
+      const colecao = new Colecao();
+
+      const usuarios = await colecao.consultar('usuarios', 'nome');
+      console.log('📋 Usuários carregados:', usuarios);
+      setUsuariosList(usuarios || []);
+    } catch (error) {
+      console.error('❌ Erro ao carregar usuários:', error);
+    }
+  };
+
+  const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setTabValue(newValue);
+      setIsLoading(false);
+    }, 300);
+  };
+
+  
+
+  const modules = useMemo(() => [
+    {
+      title: 'Dashboard Inteligente',
+      description: 'Analytics avançado com IA',
+      icon: <DashboardIcon className={classes.moduleIcon} style={{ color: '#4CAF50' }} />,
+      color: '#4CAF50',
+      features: ['ML Analytics', 'Previsões', 'Alertas Inteligentes'],
+      status: 'active',
+      lastUsed: '2 min atrás',
+      performance: 98,
+    },
+    {
+      title: 'Chat Colaborativo',
+      description: 'Comunicação em tempo real',
+      icon: <Chat className={classes.moduleIcon} style={{ color: '#2196F3' }} />,
+      color: '#2196F3',
+      features: ['Video Chat', 'Screen Share', 'Threads'],
+      status: 'active',
+      lastUsed: '5 min atrás',
+      performance: 94,
+    },
+    {
+      title: 'IA Lívia Avançada',
+      description: 'Assistente com GPT-4 Turbo',
+      icon: <EmojiObjects className={`${classes.moduleIcon} ${classes.pulsingIcon}`} style={{ color: '#9C27B0' }} />,
+      color: '#9C27B0',
+      features: ['NLP Avançado', 'Automação', 'Insights'],
+      status: 'learning',
+      lastUsed: 'Agora',
+      performance: 99,
+    },
+    {
+      title: 'CRM Neural',
+      description: 'Gestão inteligente de clientes',
+      icon: <Business className={classes.moduleIcon} style={{ color: '#FF9800' }} />,
+      color: '#FF9800',
+      features: ['Lead Scoring', 'Segmentação IA', 'Automação'],
+      status: 'active',
+      lastUsed: '10 min atrás',
+      performance: 91,
+    },
+    {
+      title: 'Feed Inteligente',
+      description: 'Notificações contextuais',
+      icon: <Timeline className={classes.moduleIcon} style={{ color: '#607D8B' }} />,
+      color: '#607D8B',
+      features: ['Filtros IA', 'Priorização', 'Trending'],
+      status: 'active',
+      lastUsed: '1 min atrás',
+      performance: 96,
+    },
+    {
+      title: 'Cadastro de Usuário',
+      description: 'Gestão completa de usuários',
+      icon: <People className={classes.moduleIcon} style={{ color: '#795548' }} />,
+      color: '#795548',
+      features: ['Perfis', 'Permissões', 'Auditoria'],
+      status: 'active',
+      lastUsed: '3 min atrás',
+      performance: 95,
+    },
+    {
+      title: 'WhatsApp Business',
+      description: 'Integração Digisac avançada',
+      icon: <WhatsApp className={classes.moduleIcon} style={{ color: '#25D366' }} />,
+      color: '#25D366',
+      features: ['CRM Integrado', 'IA Vendas', 'Automação'],
+      status: 'active',
+      lastUsed: 'Agora',
+      performance: 98,
+    },
+  ], [classes]);
+
+  const speedDialActions = [
+    { icon: <Extension />, name: 'IA Assistant', color: '#9C27B0' },
+    { icon: <Extension />, name: 'Brain Mode', color: '#FF5722' },
+    { icon: <Extension />, name: 'Magic Tools', color: '#4CAF50' },
+    { icon: <Extension />, name: 'Quick Actions', color: '#2196F3' },
+    { icon: <Extension />, name: 'Extensions', color: '#FF9800' },
+  ];
+useEffect(() => {
+  const interval = setInterval(() => {
+    const updateMetrics = (prev: PerformanceMetrics): PerformanceMetrics => ({
+      cpu: Math.max(20, Math.min(100, prev.cpu + (Math.random() - 0.5) * 10)),
+      memory: Math.max(20, Math.min(100, prev.memory + (Math.random() - 0.5) * 8)),
+      network: Math.max(50, Math.min(100, prev.network + (Math.random() - 0.5) * 5)),
+      storage: Math.max(10, Math.min(100, prev.storage + (Math.random() - 0.5) * 3)),
+    });
+
+    setPerformanceMetrics(updateMetrics);
+  }, 2000);
+
+  return () => clearInterval(interval);
+}, []);
+
+useEffect(() => {
+  // Carregar usuários quando o componente montar
+  carregarUsuarios();
+}, []);
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    setRealtimeUsers((prev: number) => Math.max(1, prev + Math.floor((Math.random() - 0.5) * 3)));
+  }, 5000);
+
+  return () => clearInterval(interval);
+}, []);
+
+  const handleContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    setContextualMenu({
+      x: event.clientX,
+      y: event.clientY,
+    });
+  };
+
+  const toggleVoiceMode = () => {
+    setVoiceMode(!voiceMode);
+    if (!voiceMode) {
+      setTimeout(() => setVoiceMode(false), 3000);
+    }
+  };
+
+  const handleSmartAction = (action: string) => {
+    setIsLoading(true);
+    console.log(`Executando ação inteligente: ${action}`);
+    setTimeout(() => setIsLoading(false), 1000);
+  };
+
+  const handleNewUserSubmit = async () => {
+    try {
+      setIsLoading(true);
+
+      // Importar a classe de serviços
+      const { default: ServicosUsuario } = await import('@/logic/core/usuario/ServicosUsuario');
+      const servicosUsuario = new ServicosUsuario();
+
+      // Criar o objeto usuário no formato correto
+      const novoUsuario = {
+        email: newUserData.email,
+        nome: newUserData.nome,
+        imagemUrl: '/betologo.jpg',
+        permissao: newUserData.permissao,
+        ativo: true,
+        dataCriacao: new Date(),
+        ultimoAcesso: null,
+        id: newUserData.email
+      };
+
+      // Salvar no Firebase
+      await servicosUsuario.salvar(novoUsuario);
+
+      console.log('✅ Usuário criado com sucesso:', novoUsuario);
+
+      // Mostrar notificação de sucesso
+      setNotifications([{
+        id: Date.now(),
+        message: `Usuário ${newUserData.nome} criado com sucesso!`,
+        type: 'success'
+      }]);
+
+      // Fechar dialog e limpar dados
+      setNewUserDialogOpen(false);
+      setNewUserData({
+        nome: '',
+        email: '',
+        senha: '',
+        permissao: 'Visualizador'
+      });
+
+      // Atualizar a lista de usuários
+      await carregarUsuarios();
+
+    } catch (error) {
+      console.error('❌ Erro ao criar usuário:', error);
+      setNotifications([{
+        id: Date.now(),
+        message: 'Erro ao criar usuário. Tente novamente.',
+        type: 'error'
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+const handleChange = (
+  event: React.ChangeEvent<{ name?: string; value: unknown }>
+) => {
+  const valorSelecionado = event.target.value as string;
+  // Agora você pode usar `valorSelecionado` normalmente
+};
+
+  const handleNewUserInputChange = (field: string, value: string) => {
+    setNewUserData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleEditUser = (usuario: any) => {
+    setEditUserData({
+      id: usuario.id || usuario.email,
+      nome: usuario.nome || '',
+      email: usuario.email || '',
+      permissao: usuario.permissao || 'Visualizador',
+      ativo: usuario.ativo !== false
+    });
+    setEditUserDialogOpen(true);
+    setUserMenuAnchor(null);
+  };
+
+  const handleEditUserInputChange = (field: string, value: string | boolean) => {
+    setEditUserData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleEditUserSubmit = async () => {
+    try {
+      setIsLoading(true);
+
+      const { default: ServicosUsuario } = await import('@/logic/core/usuario/ServicosUsuario');
+      const servicosUsuario = new ServicosUsuario();
+
+      const usuarioAtualizado = {
+        email: editUserData.email,
+        nome: editUserData.nome,
+        permissao: editUserData.permissao,
+        ativo: editUserData.ativo,
+        ultimoAcesso: new Date(),
+        id: editUserData.id
+      };
+
+      await servicosUsuario.salvar(usuarioAtualizado);
+
+      console.log('✅ Usuário atualizado com sucesso:', usuarioAtualizado);
+
+      setNotifications([{
+        id: Date.now(),
+        message: `Usuário ${editUserData.nome} atualizado com sucesso!`,
+        type: 'success'
+      }]);
+
+      setEditUserDialogOpen(false);
+      setEditUserData({
+        id: '',
+        nome: '',
+        email: '',
+        permissao: 'Visualizador',
+        ativo: true
+      });
+
+      await carregarUsuarios();
+
+    } catch (error) {
+      console.error('❌ Erro ao atualizar usuário:', error);
+      setNotifications([{
+        id: Date.now(),
+        message: 'Erro ao atualizar usuário. Tente novamente.',
+        type: 'error'
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteUser = (usuario: any) => {
+    setUserToDelete(usuario);
+    setDeleteUserDialogOpen(true);
+    setUserMenuAnchor(null);
+  };
+
+  const confirmDeleteUser = async () => {
+    try {
+      setIsLoading(true);
+
+      const { default: Colecao } = await import('@/logic/firebase/db/Colecao');
+      const colecao = new Colecao();
+
+      await colecao.excluir('usuarios', userToDelete.id || userToDelete.email);
+
+      console.log('✅ Usuário removido com sucesso:', userToDelete);
+
+      setNotifications([{
+        id: Date.now(),
+        message: `Usuário ${userToDelete.nome} removido com sucesso!`,
+        type: 'success'
+      }]);
+
+      setDeleteUserDialogOpen(false);
+      setUserToDelete(null);
+
+      await carregarUsuarios();
+
+    } catch (error) {
+      console.error('❌ Erro ao remover usuário:', error);
+      setNotifications([{
+        id: Date.now(),
+        message: 'Erro ao remover usuário. Tente novamente.',
+        type: 'error'
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleToggleUserStatus = async (usuario: any) => {
+    try {
+      setIsLoading(true);
+
+      const { default: ServicosUsuario } = await import('@/logic/core/usuario/ServicosUsuario');
+      const servicosUsuario = new ServicosUsuario();
+
+      const usuarioAtualizado = {
+        ...usuario,
+        ativo: !usuario.ativo,
+        ultimoAcesso: new Date()
+      };
+
+      await servicosUsuario.salvar(usuarioAtualizado);
+
+      console.log('✅ Status do usuário alterado:', usuarioAtualizado);
+
+      setNotifications([{
+        id: Date.now(),
+        message: `Status do usuário ${usuario.nome} alterado para ${!usuario.ativo ? 'Ativo' : 'Inativo'}!`,
+        type: 'success'
+      }]);
+
+      await carregarUsuarios();
+
+    } catch (error) {
+      console.error('❌ Erro ao alterar status do usuário:', error);
+      setNotifications([{
+        id: Date.now(),
+        message: 'Erro ao alterar status do usuário. Tente novamente.',
+        type: 'error'
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+    setUserMenuAnchor(null);
+  };
+
+  const handleUserMenuClick = (event: React.MouseEvent<HTMLElement>, usuario: any) => {
+    setUserMenuAnchor(event.currentTarget);
+    setSelectedUser(usuario);
+  };
+
+  const handleUserMenuClose = () => {
+    setUserMenuAnchor(null);
+    setSelectedUser(null);
+  };
+
+  const handleNewProfileSubmit = () => {
+    console.log('Criando novo perfil:', newProfileData);
+    // Aqui você pode adicionar a lógica para salvar o perfil
+    setNewProfileDialogOpen(false);
+    setNewProfileData({
+      nome: '',
+      descricao: '',
+      permissoes: {
+        dashboard: false,
+        chat: false,
+        crm: false,
+        relatorios: false,
+        usuarios: false,
+        configuracoes: false
+      }
+    });
+  };
+
+  const handleNewProfileInputChange = (field: string, value: string | boolean) => {
+    if (field.startsWith('permissoes.')) {
+      const permissionKey = field.split('.')[1];
+      setNewProfileData(prev => ({
+        ...prev,
+        permissoes: {
+          ...prev.permissoes,
+          [permissionKey]: value
+        }
+      }));
+    } else {
+      setNewProfileData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
+  };
+
+  // Funções para Gestão de Permissões
+  const handleOpenPermissionDialog = (profile: any) => {
+    setSelectedProfile(profile);
+    setProfilePermissions({ ...profile.permissoes });
+    setPermissionDialogOpen(true);
+  };
+
+  const handleClosePermissionDialog = () => {
+    setPermissionDialogOpen(false);
+    setSelectedProfile(null);
+    setProfilePermissions({});
+  };
+  
+const handlePermissionChange = (module: string, permission: string, value: boolean) => {
+  setProfilePermissions((prev) => ({
+    ...prev,
+    [module]: {
+      ...prev[module],
+      [permission]: value
+    }
+  }));
+};
+
+const handleModuleToggle = (module: string, value: boolean) => {
+  setProfilePermissions((prev) => ({
+    ...prev,
+    [module]: {
+      ...prev[module],
+      ativo: value,
+      ...(value ? {} : {
+        criar: false,
+        editar: false,
+        excluir: false,
+        visualizar: false
+      })
+    }
+  }));
+};
+
+
+
+
+  
+  const handleSavePermissions = () => {
+    console.log('Salvando permissões do perfil:', selectedProfile?.nome, profilePermissions);
+
+    // Aqui você pode adicionar a lógica para salvar as permissões no Firebase
+    setNotifications([{
+      id: Date.now(),
+      message: `Permissões do perfil ${selectedProfile?.nome} atualizadas com sucesso!`,
+      type: 'success'
+    }]);
+
+    handleClosePermissionDialog();
+  };
+
+  // Funções para Dashboard Documentos
+  const handleDashboardExpand = (dashboardId: string) => {
+    setDashboardExpanded(dashboardExpanded === dashboardId ? null : dashboardId);
+  };
+
+  const handleDashboardAction = (dashboardId: string, actionId: string) => {
+    console.log(`Executando ação ${actionId} no dashboard ${dashboardId}`);
+
+    const dashboard = dashboardsData.find(d => d.id === dashboardId);
+    const action = dashboard?.acoes.find(a => a.id === actionId);
+
+    setNotifications([{
+      id: Date.now(),
+      message: `Ação "${action?.nome}" executada no ${dashboard?.nome}!`,
+      type: 'success'
+    }]);
+  };
+
+ 
+
+const handleOpenDashboard = (dashboardId: string) => {
+  setSelectedDashboard(dashboardId);
+  console.log(`Abrindo dashboard: ${dashboardId}`);
+
+  const dashboard = dashboardsData.find(d => d.id === dashboardId);
+  setNotifications([{
+    id: Date.now(),
+    message: `Abrindo ${dashboard?.nome}...`,
+    type: 'info'
+  }]);
+
+  // Definir abas específicas para cada dashboard
+  switch (dashboardId) {
+    case 'requerimentos':
+      setTabValue(10); // Aba com Dashloja
+      break;
+
+    case 'digital':
+      setTabValue(15);  // Aba do Dashboard Digital
+      break;
+
+    case 'anuencia':
+      setTabValue(9);  // Aba do Dashboard Anuência (exemplo)
+      break;
+
+    case 'transferencias':
+      setTabValue(11); // Aba do Dashboard Transferências (exemplo)
+      break;
+
+    case 'empresarial':
+      setTabValue(12); // Aba do Dashboard Empresarial (exemplo)
+      break;
+
+    default:
+      setTabValue(7);  // Aba padrão para outros dashboards
+      break;
+  }
+};
+
+
+
+
+  const generateUserReport = () => {
+    // Simular dados do relatório
+    const reportData = {
+      totalUsuarios: usuariosList.length || 24,
+      usuariosAtivos: usuariosList.filter(u => u.ativo !== false).length || 18,
+      usuariosInativos: usuariosList.filter(u => u.ativo === false).length || 6,
+      perfisCriados: new Set(usuariosList.map(u => u.permissao || 'Visualizador')).size || 5,
+      ultimosAcessos: usuariosList.slice(0, 5).map(user => ({
+        usuario: user.nome || 'Usuário',
+        email: user.email || 'email@exemplo.com',
+        ultimoAcesso: user.ultimoAcesso ? new Date(user.ultimoAcesso).toLocaleDateString() : 'Nunca acessou',
+        perfil: user.permissao || 'Visualizador'
+      })),
+      atividadesRecentes: [
+        { acao: 'Login realizado', usuario: 'Sistema', data: new Date().toLocaleString() },
+        { acao: 'Relatório gerado', usuario: 'Administrador', data: new Date(Date.now() - 86400000).toLocaleString() },
+        { acao: 'Usuário atualizado', usuario: 'Sistema', data: new Date(Date.now() - 172800000).toLocaleString() },
+        { acao: 'Backup realizado', usuario: 'Sistema', data: new Date(Date.now() - 259200000).toLocaleString() },
+        { acao: 'Configuração alterada', usuario: 'Administrador', data: new Date(Date.now() - 345600000).toLocaleString() }
+      ]
+    };
+
+    // Criar conteúdo HTML do relatório
+    const reportHTML = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Relatório Completo de Usuários - ${new Date().toLocaleDateString()}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+            .header { text-align: center; border-bottom: 2px solid #795548; padding-bottom: 20px; margin-bottom: 30px; }
+            .section { margin-bottom: 30px; }
+            .section h2 { color: #795548; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+            .stats { display: flex; justify-content: space-around; margin: 20px 0; }
+            .stat-item { text-align: center; padding: 15px; background: #f5f5f5; border-radius: 8px; }
+            .stat-number { font-size: 24px; font-weight: bold; color: #795548; }
+            table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #795548; color: white; }
+            .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>📊 Relatório Completo de Usuários</h1>
+            <p>Sistema de Gestão Colaborativa - Gerado em ${new Date().toLocaleString()}</p>
+          </div>
+
+          <div class="section">
+            <h2>📈 Resumo Estatístico</h2>
+            <div class="stats">
+              <div class="stat-item">
+                <div class="stat-number">${reportData.totalUsuarios}</div>
+                <div>Total de Usuários</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">${reportData.usuariosAtivos}</div>
+                <div>Usuários Ativos</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">${reportData.usuariosInativos}</div>
+                <div>Usuários Inativos</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">${reportData.perfisCriados}</div>
+                <div>Perfis Configurados</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>👥 Últimos Acessos</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Usuário</th>
+                  <th>E-mail</th>
+                  <th>Perfil</th>
+                  <th>Último Acesso</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${reportData.ultimosAcessos.map(acesso => `
+                  <tr>
+                    <td>${acesso.usuario}</td>
+                    <td>${acesso.email}</td>
+                    <td>${acesso.perfil}</td>
+                    <td>${acesso.ultimoAcesso}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section">
+            <h2>📋 Atividades Recentes</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Ação</th>
+                  <th>Usuário</th>
+                  <th>Data/Hora</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${reportData.atividadesRecentes.map(atividade => `
+                  <tr>
+                    <td>${atividade.acao}</td>
+                    <td>${atividade.usuario}</td>
+                    <td>${atividade.data}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section">
+            <h2>🛡️ Distribuição de Perfis</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Perfil</th>
+                  <th>Quantidade</th>
+                  <th>Percentual</th>
+                  <th>Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Administrador</td>
+                  <td>3</td>
+                  <td>12.5%</td>
+                  <td>Acesso total ao sistema</td>
+                </tr>
+                <tr>
+                  <td>Operador</td>
+                  <td>15</td>
+                  <td>62.5%</td>
+                  <td>Operações básicas</td>
+                </tr>
+                <tr>
+                  <td>Visualizador</td>
+                  <td>6</td>
+                  <td>25%</td>
+                  <td>Apenas visualização</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="footer">
+            <p>Relatório gerado automaticamente pelo Sistema de Gestão Colaborativa</p>
+            <p>© 2024 - Todos os direitos reservados</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    // Abrir o relatório em uma nova janela
+    const newWindow = window.open('', '_blank');
+    if (newWindow) {
+      newWindow.document.write(reportHTML);
+      newWindow.document.close();
+
+      // Adicionar funcionalidade de impressão
+      setTimeout(() => {
+        newWindow.print();
+      }, 1000);
+    } else {
+      // Fallback: criar e baixar como arquivo HTML
+      const blob = new Blob([reportHTML], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `relatorio-usuarios-${new Date().toISOString().split('T')[0]}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Mostrar notificação de sucesso
+    setNotifications([{
+      id: Date.now(),
+      message: 'Relatório gerado com sucesso!',
+      type: 'success'
+    }]);
+  };
+
+  return (
+    <div className={classes.root} onContextMenu={handleContextMenu}>
+      <CssBaseline />
+
+      <div className={classes.statusBar}>
+        <LinearProgress 
+          variant="determinate" 
+          value={performanceMetrics.cpu} 
+          style={{ height: 4 }}
+        />
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className={classes.header}>
+          <motion.div
+            animate={controls}
+            initial={{ scale: 1 }}
+            whileHover={{ scale: 1.05 }}
+          >
+            <Typography variant="h2" gutterBottom style={{ fontWeight: 'bold' }}>
+              <People style={{ marginRight: 16, fontSize: 'inherit' }} />
+              Área dos Colaboradores
+            </Typography>
+            <Typography variant="h5" style={{ opacity: 0.9 }}>
+              Sistema Inteligente de Gestão Colaborativa v2.0
+            </Typography>
+            <Typography variant="body1" style={{ marginTop: 16, opacity: 0.8 }}>
+              Powered by AI • Real-time Collaboration • Advanced Analytics
+            </Typography>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        className={classes.smartWidget}
+        initial={{ opacity: 0, x: -100 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <Typography variant="h6" gutterBottom>
+          <Extension style={{ marginRight: 8, verticalAlign: 'middle' }} />
+          IA Insights
+        </Typography>
+        <Typography variant="body2" style={{ marginBottom: 8 }}>
+          Sistema funcionando {performanceMetrics.cpu.toFixed(0)}%
+        </Typography>
+        <LinearProgress 
+          variant="determinate" 
+          value={performanceMetrics.cpu} 
+          style={{ marginBottom: 8 }}
+        />
+        <Chip 
+          icon={<Extension />} 
+          label="Performance Otimizada" 
+          color="primary" 
+          size="small"
+        />
+      </motion.div>
+
+      <AnimatePresence>
+        {smartSuggestions.length > 0 && (
+          <motion.div
+            className={classes.smartNotification}
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 100 }}
+          >
+            <Typography variant="subtitle2" gutterBottom>
+              <Extension style={{ marginRight: 8, verticalAlign: 'middle', color: '#FFC107' }} />
+              Sugestão Inteligente
+            </Typography>
+            <Typography variant="body2">
+              Detectamos que você pode otimizar seu workflow usando automação IA.
+            </Typography>
+            <Button size="small" color="primary" style={{ marginTop: 8 }}>
+              Aplicar Sugestão
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        <Card className={`${classes.welcomeCard} ${classes.glowEffect}`}>
+          <CardContent>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={12} md={8}>
+                <Typography variant="h4" gutterBottom style={{ fontWeight: 'bold' }}>
+                  Bem-vindo ao Futuro da Colaboração! 🚀
+                </Typography>
+                <Typography variant="body1" style={{ marginBottom: 16 }}>
+                  Sistema de próxima geração com IA nativa, colaboração em tempo real e analytics avançados.
+                </Typography>
+                <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+                  <Chip icon={<Extension />} label="IA Ativa" color="secondary" />
+                  <Chip icon={<Extension />} label="Sync Real-time" />
+                  <Chip icon={<Security />} label="Segurança Máxima" />
+                  <Chip icon={<Extension />} label="Performance 99%" />
+                </div>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <div className={classes.performanceMetrics}>
+                  <div className={classes.metricItem}>
+                    <Typography variant="h6">{realtimeUsers}</Typography>
+                    <Typography variant="caption">Usuários Online</Typography>
+                  </div>
+                  <div className={classes.metricItem}>
+                    <Typography variant="h6">99.9%</Typography>
+                    <Typography variant="caption">Uptime</Typography>
+                  </div>
+                  <div className={classes.metricItem}>
+                    <Typography variant="h6">&lt; 50ms</Typography>
+                    <Typography variant="caption">Latência</Typography>
+                  </div>
+                </div>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <Paper className={classes.tabsContainer}>
+         <Tabs
+  value={tabValue}
+  onChange={handleTabChange}
+  indicatorColor="primary"
+  textColor="primary"
+  variant={isMobile ? "scrollable" : "fullWidth"}
+  scrollButtons="auto"
+  style={{ position: 'relative' }}
+>
+  <Tab label="Visão Geral" icon={<Extension />} style={{ color: '#222', fontWeight: 'bold' }} />
+  <Tab label="Dashboard IA" icon={<DashboardIcon />} style={{ color: '#222', fontWeight: 'bold' }} />
+  <Tab label="Chat Colaborativo" icon={<Badge badgeContent={5} color="secondary" overlap="rectangular"><Chat /></Badge>} style={{ color: '#222', fontWeight: 'bold' }} />
+  <Tab label="IA Lívia Pro" icon={<EmojiObjects className={classes.pulsingIcon} />} style={{ color: '#222', fontWeight: 'bold' }} />
+  <Tab label="CRM Neural" icon={<Business />} style={{ color: '#222', fontWeight: 'bold' }} />
+  <Tab label="Feed Inteligente" icon={<Timeline />} style={{ color: '#222', fontWeight: 'bold' }} />
+  <Tab label="Cadastro de Usuário" icon={<People />} style={{ color: '#222', fontWeight: 'bold' }} />
+  <Tab label="Dashboard Documentos" icon={< Assignment/>} style={{ color: '#222', fontWeight: 'bold' }} />
+  <Tab label="Gestão de Permissões" icon={< Security/>} style={{ color: '#222', fontWeight: 'bold' }} />
+  <Tab label="WhatsApp Business" icon={<WhatsApp />} style={{ color: '#222', fontWeight: 'bold' }} />
+</Tabs>
+
+        </Paper>
+      </motion.div>
+
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            className={classes.loadingOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div >
+              <CircularProgress size={60} style={{ color: '#667eea', marginBottom: 16 }} />
+              <Typography variant="h6" style={{ color: 'white' }}>
+                Carregando Experiência Inteligente...
+              </Typography>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+     <TabPanel value={tabValue} index={0}>
+  <Container maxWidth="xl">
+    <div>
+      <Typography 
+        variant="h4" 
+        gutterBottom 
+        align="center" 
+        style={{ marginBottom: 32, color: '#222' }} // <-- aqui
+      >
+        Módulos Inteligentes Disponíveis
+      </Typography>
+
+      <Paper className={classes.analyticsPanel}>
+        <Typography 
+          variant="h6" 
+          gutterBottom 
+          style={{ color: '#222' }} // <-- aqui
+        >
+          <Extension style={{ marginRight: 8, verticalAlign: 'middle' }} />
+          Analytics em Tempo Real
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={3}>
+            <div>
+              <Typography 
+                variant="h4" 
+                style={{ color: '#222' }} // <-- aqui
+              >
+                {performanceMetrics.cpu.toFixed(0)}%
+              </Typography>
+              <Typography 
+                variant="caption" 
+                style={{ color: '#222' }} // <-- aqui
+              >
+                CPU Usage
+              </Typography>
+              <LinearProgress variant="determinate" value={performanceMetrics.cpu} style={{ marginTop: 4 }} />
+            </div>
+          </Grid>
+          <Grid item xs={3}>
+            <div>
+              <Typography 
+                variant="h4" 
+                style={{ color: '#222' }} // <-- aqui
+              >
+                {performanceMetrics.memory.toFixed(0)}%
+              </Typography>
+              <Typography 
+                variant="caption" 
+                style={{ color: '#222' }} // <-- aqui
+              >
+                Memory
+              </Typography>
+              <LinearProgress variant="determinate" value={performanceMetrics.memory} color="secondary" style={{ marginTop: 4 }} />
+            </div>
+          </Grid>
+          <Grid item xs={3}>
+            <div>
+              <Typography 
+                variant="h4" 
+                style={{ color: '#222' }} // <-- aqui
+              >
+                {performanceMetrics.network.toFixed(0)}%
+              </Typography>
+              <Typography 
+                variant="caption" 
+                style={{ color: '#222' }} // <-- aqui
+              >
+                Network
+              </Typography>
+              <LinearProgress variant="determinate" value={performanceMetrics.network} style={{ marginTop: 4, backgroundColor: '#E8F5E8' }} />
+            </div>
+          </Grid>
+          <Grid item xs={3}>
+            <div>
+              <Typography 
+                variant="h4" 
+                style={{ color: '#222' }} // <-- aqui
+              >
+                {performanceMetrics.storage.toFixed(0)}%
+              </Typography>
+              <Typography 
+                variant="caption" 
+                style={{ color: '#222' }} // <-- aqui
+              >
+                Storage
+              </Typography>
+              <LinearProgress variant="determinate" value={performanceMetrics.storage} style={{ marginTop: 4, backgroundColor: '#FFF3E0' }} />
+            </div>
+          </Grid>
+        </Grid>
+      </Paper>
+
+
+            <Grid container spacing={3} style={{ marginTop: 24 }}>
+              {modules.map((module, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Card
+                      className={classes.moduleCard}
+                      onClick={() => {
+                        if (index === 6) { // WhatsApp Business
+                          setTabValue(7);
+                        } else {
+                          setTabValue(index + 1);
+                        }
+                      }}
+                    >
+                      <CardContent>
+                        <div >
+                          {module.icon}
+                          <div >
+                            <Chip 
+                              label={module.status} 
+                              size="small" 
+                              color={module.status === 'active' ? 'primary' : 'secondary'}
+                            />
+                          </div>
+                        </div>
+                      <Typography variant="h5" gutterBottom style={{ fontWeight: 'bold', color: '#222' }}>
+  {module.title}
+</Typography>
+<Typography variant="body2" style={{ marginBottom: 16, color: '#222', opacity: 0.85 }}>
+  {module.description}
+</Typography>
+
+
+                        <div style={{marginBottom: '8px'}}>
+                          {module.features.map((feature, idx) => (
+                            <Chip 
+                              key={idx}
+                              label={feature} 
+                              size="small" 
+                              variant="outlined"
+                              style={{ margin: 2 }}
+                            />
+                          ))}
+                        </div>
+
+                        <div    style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                          <Typography variant="caption" color="textSecondary">
+                            {module.lastUsed}
+                          </Typography>
+                          <div  style={{display: 'flex', alignItems: 'center'}}>
+                            <Typography variant="caption" style={{ marginRight: 8 }}>
+                              {module.performance}%
+                                                        </Typography>
+                            <CircularProgress 
+                              variant="determinate" 
+                              value={module.performance} 
+                              size={20}
+                              style={{ color: module.color }}
+                            />
+                          </div>
+                        </div>
+
+                        <Button
+                          fullWidth
+                          variant="contained"
+                          style={{
+                            marginTop: 16,
+                            backgroundColor: module.color,
+                            color: 'black',
+                            borderRadius: 25,
+                          }}
+                          startIcon={<PlayArrow />}
+                        >
+                          Acessar Módulo
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                </Grid>
+              ))}
+            </Grid>
+          </div>
+        </Container>
+      </TabPanel>
+
+      <TabPanel value={tabValue} index={1}>
+        <Container maxWidth="xl">
+          <div >
+           <DashboardIA />
+          </div>
+        </Container>
+      </TabPanel>
+
+      <TabPanel value={tabValue} index={2}>
+        <ChatInterno />
+      </TabPanel>
+
+      <TabPanel value={tabValue} index={3}>
+        <ChatIA />
+      </TabPanel>
+
+      <TabPanel value={tabValue} index={4}>
+        <CRM />
+      </TabPanel>
+
+      <TabPanel value={tabValue} index={5}>
+        <Feed />
+      </TabPanel>
+      {/* Feed Colaborativo */}
+      <TabPanel value={tabValue} index={5}>
+        <Container maxWidth="xl">
+          <AnimatePresence mode="wait">
+            <Feed />
+          </AnimatePresence>
+        </Container>
+      </TabPanel>
+
+      {/* Cadastro de Usuário */}
+      <TabPanel value={tabValue} index={6}>
+        <Container maxWidth="xl">
+          <AnimatePresence mode="wait">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <Typography variant="h4" gutterBottom align="center" style={{ marginBottom: 32, color: '#222' }}>
+                Sistema de Gestão de Usuários
+              </Typography>
+
+              {/* Menu de Opções */}
+              <Grid container spacing={3} style={{ marginBottom: 24 }}>
+                <Grid item xs={12} sm={6} md={3}>
+                  <Card className={classes.card} style={{ cursor: 'pointer', height: '100%' }}>
+                    <CardContent style={{ textAlign: 'center' }}>
+                      <People style={{ fontSize: 48, color: '#795548', marginBottom: 16 }} />
+                      <Typography variant="h6" gutterBottom style={{ color: '#222' }}>
+                        Criação de Perfis
+                      </Typography>
+                      <Typography variant="body2" style={{ color: '#666' }}>
+                        Defina perfis de acesso personalizados
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={3}>
+                  <Card className={classes.card} style={{ cursor: 'pointer', height: '100%' }}>
+                    <CardContent style={{ textAlign: 'center' }}>
+                      <Security style={{ fontSize: 48, color: '#795548', marginBottom: 16 }} />
+                      <Typography variant="h6" gutterBottom style={{ color: '#222' }}>
+                        Gestão de Permissões
+                      </Typography>
+                      <Typography variant="body2" style={{ color: '#666' }}>
+                        Configure permissões específicas
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={3}>
+                  <Card className={classes.card} style={{ cursor: 'pointer', height: '100%' }}>
+                    <CardContent style={{ textAlign: 'center' }}>
+                      <History style={{ fontSize: 48, color: '#795548', marginBottom: 16 }} />
+                      <Typography variant="h6" gutterBottom style={{ color: '#222' }}>
+                        Auditoria de Ações
+                      </Typography>
+                      <Typography variant="body2" style={{ color: '#666' }}>
+                        Monitore atividades do sistema
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={3}>
+                  <Card className={classes.card} style={{ cursor: 'pointer', height: '100%' }}>
+                    <CardContent style={{ textAlign: 'center' }}>
+                      <Settings style={{ fontSize: 48, color: '#795548', marginBottom: 16 }} />
+                      <Typography variant="h6" gutterBottom style={{ color: '#222' }}>
+                        Configurações Avançadas
+                      </Typography>
+                      <Typography variant="body2" style={{ color: '#666' }}>
+                        Ajustes do sistema
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+
+              {/* Área Principal de Gestão */}
+              <Grid container spacing={3}>
+                {/* Lista de Usuários */}
+                <Grid item xs={12} md={8}>
+                  <Card className={classes.card}>
+                    <CardContent>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                        <Typography variant="h6" style={{ color: '#222' }}>
+                          <People style={{ marginRight: 8, verticalAlign: 'middle' }} />
+                          Usuários do Sistema
+                        </Typography>
+                        <Button
+                          variant="contained"
+                          style={{
+                            backgroundColor: '#795548',
+                            color: 'white',
+                            borderRadius: 25
+                          }}
+                          startIcon={<Add />}
+                          onClick={() => setNewUserDialogOpen(true)}
+                        >
+                          Novo Usuário
+                        </Button>
+                      </div>
+
+                      <Table>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Usuário</TableCell>
+                            <TableCell>Perfil</TableCell>
+                            <TableCell>Status</TableCell>
+                            <TableCell>Último Acesso</TableCell>
+                            <TableCell>Ações</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {usuariosList.length > 0 ? (
+                            usuariosList.map((usuario, index) => (
+                              <TableRow key={usuario.id || index}>
+                                <TableCell>
+                                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <Avatar 
+                                      src={usuario.imagemUrl} 
+                                      style={{ marginRight: 12, backgroundColor: '#795548' }}
+                                    >
+                                      {usuario.nome?.charAt(0) || <People />}
+                                    </Avatar>
+                                    <div>
+                                      <Typography variant="body2" style={{ fontWeight: 'bold', color: '#222' }}>
+                                        {usuario.nome || 'Sem nome'}
+                                      </Typography>
+                                      <Typography variant="caption" style={{ color: '#666' }}>
+                                        {usuario.email}
+                                      </Typography>
+                                    </div>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <Chip 
+                                    label={usuario.permissao || 'Visualizador'} 
+                                    size="small" 
+                                    style={{ 
+                                      backgroundColor: usuario.permissao === 'Administrador' ? '#795548' : 'transparent',
+                                      color: usuario.permissao === 'Administrador' ? 'white' : '#666',
+                                      border: usuario.permissao !== 'Administrador' ? '1px solid #ccc' : 'none'
+                                    }}
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  <Chip 
+                                    label={usuario.ativo !== false ? "Ativo" : "Inativo"} 
+                                    size="small" 
+                                    color={usuario.ativo !== false ? "primary" : "default"}
+                                    icon={usuario.ativo !== false ? <CheckCircle /> : <Cancel />}
+                                    style={usuario.ativo === false ? { backgroundColor: '#f44336', color: 'white' } : {}}
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  <Typography variant="body2" style={{ color: '#666' }}>
+                                    {usuario.ultimoAcesso 
+                                      ? new Date(usuario.ultimoAcesso).toLocaleDateString() 
+                                      : 'Nunca acessou'
+                                    }
+                                  </Typography>
+                                </TableCell>
+                                <TableCell>
+                                  <IconButton 
+                                    size="small"
+                                    onClick={(e) => handleUserMenuClick(e, usuario)}
+                                  >
+                                    <MoreVert />
+                                  </IconButton>
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          ) : (
+                            <TableRow>
+                              <TableCell colSpan={5} style={{ textAlign: 'center', padding: 40 }}>
+                                <Typography variant="body2" style={{ color: '#666' }}>
+                                  Nenhum usuário encontrado. Clique em "Novo Usuário" para adicionar.
+                                </Typography>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                {/* Painel Lateral */}
+                <Grid item xs={12} md={4}>
+                  {/* Estatísticas */}
+                  <Card className={classes.card} style={{ marginBottom: 16 }}>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom style={{ color: '#222' }}>
+                        <Timeline style={{ marginRight: 8, verticalAlign: 'middle' }} />
+                        Estatísticas
+                      </Typography>
+
+                      <div style={{ marginBottom: 16 }}>
+                        <Typography variant="body2" style={{ color: '#666' }}>Total de Usuários</Typography>
+                        <Typography variant="h4" style={{ color: '#795548' }}>
+                          {usuariosList.length}
+                        </Typography>
+                      </div>
+
+                      <div style={{ marginBottom: 16 }}>
+                        <Typography variant="body2" style={{ color: '#666' }}>Usuários Ativos</Typography>
+                        <Typography variant="h4" style={{ color: '#4caf50' }}>
+                          {usuariosList.filter(u => u.ativo !== false).length}
+                        </Typography>
+                      </div>
+
+                      <div>
+                        <Typography variant="body2" style={{ color: '#666' }}>Perfis Configurados</Typography>
+                        <Typography variant="h4" style={{ color: '#2196f3' }}>
+                          {new Set(usuariosList.map(u => u.permissao || 'Visualizador')).size}
+                        </Typography>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Perfis de Acesso */}
+                  <Card className={classes.card} style={{ marginBottom: 16 }}>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom style={{ color: '#222' }}>
+                        <Security style={{ marginRight: 8, verticalAlign: 'middle' }} />
+                        Perfis de Acesso
+                      </Typography>
+
+                      <List dense>
+                        <ListItem>
+                          <ListItemIcon>
+                            <Star style={{ color: '#f44336' }} />
+                          </ListItemIcon>
+                          <ListItemText 
+                            primary="Administrador" 
+                            secondary="Acesso total ao sistema"
+                            primaryTypographyProps={{ style: { color: '#222' } }}
+                          />
+                          <ListItemSecondaryAction>
+                            <Chip label={usuariosList.filter(u => u.permissao === 'Administrador').length} size="small" />
+                          </ListItemSecondaryAction>
+                        </ListItem>
+
+                        <ListItem>
+                          <ListItemIcon>
+                            <Extension style={{ color: '#ff9800' }} />
+                          </ListItemIcon>
+                          <ListItemText 
+                            primary="Operador" 
+                            secondary="Operações básicas"
+                            primaryTypographyProps={{ style: { color: '#222' } }}
+                          />
+                          <ListItemSecondaryAction>
+                            <Chip label={usuariosList.filter(u => u.permissao === 'Operador').length} size="small" />
+                          </ListItemSecondaryAction>
+                        </ListItem>
+
+                        <ListItem>
+                          <ListItemIcon>
+                            <Visibility style={{ color: '#2196f3' }} />
+                          </ListItemIcon>
+                          <ListItemText 
+                            primary="Visualizador" 
+                            secondary="Apenas visualização"
+                            primaryTypographyProps={{ style: { color: '#222' } }}
+                          />
+                          <ListItemSecondaryAction>
+                            <Chip label={usuariosList.filter(u => u.permissao === 'Visualizador' || !u.permissao).length} size="small" />
+                          </ListItemSecondaryAction>
+                        </ListItem>
+                      </List>
+
+                      <Button
+                        fullWidth
+                        variant="outlined"
+                        style={{
+                          marginTop: 16,
+                          borderColor: '#795548',
+                          color: '#795548'
+                        }}
+                        startIcon={<Add />}
+                        onClick={() => setNewProfileDialogOpen(true)}
+                      >
+                        Novo Perfil
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  {/* Log de Auditoria */}
+                  <Card className={classes.card}>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom style={{ color: '#222' }}>
+                        <History style={{ marginRight: 8, verticalAlign: 'middle' }} />
+                        Atividades Recentes
+                      </Typography>
+
+                      <List dense>
+                        <ListItem>
+                          <ListItemIcon>
+                            <CheckCircle style={{ color: '#4caf50' }} />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary="Login realizado"
+                            secondary="João Silva"
+                            primaryTypographyProps={{ style: { color: '#222' } }}
+                          />
+                        </ListItem>
+
+                        <ListItem>
+                          <ListItemIcon>
+                            <Add style={{ color: '#ff9800' }} />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary="Usuário criado"
+                            secondary="Maria Santos"
+                            primaryTypographyProps={{ style: { color: '#222' } }}
+                          />
+                        </ListItem>
+
+                        <ListItem>
+                          <ListItemIcon>
+                            <Edit style={{ color: '#2196f3' }} />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary="Permissão alterada"
+                            secondary="Carlos Oliveira"
+                            primaryTypographyProps={{ style: { color: '#222' } }}
+                          />
+                        </ListItem>
+                      </List>
+                    </CardContent>
+                  </Card>
+
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    style={{
+                      marginTop: 24,
+                      backgroundColor: '#795548',
+                      color: 'white',
+                      borderRadius: 25
+                    }}
+                    startIcon={<Print />}
+                    onClick={generateUserReport}
+                  >
+                    Gerar Relatório
+                  </Button>
+                </Grid>
+              </Grid>
+            </motion.div>
+          </AnimatePresence>
+        </Container>
+      </TabPanel>
+<TabPanel value={tabValue} index={10}>
+  <Container maxWidth="xl">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      <Typography variant="h4" gutterBottom align="center" style={{ marginBottom: 32, color: '#222' }}>
+        📄 Dashboard Requerimentos
+      </Typography>
+
+      {/* Componente Dashloja */}
+      <Dashloja />
+    </motion.div>
+  </Container>
+</TabPanel>
+
+
+    {/* Dashboard Digital */}
+    <TabPanel value={tabValue} index={15}>
+      <Container maxWidth="xl">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Typography variant="h4" gutterBottom align="center" style={{ marginBottom: 32, color: '#9C27B0' }}>
+            📁 Dashboard Digital — Documentos digitais: 892
+          </Typography>
+          <DashDigital />
+        </motion.div>
+      </Container>
+    </TabPanel>
+
+<TabPanel value={tabValue} index={12}>
+  <Container maxWidth="xl">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      <Typography variant="h4" gutterBottom align="center" style={{ marginBottom: 32, color: '#607D8B' }}>
+        🏢 Dashboard Empresarial — Documentos empresariais: 178
+      </Typography>
+      <DashEmpresas />
+    </motion.div>
+  </Container>
+</TabPanel>
+
+
+    {/* Dashboard Anuência */}
+    <TabPanel value={tabValue} index={9}>
+      <Container maxWidth="xl">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Typography variant="h4" gutterBottom align="center" style={{ marginBottom: 32, color: '#795548' }}>
+            🔐 Dashboard Anuência — Controle de anuências: 67
+          </Typography>
+          <DashAnuencia />
+        </motion.div>
+      </Container>
+    </TabPanel>
+
+    {/* Dashboard Transferências */}
+    <TabPanel value={tabValue} index={11}>
+      <Container maxWidth="xl">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Typography variant="h4" gutterBottom align="center" style={{ marginBottom: 32, color: '#FF9800' }}>
+            🔄 Dashboard Transferências — Controle de transferências: 321
+          </Typography>
+          <DashTransferencia />
+        </motion.div>
+      </Container>
+    </TabPanel>
+      {/* Dashboard Documentos */}
+      <TabPanel value={tabValue} index={7}>
+        <Container maxWidth="xl">
+          <AnimatePresence mode="wait">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <Typography variant="h4" gutterBottom align="center" style={{ marginBottom: 32, color: '#222' }}>
+                📊 Dashboard Central de Documentos
+              </Typography>
+
+              {/* Estatísticas Globais */}
+              <Paper className={classes.analyticsPanel} style={{ marginBottom: 24 }}>
+                <Typography variant="h6" gutterBottom style={{ color: '#222' }}>
+                  <Assignment style={{ marginRight: 8, verticalAlign: 'middle' }} />
+                  Estatísticas Globais
+                </Typography>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={6} md={2}>
+                    <Card className={classes.card} style={{ textAlign: 'center', background: 'linear-gradient(135deg, #4CAF50 0%, #81C784 100%)', color: 'white' }}>
+                      <CardContent>
+                        <Typography variant="h3">{dashboardsData.reduce((total, d) => total + d.documentos, 0)}</Typography>
+                        <Typography variant="body2">Total Documentos</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={2}>
+                    <Card className={classes.card} style={{ textAlign: 'center', background: 'linear-gradient(135deg, #2196F3 0%, #64B5F6 100%)', color: 'white' }}>
+                      <CardContent>
+                        <Typography variant="h3">{dashboardsData.length}</Typography>
+                        <Typography variant="body2">Dashboards Ativos</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={2}>
+                    <Card className={classes.card} style={{ textAlign: 'center', background: 'linear-gradient(135deg, #FF9800 0%, #FFB74D 100%)', color: 'white' }}>
+                      <CardContent>
+                        <Typography variant="h3">97%</Typography>
+                        <Typography variant="body2">Processamento</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={2}>
+                    <Card className={classes.card} style={{ textAlign: 'center', background: 'linear-gradient(135deg, #9C27B0 0%, #BA68C8 100%)', color: 'white' }}>
+                      <CardContent>
+                        <Typography variant="h3">24h</Typography>
+                        <Typography variant="body2">Tempo Médio</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={2}>
+                    <Card className={classes.card} style={{ textAlign: 'center', background: 'linear-gradient(135deg, #F44336 0%, #EF5350 100%)', color: 'white' }}>
+                      <CardContent>
+                        <Typography variant="h3">99.8%</Typography>
+                        <Typography variant="body2">Precisão</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={2}>
+                    <Card className={classes.card} style={{ textAlign: 'center', background: 'linear-gradient(135deg, #607D8B 0%, #90A4AE 100%)', color: 'white' }}>
+                      <CardContent>
+                        <Typography variant="h3">15</Typography>
+                        <Typography variant="body2">Usuários Online</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                </Grid>
+              </Paper>
+
+              {/* Grid de Dashboards */}
+              <Typography variant="h5" gutterBottom style={{ color: '#222', marginBottom: 16 }}>
+                Dashboards Disponíveis
+              </Typography>
+
+              <Grid container spacing={3}>
+                {dashboardsData.map((dashboard, index) => (
+                  <Grid item xs={12} sm={6} md={4} key={dashboard.id}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ scale: 1.02 }}
+                    >
+                      <Card
+                        className={classes.card}
+                        style={{
+                          border: `2px solid ${dashboard.color}`,
+                          background: `linear-gradient(135deg, ${dashboard.color}15 0%, ${dashboard.color}05 100%)`
+                        }}
+                      >
+                        <CardContent>
+                          {/* Cabeçalho do Dashboard */}
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                              <Avatar style={{ backgroundColor: dashboard.color, marginRight: 12 }}>
+                                {dashboard.icon}
+                              </Avatar>
+                              <div>
+                                <Typography variant="h6" style={{ color: '#222', fontWeight: 'bold' }}>
+                                  {dashboard.nome}
+                                </Typography>
+                                <Typography variant="caption" style={{ color: '#666' }}>
+                                  {dashboard.documentos} documentos
+                                </Typography>
+                              </div>
+                            </div>
+                            <IconButton 
+                              onClick={() => handleDashboardExpand(dashboard.id)}
+                              style={{ color: dashboard.color }}
+                            >
+                              {dashboardExpanded === dashboard.id ? <ExpandLess /> : <ExpandMore />}
+                            </IconButton>
+                          </div>
+
+                          <Typography variant="body2" style={{ color: '#666', marginBottom: 16 }}>
+                            {dashboard.descricao}
+                          </Typography>
+
+                          {/* Botão Principal */}
+                          <Button
+                            fullWidth
+                            variant="contained"
+                            style={{
+                              backgroundColor: dashboard.color,
+                              color: 'white',
+                              borderRadius: 25,
+                              marginBottom: 8
+                            }}
+                            startIcon={<Visibility />}
+                            onClick={() => handleOpenDashboard(dashboard.id)}
+                          >
+                            Abrir Dashboard
+                          </Button>
+
+                          {/* Menu Expansível com 3 Botões */}
+                          <AnimatePresence>
+                            {dashboardExpanded === dashboard.id && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.3 }}
+                                style={{ overflow: 'hidden' }}
+                              >
+                                <Typography variant="subtitle2" style={{ color: '#666', marginTop: 16, marginBottom: 8 }}>
+                                  Ações Rápidas:
+                                </Typography>
+                                <div style={{ display: 'flex', gap: 8, flexDirection: 'column' }}>
+                                  {dashboard.acoes.map((acao, acaoIndex) => (
+                                    <motion.div
+                                      key={acao.id}
+                                      initial={{ opacity: 0, x: -20 }}
+                                      animate={{ opacity: 1, x: 0 }}
+                                      transition={{ delay: acaoIndex * 0.1 }}
+                                    >
+                                      <Button
+                                        fullWidth
+                                        variant="outlined"
+                                        size="small"
+                                        style={{
+                                          borderColor: acao.color,
+                                          color: acao.color,
+                                          borderRadius: 20
+                                        }}
+                                        startIcon={acao.icon}
+                                        onClick={() => handleDashboardAction(dashboard.id, acao.id)}
+                                      >
+                                        {acao.nome}
+                                      </Button>
+                                    </motion.div>
+                                  ))}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </Grid>
+                ))}
+              </Grid>
+              
+
+              {/* Painel de Monitoramento em Tempo Real */}
+              <Paper className={classes.analyticsPanel} style={{ marginTop: 32 }}>
+                <Typography variant="h6" gutterBottom style={{ color: '#222' }}>
+                  <Timeline style={{ marginRight: 8, verticalAlign: 'middle' }} />
+                  Monitoramento em Tempo Real
+                </Typography>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
+                    <List>
+                      <ListItem>
+                        <ListItemIcon>
+                          <Badge color="secondary" variant="dot">
+                            <Assignment style={{ color: '#4CAF50' }} />
+                          </Badge>
+                        </ListItemIcon>
+                        <ListItemText
+                          primary="Novo requerimento processado"
+                          secondary="Dashboard Requerimentos • 2 min atrás"
+                          primaryTypographyProps={{ style: { color: '#222' } }}
+                        />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemIcon>
+                          <Badge color="secondary" variant="dot">
+                            <Extension style={{ color: '#FF9800' }} />
+                          </Badge>
+                        </ListItemIcon>
+                        <ListItemText
+                          primary="Transferência aprovada"
+                          secondary="Dashboard Transferências • 5 min atrás"
+                          primaryTypographyProps={{ style: { color: '#222' } }}
+                        />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemIcon>
+                          <Badge color="secondary" variant="dot">
+                            <Storage style={{ color: '#9C27B0' }} />
+                          </Badge>
+                        </ListItemIcon>
+                        <ListItemText
+                          primary="Documento digital validado"
+                          secondary="Dashboard Digital • 8 min atrás"
+                          primaryTypographyProps={{ style: { color: '#222' } }}
+                        />
+                      </ListItem>
+                    </List>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <div style={{ textAlign: 'center', padding: 24 }}>
+                      <CircularProgress
+                        variant="determinate"
+                        value={85}
+                        size={120}
+                        thickness={6}
+                        style={{ color: '#4CAF50', marginBottom: 16 }}
+                      />
+                      <Typography variant="h4" style={{ color: '#222', fontWeight: 'bold' }}>
+                        85%
+                      </Typography>
+                      <Typography variant="body2" style={{ color: '#666' }}>
+                        Performance Global dos Dashboards
+                      </Typography>
+                    </div>
+                  </Grid>
+                </Grid>
+              </Paper>
+            </motion.div>
+          </AnimatePresence>
+        </Container>
+      </TabPanel>
+
+      {/* Gestão de Permissões */}
+      <TabPanel value={tabValue} index={8}>
+        <Container maxWidth="xl">
+          <AnimatePresence mode="wait">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <Typography variant="h4" gutterBottom align="center" style={{ marginBottom: 32, color: '#222' }}>
+                🔐 Gestão de Permissões Avançada
+              </Typography>
+
+              {/* Estatísticas de Permissões */}
+              <Paper className={classes.analyticsPanel} style={{ marginBottom: 24 }}>
+                <Typography variant="h6" gutterBottom style={{ color: '#222' }}>
+                  <Security style={{ marginRight: 8, verticalAlign: 'middle' }} />
+                  Resumo de Segurança
+                </Typography>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card className={classes.card} style={{ textAlign: 'center', background: 'linear-gradient(135deg, #f44336 0%, #e57373 100%)', color: 'white' }}>
+                      <CardContent>
+                        <Typography variant="h3">{accessProfiles.length}</Typography>
+                        <Typography variant="body2">Perfis Ativos</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card className={classes.card} style={{ textAlign: 'center', background: 'linear-gradient(135deg, #4caf50 0%, #81c784 100%)', color: 'white' }}>
+                      <CardContent>
+                        <Typography variant="h3">{systemModules.length}</Typography>
+                        <Typography variant="body2">Módulos Sistema</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card className={classes.card} style={{ textAlign: 'center', background: 'linear-gradient(135deg, #2196f3 0%, #64b5f6 100%)', color: 'white' }}>
+                      <CardContent>
+                        <Typography variant="h3">{usuariosList.length}</Typography>
+                        <Typography variant="body2">Usuários Cadastrados</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card className={classes.card} style={{ textAlign: 'center', background: 'linear-gradient(135deg, #ff9800 0%, #ffb74d 100%)', color: 'white' }}>
+                      <CardContent>
+                        <Typography variant="h3">99.9%</Typography>
+                        <Typography variant="body2">Segurança</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                </Grid>
+              </Paper>
+
+              {/* Perfis de Acesso */}
+              <Typography variant="h5" gutterBottom style={{ color: '#222', marginBottom: 16 }}>
+                Perfis de Acesso Configurados
+              </Typography>
+
+              <Grid container spacing={3}>
+                {accessProfiles.map((profile, index) => (
+                  <Grid item xs={12} sm={6} md={4} key={profile.id}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ scale: 1.02 }}
+                    >
+                      <Card
+                        className={classes.card}
+                        style={{
+                          cursor: 'pointer',
+                          border: `2px solid ${profile.color}`,
+                          background: `linear-gradient(135deg, ${profile.color}15 0%, ${profile.color}05 100%)`
+                        }}
+                        onClick={() => handleOpenPermissionDialog(profile)}
+                      >
+                        <CardContent>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                              {profile.icon}
+                              <Typography variant="h6" style={{ marginLeft: 8, color: '#222' }}>
+                                {profile.nome}
+                              </Typography>
+                            </div>
+                            <Chip 
+                              label={`${profile.usuarios} usuários`} 
+                              size="small" 
+                              style={{ backgroundColor: profile.color, color: 'white' }}
+                            />
+                          </div>
+
+                          <Typography variant="body2" style={{ color: '#666', marginBottom: 16 }}>
+                            {profile.descricao}
+                          </Typography>
+
+                          {/* Módulos Ativos */}
+                          <div style={{ marginBottom: 16 }}>
+                            <Typography variant="caption" style={{ color: '#666', fontWeight: 'bold' }}>
+                              Módulos Ativos:
+                            </Typography>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
+                              {Object.entries(profile.permissoes).map(([moduleKey, permissions]: [string, any]) => 
+                                permissions.ativo && (
+                                  <Chip
+                                    key={moduleKey}
+                                    label={systemModules.find(m => m.id === moduleKey)?.nome || moduleKey}
+                                    size="small"
+                                    variant="outlined"
+                                    style={{ fontSize: '0.7rem' }}
+                                  />
+                                )
+                              )}
+                            </div>
+                          </div>
+
+                          <Button
+                            fullWidth
+                            variant="contained"
+                            style={{
+                              backgroundColor: profile.color,
+                              color: 'white',
+                              borderRadius: 25
+                            }}
+                            startIcon={<Settings />}
+                          >
+                            Configurar Permissões
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </Grid>
+                ))}
+              </Grid>
+
+              {/* Matriz de Permissões */}
+              <Typography variant="h5" gutterBottom style={{ color: '#222', marginTop: 32, marginBottom: 16 }}>
+                Matriz de Permissões por Módulo
+              </Typography>
+
+              <TableContainer component={Paper} className={classes.card}>
+                <Table>
+                  <TableHead>
+                    <TableRow style={{ backgroundColor: '#f5f5f5' }}>
+                      <TableCell style={{ fontWeight: 'bold' }}>Módulo</TableCell>
+                      {accessProfiles.map(profile => (
+                        <TableCell key={profile.id} align="center" style={{ fontWeight: 'bold', color: profile.color }}>
+                          {profile.nome}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {systemModules.map(module => (
+                      <TableRow key={module.id}>
+                        <TableCell>
+                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                            {module.icon}
+                            <div style={{ marginLeft: 8 }}>
+                              <Typography variant="body2" style={{ fontWeight: 'bold', color: '#222' }}>
+                                {module.nome}
+                              </Typography>
+                              <Typography variant="caption" style={{ color: '#666' }}>
+                                {module.descricao}
+                              </Typography>
+                            </div>
+                          </div>
+                        </TableCell>
+                        {accessProfiles.map(profile => (
+                         <TableCell key={profile.id} align="center">
+  {(profile.permissoes as Record<string, ModulePermissions>)[module.id]?.ativo ? (
+    <CheckCircle style={{ color: '#4caf50' }} />
+  ) : null}
+</TableCell>
+
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </motion.div>
+          </AnimatePresence>
+        </Container>
+      </TabPanel>
+
+      <TabPanel value={tabValue} index={9}>
+        <WhatsAppDigisac />
+      </TabPanel>
+
+      <SpeedDial
+        ariaLabel="SpeedDial example"
+        className={classes.speedDial}
+        hidden={!aiAssistantActive}
+        icon={<SpeedDialIcon />}
+        onClose={() => setSpeedDialOpen(false)}
+        onOpen={() => setSpeedDialOpen(true)}
+        open={speedDialOpen}
+        FabProps={{ color: 'primary' }}
+        style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 1000 }}
+      >
+        {speedDialActions.map((action) => (
+          <SpeedDialAction
+            key={action.name}
+            icon={action.icon}
+            tooltipTitle={action.name}
+            onClick={() => handleSmartAction(action.name)}
+            FabProps={{ style: { backgroundColor: action.color } }}
+          />
+        ))}
+      </SpeedDial>
+
+      <Snackbar
+        open={notifications.length > 0}
+        autoHideDuration={6000}
+        onClose={() => setNotifications([])}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <div>
+          {notifications.map(notification => (
+            <Alert key={notification.id} severity={notification.type} style={{ marginBottom: 8 }}>
+              {notification.message}
+            </Alert>
+          ))}
+        </div>
+      </Snackbar>
+
+      <Dialog open={newUserDialogOpen} onClose={() => setNewUserDialogOpen(false)}>
+        <DialogTitle>Novo Usuário</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Nome"
+            type="text"
+            fullWidth
+            value={newUserData.nome}
+            onChange={(e) => handleNewUserInputChange('nome', e.target.value)}
+          />
+          <TextField
+            margin="dense"
+            label="Email"
+            type="email"
+            fullWidth
+            value={newUserData.email}
+            onChange={(e) => handleNewUserInputChange('email', e.target.value)}
+          />
+          <TextField
+            margin="dense"
+            label="Senha"
+            type="password"
+            fullWidth
+            value={newUserData.senha}
+            onChange={(e) => handleNewUserInputChange('senha', e.target.value)}
+          />
+          <FormControl fullWidth margin="dense">
+            <InputLabel id="permissao-label">Permissão</InputLabel>
+            <Select
+              labelId="permissao-label"
+              value={newUserData.permissao}
+              onChange={(e) => handleChange(e)}
+            >
+              <MenuItem value="Visualizador">Visualizador</MenuItem>
+              <MenuItem value="Operador">Operador</MenuItem>
+               <MenuItem value="Administrador">Administrador</MenuItem>
+              <MenuItem value="CEO">CEO</MenuItem>
+              <MenuItem value="EnygmaDeveloper">EnygmaDeveloper</MenuItem>
+              <MenuItem value="Cliente">Cliente</MenuItem>
+              <MenuItem value="ClientePremiun">ClientePremiun</MenuItem>
+              <MenuItem value="Empresarial">Empresarial</MenuItem>
+              <MenuItem value="EmpresarialPremium">EmpresarialPremium</MenuItem>
+              <MenuItem value="Colaborador">Colaborador</MenuItem>
+              <MenuItem value="Atendente">Atendente</MenuItem>
+              <MenuItem value="Caixa">Caixa</MenuItem>
+              <MenuItem value="Motoboy">Motoboy</MenuItem>
+              <MenuItem value="Funcionario">Funcionario</MenuItem>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setNewUserDialogOpen(false)}>Cancelar</Button>
+          <Button onClick={handleNewUserSubmit} color="primary">
+            Criar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={editUserDialogOpen} onClose={() => setEditUserDialogOpen(false)}>
+        <DialogTitle>Editar Usuário</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Nome"
+            type="text"
+            fullWidth
+            value={editUserData.nome}
+            onChange={(e) => handleEditUserInputChange('nome', e.target.value)}
+          />
+          <TextField
+            margin="dense"
+            label="Email"
+            type="email"
+            fullWidth
+            value={editUserData.email}
+            onChange={(e) => handleEditUserInputChange('email', e.target.value)}
+          />
+          <FormControl fullWidth margin="dense">
+            <InputLabel id="edit-permissao-label">Permissão</InputLabel>
+            <Select
+              labelId="edit-permissao-label"
+              value={editUserData.permissao}
+             onChange={(e) => handleChange(e)}
+
+            >
+              <MenuItem value="Visualizador">Visualizador</MenuItem>
+              <MenuItem value="Operador">Operador</MenuItem>
+              <MenuItem value="Administrador">Administrador</MenuItem>
+               <MenuItem value="Administrador">Administrador</MenuItem>
+              <MenuItem value="CEO">CEO</MenuItem>
+              <MenuItem value="EnygmaDeveloper">EnygmaDeveloper</MenuItem>
+              <MenuItem value="Cliente">Cliente</MenuItem>
+              <MenuItem value="ClientePremiun">ClientePremiun</MenuItem>
+              <MenuItem value="Empresarial">Empresarial</MenuItem>
+              <MenuItem value="EmpresarialPremium">EmpresarialPremium</MenuItem>
+              <MenuItem value="Colaborador">Colaborador</MenuItem>
+              <MenuItem value="Atendente">Atendente</MenuItem>
+              <MenuItem value="Caixa">Caixa</MenuItem>
+              <MenuItem value="Motoboy">Motoboy</MenuItem>
+              <MenuItem value="Funcionario">Funcionario</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={editUserData.ativo}
+                onChange={(e) => handleEditUserInputChange('ativo', e.target.checked)}
+                color="primary"
+              />
+            }
+            label="Ativo"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditUserDialogOpen(false)}>Cancelar</Button>
+          <Button onClick={handleEditUserSubmit} color="primary">
+            Salvar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={deleteUserDialogOpen} onClose={() => setDeleteUserDialogOpen(false)}>
+        <DialogTitle>Confirmar Exclusão</DialogTitle>
+        <DialogContent>
+          <Typography variant="body1">
+            Tem certeza que deseja excluir o usuário <strong>{userToDelete?.nome}</strong>?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteUserDialogOpen(false)}>Cancelar</Button>
+          <Button onClick={confirmDeleteUser} color="secondary">
+            Excluir
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={newProfileDialogOpen} onClose={() => setNewProfileDialogOpen(false)}>
+        <DialogTitle>Novo Perfil de Acesso</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Nome do Perfil"
+            type="text"
+            fullWidth
+            value={newProfileData.nome}
+            onChange={(e) => handleNewProfileInputChange('nome', e.target.value)}
+          />
+          <TextField
+            margin="dense"
+            label="Descrição"
+            type="text"
+            fullWidth
+            multiline
+            rows={4}
+            value={newProfileData.descricao}
+            onChange={(e) => handleNewProfileInputChange('descricao', e.target.value)}
+          />
+          <Typography variant="subtitle1" style={{ marginTop: 16 }}>Permissões</Typography>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={newProfileData.permissoes.dashboard}
+                onChange={(e) => handleNewProfileInputChange('permissoes.dashboard', e.target.checked)}
+                color="primary"
+              />
+            }
+            label="Dashboard"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={newProfileData.permissoes.chat}
+                onChange={(e) => handleNewProfileInputChange('permissoes.chat', e.target.checked)}
+                color="primary"
+              />
+            }
+            label="Chat"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={newProfileData.permissoes.crm}
+                onChange={(e) => handleNewProfileInputChange('permissoes.crm', e.target.checked)}
+                color="primary"
+              />
+            }
+            label="CRM"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={newProfileData.permissoes.relatorios}
+                onChange={(e) => handleNewProfileInputChange('permissoes.relatorios', e.target.checked)}
+                color="primary"
+              />
+            }
+            label="Relatórios"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={newProfileData.permissoes.usuarios}
+                onChange={(e) => handleNewProfileInputChange('permissoes.usuarios', e.target.checked)}
+                color="primary"
+              />
+            }
+            label="Usuários"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={newProfileData.permissoes.configuracoes}
+                onChange={(e) => handleNewProfileInputChange('permissoes.configuracoes', e.target.checked)}
+                color="primary"
+              />
+            }
+            label="Configurações"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setNewProfileDialogOpen(false)}>Cancelar</Button>
+          <Button onClick={handleNewProfileSubmit} color="primary">
+            Criar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Menu
+        anchorEl={userMenuAnchor}
+        open={Boolean(userMenuAnchor)}
+        onClose={handleUserMenuClose}
+      >
+        <MenuItem onClick={() => {
+          if (selectedUser) {
+            handleEditUser(selectedUser);
+          }
+        }}>
+          <Edit style={{ marginRight: 8 }} />
+          Editar
+        </MenuItem>
+        <MenuItem onClick={() => {
+          if (selectedUser) {
+            handleDeleteUser(selectedUser);
+          }
+        }}>
+          <Delete style={{ marginRight: 8, color: theme.palette.error.main }} />
+          Excluir
+        </MenuItem>
+        <MenuItem onClick={() => {
+          if (selectedUser) {
+            handleToggleUserStatus(selectedUser);
+          }
+        }}>
+          {selectedUser?.ativo !== false ? (
+            <>
+              <Lock style={{ marginRight: 8, color: theme.palette.warning.main }} />
+              Desativar
+            </>
+          ) : (
+            <>
+              <LockOpen style={{ marginRight: 8, color: theme.palette.success.main }} />
+              Ativar
+            </>
+          )}
+        </MenuItem>
+      </Menu>
+
+      {/* Dialog de Configuração de Permissões */}
+      <Dialog 
+        open={permissionDialogOpen} 
+        onClose={handleClosePermissionDialog}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            {selectedProfile?.icon}
+            <Typography variant="h6" style={{ marginLeft: 8, color: '#222' }}>
+              Configurar Permissões - {selectedProfile?.nome}
+            </Typography>
+          </div>
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" style={{ color: '#666', marginBottom: 24 }}>
+            {selectedProfile?.descricao}
+          </Typography>
+
+          <Grid container spacing={3}>
+            {systemModules.map(module => {
+              const modulePermissions = profilePermissions[module.id] || {};
+              return (
+                <Grid item xs={12} md={6} key={module.id}>
+                  <Card style={{ border: `1px solid ${modulePermissions.ativo ? '#4caf50' : '#f44336'}` }}>
+                    <CardContent>
+                      {/* Cabeçalho do Módulo */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          {module.icon}
+                          <div style={{ marginLeft: 8 }}>
+                            <Typography variant="subtitle1" style={{ fontWeight: 'bold', color: '#222' }}>
+                              {module.nome}
+                            </Typography>
+                            <Typography variant="caption" style={{ color: '#666' }}>
+                              {module.descricao}
+                            </Typography>
+                          </div>
+                        </div>
+                        <Switch
+                          checked={modulePermissions.ativo || false}
+                          onChange={(e) => handleModuleToggle(module.id, e.target.checked)}
+                          color="primary"
+                          icon={<ToggleOffIcon />}
+                          checkedIcon={<ToggleOnIcon />}
+                        />
+                      </div>
+
+                      {/* Permissões Específicas */}
+                      {modulePermissions.ativo && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={modulePermissions.visualizar || false}
+                                  onChange={(e) => handlePermissionChange(module.id, 'visualizar', e.target.checked)}
+                                  color="primary"
+                                />
+                              }
+                              label="Visualizar"
+                            />
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={modulePermissions.criar || false}
+                                  onChange={(e) => handlePermissionChange(module.id, 'criar', e.target.checked)}
+                                  color="primary"
+                                />
+                              }
+                              label="Criar"
+                            />
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={modulePermissions.editar || false}
+                                  onChange={(e) => handlePermissionChange(module.id, 'editar', e.target.checked)}
+                                  color="primary"
+                                />
+                              }
+                              label="Editar"
+                            />
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={modulePermissions.excluir || false}
+                                  onChange={(e) => handlePermissionChange(module.id, 'excluir', e.target.checked)}
+                                  color="primary"
+                                />
+                              }
+                              label="Excluir"
+                            />
+                          </div>
+                        </motion.div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Grid>
+              );
+            })}
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClosePermissionDialog}>Cancelar</Button>
+          <Button 
+            onClick={handleSavePermissions} 
+            color="primary" 
+            variant="contained"
+            style={{ borderRadius: 25 }}
+          >
+            Salvar Permissões
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+    </div>
+  );
+};
+
+export default Colaboradores;

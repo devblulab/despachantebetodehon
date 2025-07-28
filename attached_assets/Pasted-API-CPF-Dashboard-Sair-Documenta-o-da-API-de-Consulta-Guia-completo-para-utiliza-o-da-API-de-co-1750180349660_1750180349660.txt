@@ -1,0 +1,68 @@
+API CPF
+Dashboard Sair
+Documentação da API de Consulta
+Guia completo para utilização da API de consulta de CPF
+
+Visão Geral
+A API de Consulta permite buscar informações de pessoas a partir do CPF. Ela é simples, rápida e segura, retornando dados como nome, gênero e data de nascimento.
+
+Importante: Para utilizar esta API, você precisa de uma chave de API válida. Contrate um plano para obter sua chave.
+Base URL
+https://apicpf.com
+Copiar
+Autenticação
+Todas as requisições à API devem incluir uma chave de API válida no cabeçalho HTTP X-API-KEY.
+
+// Exemplo de cabeçalho de autenticação X-API-KEY: sua_chave_api_aqui
+Alternativamente, você pode enviar a chave como parâmetro de consulta api_key:
+
+https://apicpf.com/api/consulta?cpf=12345678900&api_key=sua_chave_api_aqui
+Endpoints
+Consulta por CPF
+GET
+/api/consulta
+Copiar
+Consulta dados de uma pessoa a partir do CPF.
+
+Parâmetros
+Nome	Tipo	Obrigatório	Descrição
+cpf	string	Sim	CPF da pessoa, com ou sem formatação (apenas números)
+cURL
+JavaScript
+PHP
+curl -X GET "https://apicpf.com/api/consulta?cpf=12345678900" \ -H "X-API-KEY: sua_chave_api_aqui"
+Resposta de Sucesso
+200 OK
+
+{ "code": 200, "data": { "cpf": "12345678900", "nome": "João da Silva", "genero": "M", "data_nascimento": "1985-07-15" } }
+Campo	Descrição
+code	Código de status HTTP da resposta
+data.cpf	CPF completo com 11 dígitos (preenchido com zeros à esquerda se necessário)
+data.nome	Nome completo da pessoa
+data.genero	Gênero - "M" (Masculino), "F" (Feminino) ou "I" (Indefinido/Outro)
+data.data_nascimento	Data de nascimento no formato YYYY-MM-DD
+Respostas de Erro
+400 Bad Request - CPF não informado
+
+{ "code": 400, "message": "O parâmetro CPF é obrigatório" }
+400 Bad Request - CPF com formato inválido
+
+{ "code": 400, "message": "O CPF deve conter exatamente 11 dígitos" }
+404 Not Found - CPF não encontrado
+
+{ "code": 404, "message": "Pessoa não encontrada com o CPF informado" }
+401 Unauthorized - API Key não fornecida
+
+{ "code": 401, "message": "API key não fornecida" }
+401 Unauthorized - API Key inválida
+
+{ "code": 401, "message": "API key inválida" }
+403 Forbidden - API Key expirada
+
+{ "code": 403, "message": "API key expirada" }
+429 Too Many Requests - Limite diário excedido
+
+{ "code": 429, "message": "Limite diário excedido" }
+429 Too Many Requests - Limite por minuto excedido
+
+{ "code": 429, "message": "Limite de requisições por minuto excedido. Tente novamente em breve" }
