@@ -708,7 +708,8 @@ const enviarMensagensMassa = async () => {
           numero: c.fone_celular,
           nome: c.proprietarioatual
         })),
-        agendarPara: agendarPara.toISOString(),
+        agendarPara: agendarPara.toLocaleString('sv-SE'), // mantém formato local sem fuso, ex: "2025-07-28 16:35:00"
+
         criadoEm: serverTimestamp()
       });
 
