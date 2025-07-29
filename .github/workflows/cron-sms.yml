@@ -12,5 +12,8 @@ jobs:
     steps:
       - name: Chamar API do Vercel
         run: |
-          curl -X GET https://despachantebetodehon.vercel.app/api/processaAgendamentos \
+           curl -X GET https://despachantebetodehon.vercel.app/api/processaAgendamentos \
           -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+
+
+
