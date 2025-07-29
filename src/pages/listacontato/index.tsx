@@ -600,6 +600,23 @@ useEffect(() => {
     }
   };
 
+
+  useEffect(() => {
+    // 🔁 Verifica e processa agendamentos automaticamente a cada minuto
+    const intervalo = setInterval(() => {
+      fetch('/api/processaAgendamentos')
+        .then(res => res.json())
+        .then(data => {
+          if (data.enviados > 0) {
+            console.log('✅ Mensagens enviadas automaticamente:', data.logs);
+          }
+        })
+        .catch(err => console.error('❌ Erro ao processar agendamentos:', err));
+    }, 60000); // 60 segundos
+
+    return () => clearInterval(intervalo); // limpa ao desmontar
+  }, []);
+
   const sendMessage = async (numero: string, mensagem: string) => {
     try {
       const numeroFormatado = `+${normalizarTelefoneBrasil(numero)}`;
@@ -708,10 +725,9 @@ const enviarMensagensMassa = async () => {
     numero: c.fone_celular,
     nome: c.proprietarioatual
   })),
-  agendarPara: new Date(agendarPara.getTime() + 3 * 60 * 60 * 1000), // ✅ UTC-3 (Brasília)
+  agendarPara: new Date(new Date(dataHoraAgendada).getTime() - (3 * 60 * 60 * 1000)).toISOString(), // ✅ corrigido para UTC
   criadoEm: serverTimestamp()
 });
-
 
       setSnackbarMsg('✅ Envio agendado com sucesso!');
       setSnackbarOpen(true);
