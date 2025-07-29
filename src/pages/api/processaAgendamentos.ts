@@ -27,12 +27,13 @@ function normalizarTelefoneBrasil(numero: string): string {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const autorizacao = req.headers.authorization;
+  const autorizacao = req.headers.authorization || req.query.token;
   const segredo = process.env.CRON_SECRET;
 
-  if (autorizacao !== `Bearer ${segredo}`) {
+  if (autorizacao !== `Bearer ${segredo}` && autorizacao !== segredo) {
     return res.status(401).json({ erro: 'Não autorizado' });
   }
+
 
   const db = getFirestore(app);
   const agendamentosRef = collection(db, 'AgendamentosSMS');
