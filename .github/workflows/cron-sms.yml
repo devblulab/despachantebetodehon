@@ -2,18 +2,15 @@ name: Agendamento SMS a cada 2 minutos
 
 on:
   schedule:
-    - cron: '*/2 * * * *'  # A cada 2 minutos
-  workflow_dispatch:
+    - cron: '*/2 * * * *'  # Executa a cada 2 minutos
+  workflow_dispatch:       # Permite rodar manualmente também
 
 jobs:
   executar-processamento:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Chamar API do Vercel
+      - name: Requisição para API do Vercel (processaAgendamentos)
         run: |
-           curl -X GET https://despachantebetodehon.vercel.app/api/processaAgendamentos \
-          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
-
-
-
+          curl -X GET "https://despachantebetodehon.vercel.app/api/processaAgendamentos" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
