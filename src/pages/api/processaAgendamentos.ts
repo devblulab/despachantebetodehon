@@ -10,12 +10,13 @@ import {
 import { app } from '@/logic/firebase/config/app';
 import { enviarSmsViaDigisac } from '@/pages/api/digisac'; // função real de envio
 
+// 🕒 Hora atual em Brasília (UTC-3)
 function getHoraBrasilia(): Date {
-  const agora = new Date();
-  const offsetBrasilia = -3 * 60; // UTC-3
-  return new Date(agora.getTime() + offsetBrasilia * 60000);
+  const agoraUTC = new Date();
+  return new Date(agoraUTC.getTime() - 3 * 60 * 60 * 1000);
 }
 
+// 📞 Normaliza número brasileiro para formato internacional
 function normalizarTelefoneBrasil(numero: string): string {
   let phone = numero.replace(/\D/g, '');
   if (phone.length >= 12 && phone.startsWith('0')) phone = phone.slice(1);
@@ -27,13 +28,12 @@ function normalizarTelefoneBrasil(numero: string): string {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const autorizacao = req.headers.authorization || req.query.token;
+  const autorizacao = req.headers.authorization;
   const segredo = process.env.CRON_SECRET;
 
-  if (autorizacao !== `Bearer ${segredo}` && autorizacao !== segredo) {
+  if (autorizacao !== `Bearer ${segredo}`) {
     return res.status(401).json({ erro: 'Não autorizado' });
   }
-
 
   const db = getFirestore(app);
   const agendamentosRef = collection(db, 'AgendamentosSMS');
@@ -45,7 +45,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   for (const docSnap of snapshot.docs) {
     const agendamento = docSnap.data();
-    const agendarPara = new Date(agendamento.agendarPara);
+
+    // Garante que agendarPara seja um Date válido (suporta Timestamp do Firestore)
+    const agendarPara = agendamento.agendarPara?.toDate?.() || new Date(agendamento.agendarPara);
     const diff = Math.abs(agendarPara.getTime() - agora.getTime());
 
     if (diff <= toleranciaMs) {
@@ -57,8 +59,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         try {
           const resposta = await enviarSmsViaDigisac(`+${numero}`, mensagem);
-
-
           console.log(`✅ Enviado para ${numero}:`, resposta);
           enviados++;
         } catch (e) {
