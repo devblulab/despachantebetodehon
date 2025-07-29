@@ -701,17 +701,17 @@ const enviarMensagensMassa = async () => {
     try {
       const db = getFirestore(app);
       await addDoc(collection(db, 'AgendamentosSMS'), {
-        mensagem: envioMassa.mensagem,
-        statusSelecionado: envioMassa.statusSelecionado,
-        contatos: clientesParaEnviar.map(c => ({
-          id: c.id,
-          numero: c.fone_celular,
-          nome: c.proprietarioatual
-        })),
-        agendarPara: agendarPara.toLocaleString('sv-SE'), // mantém formato local sem fuso, ex: "2025-07-28 16:35:00"
+  mensagem: envioMassa.mensagem,
+  statusSelecionado: envioMassa.statusSelecionado,
+  contatos: clientesParaEnviar.map(c => ({
+    id: c.id,
+    numero: c.fone_celular,
+    nome: c.proprietarioatual
+  })),
+  agendarPara: new Date(agendarPara.getTime() + 3 * 60 * 60 * 1000), // ✅ UTC-3 (Brasília)
+  criadoEm: serverTimestamp()
+});
 
-        criadoEm: serverTimestamp()
-      });
 
       setSnackbarMsg('✅ Envio agendado com sucesso!');
       setSnackbarOpen(true);
