@@ -55,10 +55,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const mensagem = agendamento.mensagem;
 
         try {
-          const resposta = await enviarSmsViaDigisac({
-            numero: `+${numero}`,
-            mensagem
-          });
+          const resposta = await enviarSmsViaDigisac(`+${numero}`, mensagem);
+
 
           console.log(`✅ Enviado para ${numero}:`, resposta);
           enviados++;
