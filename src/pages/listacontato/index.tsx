@@ -16,9 +16,9 @@ import { app } from '@/logic/firebase/config/app';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { getStatusExtras, addStatusExtra, removeStatusExtra } from '@/logic/firebase/services/status';
 import { useIAParcelamento } from '@/hooks/useIAParcelamento';
-import SyncContatos from '@/components/whatscontatos/SyncContatos';
+
 import { useIAPendentes } from '@/hooks/useIAPendentes';
-import VerificacaoIAResultados from '@/components/whatscontatos/VerificacaoIAResultados';
+
 
 
 
@@ -32,278 +32,362 @@ const ChatFlutuante = dynamic(() => import('@/components/parcelamento/ChatFlutua
 
 
 const useStyles = makeStyles((theme) => ({
-
   pageWrapper: {
-  paddingTop: theme.spacing(3),     // Topo
-  paddingLeft: theme.spacing(10),    // Laterais esquerda
-  paddingRight: theme.spacing(10),   // Laterais direita
-  backgroundColor: '#f5f5f5',
-  minHeight: '100vh',
-},
-
+    padding: theme.spacing(4, 12), // Increased padding for a spacious feel
+    background: 'linear-gradient(180deg, #F7F9FC 0%, #E8ECEF 100%)', // Subtle gradient for depth
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+  },
   addButton: {
     position: 'fixed',
+    bottom: theme.spacing(5),
+    right: theme.spacing(5),
+    background: 'linear-gradient(135deg, #1a6e3dff 0%, #1c8146ff 100%)', // Refined green gradient
+    color: '#fff',
+    borderRadius: 28,
     left: 32,
-    bottom: theme.spacing(4),
-    right: theme.spacing(4),
-  
-    background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-    color: 'white',
+    padding: theme.spacing(1.5, 3),
+    fontWeight: 600,
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+    transition: 'all 0.3s ease',
     '&:hover': {
-      background: 'linear-gradient(135deg, #128C7E 0%, #075E54 100%)',
+      background: 'linear-gradient(135deg, #27AE60 0%, #219653 100%)',
+      boxShadow: '0 6px 16px rgba(0, 0, 0, 0.3)',
+      transform: 'translateY(-2px)',
     },
   },
   dialogContent: {
-    minWidth: 300,
+    minWidth: 400,
     [theme.breakpoints.up('sm')]: {
-      minWidth: 500,
+      minWidth: 600,
+    },
+    padding: theme.spacing(3),
+    background: '#fff',
+    borderRadius: 12,
+  },
+  tableCell: {
+  padding: theme.spacing(1.5, 2),
+  fontSize: '0.95rem',
+  color: '#34495E',
+  borderBottom: '1px solid #E8ECEF',
+  background: '#fff',
+  '&:first-child': {
+    borderLeft: '1px solid #E8ECEF',
+  },
+  '&:last-child': {
+    borderRight: '1px solid #E8ECEF',
+  },
+  transition: 'background 0.2s ease',
+  '&:hover': {
+    background: '#F1F5F9',
+  },
+},
+  card: {
+    borderRadius: 20,
+    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
+    background: 'linear-gradient(145deg, #FFFFFF 0%, #F9FAFB 100%)',
+    transition: 'all 0.3s ease',
+    borderLeft: '4px solid #2ECC71',
+    cursor: 'grab',
+    userSelect: 'none',
+    minHeight: 220,
+    padding: theme.spacing(3),
+    '&:hover': {
+      transform: 'translateY(-4px)',
+      boxShadow: '0 14px 40px rgba(0, 0, 0, 0.12)',
     },
   },
-card: {
-  borderRadius: 16,
-  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-  background: 'white',
-  transition: 'transform 0.3s, box-shadow 0.3s',
-  '&:hover': {
-    transform: 'translateY(-5px)',
-    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
-  },
-  borderLeft: '4px solid #25D366',
-
-  // 🛠️ Adições necessárias para o Drag funcionar:
-  cursor: 'grab',         // mostra "mãozinha"
-  userSelect: 'none',     // evita seleção de texto
-  minHeight: 200,
-  padding: 16             // garante área clicável para drag
-},
-
-
   sectionHeader: {
-    marginBottom: theme.spacing(2),
-    fontWeight: 600,
-    color: '#075E54',
+    marginBottom: theme.spacing(3),
+    fontWeight: 700,
+    color: '#1A3C34',
+    fontSize: '1.5rem',
+    letterSpacing: '0.02em',
   },
   filterBox: {
-    marginBottom: theme.spacing(3),
+    marginBottom: theme.spacing(4),
     '& .MuiOutlinedInput-root': {
-      borderRadius: 50,
-      background: 'white',
+      borderRadius: 30,
+      background: '#fff',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+      transition: 'box-shadow 0.3s ease',
+      '&:hover': {
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+      },
     },
   },
   whatsappButton: {
-    background: '#25D366',
-    color: 'white',
+    background: '#2ECC71',
+    color: '#fff',
+    borderRadius: 12,
+    padding: theme.spacing(1, 2),
+    fontWeight: 500,
     '&:hover': {
-      background: '#128C7E',
+      background: '#27AE60',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
     },
   },
   droppableArea: {
-  padding: 8,
-  minHeight: 300,
-  background: '#f0f0f0',
-  borderRadius: 8,
-},
-
-  editButton: {
-    background: '#34B7F1',
-    color: 'white',
+    padding: theme.spacing(2),
+    minHeight: 350,
+    background: '#F9FAFB',
+    borderRadius: 12,
+    border: '1px solid #E8ECEF',
+    transition: 'background 0.3s ease',
     '&:hover': {
-      background: '#128C7E',
+      background: '#F1F5F9',
+    },
+  },
+  editButton: {
+    background: '#3498DB',
+    color: '#fff',
+    borderRadius: 12,
+    padding: theme.spacing(1, 2),
+    fontWeight: 500,
+    '&:hover': {
+      background: '#2980B9',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
     },
   },
   dialogTitle: {
-    background: '#075E54',
-    color: 'white',
-    padding: theme.spacing(2, 3),
+    background: 'linear-gradient(90deg, #1A3C34 0%, #2E5A50 100%)',
+    color: '#fff',
+    padding: theme.spacing(2.5, 4),
+    fontWeight: 600,
+    fontSize: '1.25rem',
   },
   dialogActions: {
-    padding: theme.spacing(2),
-    background: '#f5f5f5',
+    padding: theme.spacing(2.5, 3),
+    background: '#F9FAFB',
+    borderTop: '1px solid #E8ECEF',
   },
   paginationButton: {
-    minWidth: 40,
-    height: 40,
-    borderRadius: 20,
+    minWidth: 44,
+    height: 44,
+    borderRadius: 22,
     margin: theme.spacing(0, 1),
+    fontWeight: 500,
+    background: '#fff',
+    border: '1px solid #E8ECEF',
     '&.Mui-disabled': {
-      background: '#f5f5f5',
+      background: '#F1F5F9',
+      border: '1px solid #E8ECEF',
     },
   },
   activePage: {
-    background: '#25D366',
-    color: 'white',
+    background: '#2ECC71',
+    color: '#fff',
+    border: 'none',
     '&:hover': {
-      background: '#128C7E',
+      background: '#27AE60',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
     },
   },
   messageDialog: {
     '& .MuiDialog-paper': {
-      borderRadius: 12,
+      borderRadius: 16,
+      boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)',
       overflow: 'hidden',
     },
   },
   messageHeader: {
-    background: '#075E54',
-    color: 'white',
-    padding: theme.spacing(2),
+    background: 'linear-gradient(90deg, #1A3C34 0%, #2E5A50 100%)',
+    color: '#fff',
+    padding: theme.spacing(2.5, 4),
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    fontWeight: 600,
   },
   messageContent: {
-    padding: theme.spacing(3),
-    background: '#f5f5f5',
+    padding: theme.spacing(4),
+    background: '#F9FAFB',
   },
   messageInput: {
     '& .MuiOutlinedInput-root': {
-      borderRadius: 8,
-      background: 'white',
+      borderRadius: 12,
+      background: '#fff',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+      transition: 'box-shadow 0.3s ease',
+      '&:hover': {
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+      },
     },
     '& .MuiOutlinedInput-multiline': {
-      padding: theme.spacing(2),
+      padding: theme.spacing(2.5),
     },
   },
   cardTitle: {
-    color: '#075E54',
-    fontWeight: 600,
-    fontSize: '1.1rem',
-    marginBottom: theme.spacing(1),
+    color: '#1A3C34',
+    fontWeight: 700,
+    fontSize: '1.25rem',
+    marginBottom: theme.spacing(1.5),
+    letterSpacing: '0.01em',
   },
   cardField: {
-    marginBottom: theme.spacing(0.5),
-    color: '#555',
-    fontSize: '0.9rem',
+    marginBottom: theme.spacing(1),
+    color: '#34495E',
+    fontSize: '0.95rem',
     whiteSpace: 'normal',
     wordBreak: 'break-word',
   },
   cardActions: {
-    padding: theme.spacing(1, 0),
-    borderTop: '1px solid #eee',
-    marginTop: theme.spacing(1),
+    padding: theme.spacing(1.5, 0),
+    borderTop: '1px solid #E8ECEF',
+    marginTop: theme.spacing(1.5),
   },
   statusSelect: {
-    minWidth: 200,
-    marginBottom: theme.spacing(3),
+    minWidth: 220,
+    marginBottom: theme.spacing(4),
     '& .MuiOutlinedInput-root': {
-      borderRadius: 50,
-      background: 'white',
+      borderRadius: 30,
+      background: '#fff',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+      '&:hover': {
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+      },
     },
   },
   statusChip: {
-    marginLeft: theme.spacing(1),
-    color: 'white',
-    fontWeight: 500,
+    marginLeft: theme.spacing(1.5),
+    color: '#fff',
+    fontWeight: 600,
+    borderRadius: 12,
+    padding: theme.spacing(0.5, 1.5),
   },
   statusNovo: {
-    backgroundColor: '#757575',
+    backgroundColor: '#7F8C8D',
   },
   statusContatado: {
-    backgroundColor: '#2196F3',
+    backgroundColor: '#3498DB',
   },
   statusInteressado: {
-    backgroundColor: '#FF9800',
+    backgroundColor: '#E67E22',
   },
   statusVendido: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#2ECC71',
   },
   statusPerdido: {
-    backgroundColor: '#F44336',
+    backgroundColor: '#E74C3C',
   },
   statusBadge: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 12,
+    right: 12,
   },
   quickStatus: {
     display: 'flex',
-    gap: theme.spacing(1),
-    marginTop: theme.spacing(2),
+    gap: theme.spacing(1.5),
+    marginTop: theme.spacing(2.5),
     flexWrap: 'wrap',
   },
   massSendButton: {
-    background: '#FF9800',
-    color: 'white',
+    background: '#135e17ff',
+    color: '#fffua',
     marginLeft: theme.spacing(2),
+    borderRadius: 12,
+    padding: theme.spacing(1, 2),
+    fontWeight: 500,
     '&:hover': {
-      background: '#F57C00',
+      background: '#a8a4a1ff',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
     },
   },
   progressContainer: {
-    marginTop: theme.spacing(2),
+    marginTop: theme.spacing(3),
     width: '100%',
   },
   templatesContainer: {
-    marginTop: theme.spacing(2),
-    border: '1px solid #ddd',
-    borderRadius: 8,
-    overflow: 'hidden',
+    marginTop: theme.spacing(3),
+    border: '1px solid #E8ECEF',
+    borderRadius: 12,
+    background: '#fff',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
   },
   templateHeader: {
-    background: '#f5f5f5',
-    padding: theme.spacing(1, 2),
+    background: '#F9FAFB',
+    padding: theme.spacing(2, 3),
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     cursor: 'pointer',
+    borderBottom: '1px solid #E8ECEF',
   },
   templateList: {
-    maxHeight: 200,
+    maxHeight: 250,
     overflowY: 'auto',
+    background: '#fff',
   },
   templateItem: {
+    padding: theme.spacing(1.5, 3),
     '&:hover': {
-      backgroundColor: '#f0f0f0',
+      backgroundColor: '#F1F5F9',
       cursor: 'pointer',
     },
   },
   templateActions: {
     display: 'flex',
-    gap: theme.spacing(1),
-    marginTop: theme.spacing(1),
+    gap: theme.spacing(1.5),
+    marginTop: theme.spacing(1.5),
+    padding: theme.spacing(0, 3, 2),
   },
   addTemplateButton: {
-    marginTop: theme.spacing(2),
+    marginTop: theme.spacing(3),
+    background: '#2ECC71',
+    color: '#fff',
+    borderRadius: 12,
+    padding: theme.spacing(1, 2),
+    '&:hover': {
+      background: '#27AE60',
+    },
   },
   columnContainer: {
     display: 'flex',
     flexDirection: 'row',
-    gap: theme.spacing(2),
+    gap: theme.spacing(3),
     overflowX: 'auto',
-    paddingBottom: theme.spacing(2),
+    paddingBottom: theme.spacing(3),
   },
   column: {
     flex: 1,
-    minWidth: 250,
+    minWidth: 280,
     background: '#fff',
-    borderRadius: 8,
-    padding: theme.spacing(2),
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    borderRadius: 12,
+    padding: theme.spacing(3),
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+    transition: 'box-shadow 0.3s ease',
+    '&:hover': {
+      boxShadow: '0 6px 16px rgba(0, 0, 0, 0.12)',
+    },
   },
   columnTitle: {
-    fontWeight: 600,
-    color: '#075E54',
-    marginBottom: theme.spacing(2),
+    fontWeight: 700,
+    color: '#1A3C34',
+    marginBottom: theme.spacing(2.5),
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing(1),
+    gap: theme.spacing(1.5),
+    fontSize: '1.25rem',
   },
-
   viewToggle: {
-    marginLeft: theme.spacing(2),
+    marginLeft: theme.spacing(3),
+    color: '#1d5722ff',
   },
   table: {
-    minWidth: 650,
+    minWidth: 700,
+    background: '#fff',
+    borderRadius: 12,
+    overflow: 'hidden',
+    
+    color: '#fff',
+    '&:hover': {
+      background: '#27AE60',
+    },
   },
-  tableCell: {
-    padding: theme.spacing(1),
-    fontSize: '0.9rem',
+  statusPersonalizado: {
+    backgroundColor: '#8E44AD',
   },
-
-statusPersonalizado: {
-  backgroundColor: '#9C27B0',
-},
-
-
 }));
 
 interface Cliente {
@@ -1218,8 +1302,7 @@ function gerarMensagemIA(cliente: Cliente): string {
 
   return (
   <Box className={classes.pageWrapper}>
-<VerificacaoIAResultados />
-    <SyncContatos />
+
 
 
       <Box maxWidth={1400} margin="0 auto">
