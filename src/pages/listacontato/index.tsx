@@ -859,25 +859,7 @@ const ListaContatosPage = () => {
 
   const renderKanbanView = () => (
     <DragDropContext onDragEnd={onDragEnd}>
-      <Button
-        variant="outlined"
-        style={{ borderColor: '#075E54', color: '#075E54', marginTop: 16 }}
-        onClick={async () => {
-          const novo = prompt("Digite o nome do novo status:");
-          if (novo) {
-            const novoId = novo.toLowerCase().replace(/\s+/g, '-');
-            const jaExiste = statusDisponiveis.some(s => s.value === novoId);
-            if (jaExiste) {
-              alert("Esse status já existe!");
-              return;
-            }
-            await addStatusExtra(novoId, novo);
-            fetchStatus();
-          }
-        }}
-      >
-        + Adicionar Coluna
-      </Button>
+    
 
       <Box className={classes.columnContainer}>
         {statusDisponiveis
@@ -1279,23 +1261,27 @@ const ListaContatosPage = () => {
               size="small"
               style={{ marginLeft: 16, background: '#34B7F1', color: 'white' }}
             />
+               <Button
+        variant="outlined"
+        style={{ borderColor: '#075E54', color: '#075E54', marginTop: 16 }}
+        onClick={async () => {
+          const novo = prompt("Digite o nome do novo status:");
+          if (novo) {
+            const novoId = novo.toLowerCase().replace(/\s+/g, '-');
+            const jaExiste = statusDisponiveis.some(s => s.value === novoId);
+            if (jaExiste) {
+              alert("Esse status já existe!");
+              return;
+            }
+            await addStatusExtra(novoId, novo);
+            fetchStatus();
+          }
+        }}
+      >
+        + Adicionar Coluna
+      </Button>
           </Typography>
-          <Button
-            variant="contained"
-            style={{
-              backgroundColor: localStorage.getItem('iaAtiva') === 'true' ? '#4CAF50' : '#F44336',
-              color: 'white',
-              marginTop: 8,
-              marginBottom: 16
-            }}
-            onClick={() => {
-              const novaIA = localStorage.getItem('iaAtiva') !== 'true';
-              localStorage.setItem('iaAtiva', String(novaIA));
-              window.location.reload();
-            }}
-          >
-            {localStorage.getItem('iaAtiva') === 'true' ? '🧠 Desativar IA' : '🤖 Ativar IA'}
-          </Button>
+          
           <Box display="flex" flexDirection={isMobile ? 'column' : 'row'} style={{ gap: 16 }}>
             <TextField
               fullWidth
@@ -1328,6 +1314,15 @@ const ListaContatosPage = () => {
                 ))}
               </Select>
             </FormControl>
+        
+              <Button
+                variant="contained"
+                startIcon={viewMode === 'kanban' ? <ListIcon /> : <ViewModule />}
+                onClick={() => setViewMode(viewMode === 'kanban' ? 'list' : 'kanban')}
+              >
+                {viewMode === 'kanban' ? 'Lista' : 'Kanban'}
+              </Button>
+           
             <Button
               variant="contained"
               className={classes.massSendButton}
@@ -1336,15 +1331,24 @@ const ListaContatosPage = () => {
             >
               Enviar em Massa
             </Button>
-            <Box className={classes.viewToggle}>
-              <Button
-                variant="contained"
-                startIcon={viewMode === 'kanban' ? <ListIcon /> : <ViewModule />}
-                onClick={() => setViewMode(viewMode === 'kanban' ? 'list' : 'kanban')}
-              >
-                {viewMode === 'kanban' ? 'Lista' : 'Kanban'}
-              </Button>
-            </Box>
+           
+            <Button
+            variant="contained"
+            style={{
+              backgroundColor: localStorage.getItem('iaAtiva') === 'true' ? '#4CAF50' : '#F44336',
+              color: 'white',
+              marginTop: 8,
+              marginBottom: 16
+            }}
+            onClick={() => {
+              const novaIA = localStorage.getItem('iaAtiva') !== 'true';
+              localStorage.setItem('iaAtiva', String(novaIA));
+              window.location.reload();
+            }}
+          >
+            {localStorage.getItem('iaAtiva') === 'true' ? '🧠 Desativar IA' : '🤖 Ativar IA'}
+          </Button>
+            
           </Box>
         </Box>
         {viewMode === 'kanban' ? renderKanbanView() : renderListView()}
