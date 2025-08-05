@@ -1,15 +1,390 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useEffect, useState, ChangeEvent } from 'react';
 import {
-  Button, Typography, Paper, Box, Grid, Card, CardContent, TextField,
-  makeStyles, MenuItem, Select, FormControl, InputLabel, Snackbar,
-  IconButton, CircularProgress, Chip
+  Card, CardContent, Typography, Grid, Box, CircularProgress, Button, Snackbar, TextField,
+  Dialog, DialogTitle, DialogContent, DialogActions, Fab, useMediaQuery, useTheme, makeStyles,
+  IconButton, MenuItem, Select, FormControl, InputLabel, Chip, Avatar,
+  LinearProgress, List, ListItem, ListItemText, Divider, Collapse, Tabs, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 } from '@material-ui/core';
-import { Close, Person, Message, Business, Check } from '@material-ui/icons';
-import Pagination from '@material-ui/lab/Pagination';
-import * as mammoth from 'mammoth';
-import { collection, addDoc, getDocs, doc, setDoc } from 'firebase/firestore';
-import { db } from '@/logic/firebase/config/app';
-import { serverTimestamp } from 'firebase/firestore';
+import {
+  Add, Message, Edit, Close, Send, Check, Business, Person, LocalOffer,
+  ExpandMore, ExpandLess, InsertDriveFile, List as ListIcon, ViewModule
+} from '@material-ui/icons';
+import { collection, getDocs, writeBatch, getFirestore, addDoc, updateDoc, doc, setDoc, deleteDoc, query, orderBy, limit, serverTimestamp } from 'firebase/firestore';
+import { app } from '@/logic/firebase/config/app';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { getStatusExtras, addStatusExtra, removeStatusExtra } from '@/logic/firebase/services/status';
+import { useIAParcelamento } from '@/hooks/useIAParcelamento';
+import { useIAPendentes } from '@/hooks/useIAPendentes';
+import Tooltip from '@material-ui/core/Tooltip';
+import BugReportIcon from '@material-ui/icons/BugReport';
+import { gerarMensagemIA } from '@/logic/ia/gerarMensagem';
+import dynamic from 'next/dynamic';
+import { v4 as uuidv4 } from 'uuid';
+
+
+
+const ChatFlutuante = dynamic(() => import('@/components/parcelamento/ChatFlutuante'), { ssr: false });
+
+const useStyles = makeStyles((theme) => ({
+  pageWrapper: {
+    padding: theme.spacing(4, 12),
+    background: 'linear-gradient(180deg, #F7F9FC 0%, #E8ECEF 100%)',
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  addButton: {
+    position: 'fixed',
+    bottom: theme.spacing(5),
+    right: theme.spacing(5),
+    background: 'linear-gradient(135deg, #1a6e3dff 0%, #1c8146ff 100%)',
+    color: '#fff',
+    borderRadius: 28,
+    left: 32,
+    padding: theme.spacing(1.5, 3),
+    fontWeight: 600,
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      background: 'linear-gradient(135deg, #27AE60 0%, #219653 100%)',
+      boxShadow: '0 6px 16px rgba(0, 0, 0, 0.3)',
+      transform: 'translateY(-2px)',
+    },
+  },
+  dialogContent: {
+    minWidth: 400,
+    [theme.breakpoints.up('sm')]: {
+      minWidth: 600,
+    },
+    padding: theme.spacing(3),
+    background: '#fff',
+    borderRadius: 12,
+  },
+  tableCell: {
+    padding: theme.spacing(1.5, 2),
+    fontSize: '0.95rem',
+    color: '#34495E',
+    borderBottom: '1px solid #E8ECEF',
+    background: '#fff',
+    '&:first-child': {
+      borderLeft: '1px solid #E8ECEF',
+    },
+    '&:last-child': {
+      borderRight: '1px solid #E8ECEF',
+    },
+    transition: 'background 0.2s ease',
+    '&:hover': {
+      background: '#F1F5F9',
+    },
+  },
+  card: {
+    borderRadius: 20,
+    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
+    background: 'linear-gradient(145deg, #FFFFFF 0%, #F9FAFB 100%)',
+    transition: 'all 0.3s ease',
+    borderLeft: '4px solid #2ECC71',
+    cursor: 'grab',
+    userSelect: 'none',
+    minHeight: 100,
+    padding: theme.spacing(2),
+    '&:hover': {
+      transform: 'translateY(-4px)',
+      boxShadow: '0 14px 40px rgba(0, 0, 0, 0.12)',
+    },
+  },
+  cardExpanded: {
+    minHeight: 220,
+    padding: theme.spacing(3),
+  },
+  sectionHeader: {
+    marginBottom: theme.spacing(3),
+    fontWeight: 700,
+    color: '#1A3C34',
+    fontSize: '1.5rem',
+    letterSpacing: '0.02em',
+  },
+  filterBox: {
+    marginBottom: theme.spacing(4),
+    '& .MuiOutlinedInput-root': {
+      borderRadius: 30,
+      background: '#fff',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+      transition: 'box-shadow 0.3s ease',
+      '&:hover': {
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+      },
+    },
+  },
+  whatsappButton: {
+    background: '#2ECC71',
+    color: '#fff',
+    borderRadius: 12,
+    padding: theme.spacing(1, 2),
+    fontWeight: 500,
+    '&:hover': {
+      background: '#27AE60',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    },
+  },
+  droppableArea: {
+    padding: theme.spacing(2),
+    minHeight: 350,
+    background: '#F9FAFB',
+    borderRadius: 12,
+    border: '1px solid #E8ECEF',
+    transition: 'background 0.3s ease',
+    '&:hover': {
+      background: '#F1F5F9',
+    },
+  },
+  editButton: {
+    background: '#3498DB',
+    color: '#fff',
+    borderRadius: 12,
+    padding: theme.spacing(1, 2),
+    fontWeight: 500,
+    '&:hover': {
+      background: '#2980B9',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    },
+  },
+  dialogTitle: {
+    background: 'linear-gradient(90deg, #1A3C34 0%, #2E5A50 100%)',
+    color: '#fff',
+    padding: theme.spacing(2.5, 4),
+    fontWeight: 600,
+    fontSize: '1.25rem',
+  },
+  dialogActions: {
+    padding: theme.spacing(2.5, 3),
+    background: '#F9FAFB',
+    borderTop: '1px solid #E8ECEF',
+  },
+  paginationButton: {
+    minWidth: 44,
+    height: 44,
+    borderRadius: 22,
+    margin: theme.spacing(0, 1),
+    fontWeight: 500,
+    background: '#fff',
+    border: '1px solid #E8ECEF',
+    '&.Mui-disabled': {
+      background: '#F1F5F9',
+      border: '1px solid #E8ECEF',
+    },
+  },
+  activePage: {
+    background: '#2ECC71',
+    color: '#fff',
+    border: 'none',
+    '&:hover': {
+      background: '#27AE60',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    },
+  },
+  messageDialog: {
+    '& .MuiDialog-paper': {
+      borderRadius: 16,
+      boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)',
+      overflow: 'hidden',
+    },
+  },
+  messageHeader: {
+    background: 'linear-gradient(90deg, #1A3C34 0%, #2E5A50 100%)',
+    color: '#fff',
+    padding: theme.spacing(2.5, 4),
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontWeight: 600,
+  },
+  messageContent: {
+    padding: theme.spacing(4),
+    background: '#F9FAFB',
+  },
+  messageInput: {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: 12,
+      background: '#fff',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+      transition: 'box-shadow 0.3s ease',
+      '&:hover': {
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+      },
+    },
+    '& .MuiOutlinedInput-multiline': {
+      padding: theme.spacing(2.5),
+    },
+  },
+  cardTitle: {
+    color: '#1A3C34',
+    fontWeight: 700,
+    fontSize: '1.25rem',
+    marginBottom: theme.spacing(1.5),
+    letterSpacing: '0.01em',
+  },
+  cardField: {
+    marginBottom: theme.spacing(1),
+    color: '#34495E',
+    fontSize: '0.95rem',
+    whiteSpace: 'normal',
+    wordBreak: 'break-word',
+  },
+  cardActions: {
+    padding: theme.spacing(1.5, 0),
+    borderTop: '1px solid #E8ECEF',
+    marginTop: theme.spacing(1.5),
+  },
+  statusSelect: {
+    minWidth: 220,
+    marginBottom: theme.spacing(4),
+    '& .MuiOutlinedInput-root': {
+      borderRadius: 30,
+      background: '#fff',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+      '&:hover': {
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+      },
+    },
+  },
+  statusChip: {
+    marginLeft: theme.spacing(1.5),
+    color: '#fff',
+    fontWeight: 600,
+    borderRadius: 12,
+    padding: theme.spacing(0.5, 1.5),
+  },
+  statusNovo: {
+    backgroundColor: '#7F8C8D',
+  },
+  statusContatado: {
+    backgroundColor: '#3498DB',
+  },
+  statusInteressado: {
+    backgroundColor: '#E67E22',
+  },
+  statusVendido: {
+    backgroundColor: '#2ECC71',
+  },
+  statusPerdido: {
+    backgroundColor: '#E74C3C',
+  },
+  statusBadge: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+  },
+  quickStatus: {
+    display: 'flex',
+    gap: theme.spacing(1.5),
+    marginTop: theme.spacing(2.5),
+    flexWrap: 'wrap',
+  },
+  massSendButton: {
+    background: '#135e17ff',
+    color: '#fff',
+    marginLeft: theme.spacing(2),
+    borderRadius: 12,
+    padding: theme.spacing(1, 2),
+    fontWeight: 500,
+    '&:hover': {
+      background: '#a8a4a1ff',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    },
+  },
+  progressContainer: {
+    marginTop: theme.spacing(3),
+    width: '100%',
+  },
+  templatesContainer: {
+    marginTop: theme.spacing(3),
+    border: '1px solid #E8ECEF',
+    borderRadius: 12,
+    background: '#fff',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+  },
+  templateHeader: {
+    background: '#F9FAFB',
+    padding: theme.spacing(2, 3),
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    cursor: 'pointer',
+    borderBottom: '1px solid #E8ECEF',
+  },
+  templateList: {
+    maxHeight: 250,
+    overflowY: 'auto',
+    background: '#fff',
+  },
+  templateItem: {
+    padding: theme.spacing(1.5, 3),
+    '&:hover': {
+      backgroundColor: '#F1F5F9',
+      cursor: 'pointer',
+    },
+  },
+  templateActions: {
+    display: 'flex',
+    gap: theme.spacing(1.5),
+    marginTop: theme.spacing(1.5),
+    padding: theme.spacing(0, 3, 2),
+  },
+  addTemplateButton: {
+    marginTop: theme.spacing(3),
+    background: '#2ECC71',
+    color: '#fff',
+    borderRadius: 12,
+    padding: theme.spacing(1, 2),
+    '&:hover': {
+      background: '#27AE60',
+    },
+  },
+  columnContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: theme.spacing(3),
+    overflowX: 'auto',
+    paddingBottom: theme.spacing(3),
+  },
+  column: {
+    flex: 1,
+    minWidth: 280,
+    background: '#fff',
+    borderRadius: 12,
+    padding: theme.spacing(3),
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+    transition: 'box-shadow 0.3s ease',
+    '&:hover': {
+      boxShadow: '0 6px 16px rgba(0, 0, 0, 0.12)',
+    },
+  },
+  columnTitle: {
+    fontWeight: 700,
+    color: '#1A3C34',
+    marginBottom: theme.spacing(2.5),
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.spacing(1.5),
+    fontSize: '1.25rem',
+  },
+  viewToggle: {
+    marginLeft: theme.spacing(3),
+    color: '#1d5722ff',
+  },
+  table: {
+    minWidth: 700,
+    background: '#fff',
+    borderRadius: 12,
+    overflow: 'hidden',
+    '&:hover': {
+      background: '#27AE60',
+    },
+  },
+  statusPersonalizado: {
+    backgroundColor: '#8E44AD',
+  },
+}));
 
 interface Cliente {
   placa: string;
@@ -18,70 +393,46 @@ interface Cliente {
   marca_modelo: string;
   origem: string;
   municipio: string;
+  observacao?: string;
   fone_residencial: string;
   fone_comercial: string;
   fone_celular: string;
   usuario: string;
-  observacao?: string;
   statusCRM?: string;
   dataAtualizacao?: string;
+  id?: string;
+  funnelId?: string; // Added to fix compile error
 }
 
-interface StatusOption {
-  label: string;
+interface EnvioMassaState {
+  open: boolean;
+  statusSelecionado: string;
+  mensagem: string;
+  enviando: boolean;
+  progresso: number;
+}
+
+interface StatusExtra {
+  id: string;
   value: string;
-  icon?: JSX.Element;
+  label: string;
+}
+
+interface MessageTemplate {
+  id?: string;
+  title: string;
+  content: string;
 }
 
 interface Funil {
   id: string;
   nome: string;
+  clientes: Cliente[];
+  statusDisponiveis: { value: string; label: string; icon?: JSX.Element }[];
 }
 
-const useStyles = makeStyles((theme) => ({
-  card: {
-    borderRadius: theme.spacing(1),
-    boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
-    marginBottom: theme.spacing(2),
-    backgroundColor: '#f9f9f9',
-    padding: theme.spacing(2)
-  },
-  section: {
-    marginBottom: theme.spacing(4),
-  },
-  container: {
-    padding: theme.spacing(3),
-  },
-  searchBox: {
-    marginBottom: theme.spacing(3),
-  },
-  statusNovo: {
-    backgroundColor: '#7F8C8D',
-    color: 'white'
-  },
-  statusContatado: {
-    backgroundColor: '#3498DB',
-    color: 'white'
-  },
-  statusInteressado: {
-    backgroundColor: '#E67E22',
-    color: 'white'
-  },
-  statusVendido: {
-    backgroundColor: '#2ECC71',
-    color: 'white'
-  },
-  statusPerdido: {
-    backgroundColor: '#E74C3C',
-    color: 'white'
-  },
-  statusPersonalizado: {
-    backgroundColor: '#8E44AD',
-    color: 'white'
-  },
-}));
-
 const STATUS_OPTIONS = [
+  { value: 'todos', label: 'Todos os Status' },
   { value: 'novo', label: 'Novo', icon: <Person fontSize="small" /> },
   { value: 'contatado', label: 'Contatado', icon: <Message fontSize="small" /> },
   { value: 'interessado', label: 'Interessado', icon: <Business fontSize="small" /> },
@@ -89,323 +440,1618 @@ const STATUS_OPTIONS = [
   { value: 'perdido', label: 'Perdido', icon: <Close fontSize="small" /> },
 ];
 
-const UpClientePage = () => {
+const DEFAULT_TEMPLATES: MessageTemplate[] = [
+  {
+    title: "Primeiro contato",
+    content: "Olá {nome}, tudo bem? Me chamo {seu_nome} e estou entrando em contato sobre o veículo {marca_modelo} placa {placa}. Gostaria de saber se você tem interesse em vender este veículo."
+  },
+  {
+    title: "Follow-up",
+    content: "Oi {nome}, como vai? Estou entrando em contato novamente sobre o veículo {marca_modelo} placa {placa}. Você teve a chance de pensar sobre nossa proposta?"
+  },
+  {
+    title: "Agendamento visita",
+    content: "Olá {nome}, tudo bem? Gostaríamos de agendar uma visita para avaliar o veículo {marca_modelo}. Qual seria o melhor dia e horário para você?"
+  }
+];
+
+const getStatusColor = (status?: string) => {
+  switch (status) {
+    case 'novo': return 'default';
+    case 'contatado': return 'primary';
+    case 'interessado': return 'secondary';
+    case 'vendido': return 'success';
+    case 'perdido': return 'error';
+    default: return 'default';
+  }
+};
+
+const getStatusClass = (classes: any, status?: string) => {
+  switch (status) {
+    case 'novo': return classes.statusNovo;
+    case 'contatado': return classes.statusContatado;
+    case 'interessado': return classes.statusInteressado;
+    case 'vendido': return classes.statusVendido;
+    case 'perdido': return classes.statusPerdido;
+    default: return classes.statusPersonalizado;
+  }
+};
+
+
+
+
+
+
+
+export function normalizarTelefoneBrasil(numero: string): string {
+  let phone = numero.replace(/\D/g, '');
+  if (phone.length >= 12 && phone.startsWith('0')) {
+    phone = phone.slice(1);
+  }
+  if (!phone.startsWith('55')) {
+    phone = `55${phone}`;
+  }
+  if (phone.length === 12) {
+    phone = phone.slice(0, 4) + '9' + phone.slice(4);
+  }
+  if (phone.length > 13) {
+    phone = phone.slice(0, 13);
+  }
+  return phone;
+}
+
+const ListaContatosPage = () => {
   const classes = useStyles();
-  const [clientes, setClientes] = useState<Cliente[]>([]);
-  const [clientesSalvos, setClientesSalvos] = useState<string[]>([]);
-  const [erro, setErro] = useState<string | null>(null);
-  const [busca, setBusca] = useState('');
-  const [observacoes, setObservacoes] = useState<Record<string, string>>({});
-  const [statusCrmPorPlaca, setStatusCrmPorPlaca] = useState<Record<string, string>>({});
-  const [usuarioFiltro, setUsuarioFiltro] = useState<string | null>(null);
-  const [pagina, setPagina] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+
+
+  const [loading, setLoading] = useState(true);
+
+  const [filtro, setFiltro] = useState('');
+  const [openDialog, setOpenDialog] = useState(false);
+  const [clienteSelecionadoParaTroca, setClienteSelecionadoParaTroca] = useState<Cliente | null>(null);
+const [dialogTrocarFunilAberto, setDialogTrocarFunilAberto] = useState(false);
+const [novoFunilSelecionado, setNovoFunilSelecionado] = useState<string>('');
+
+  const [openMensagem, setOpenMensagem] = useState(false);
+  const [mensagem, setMensagem] = useState('');
+  const [numeroDestino, setNumeroDestino] = useState('');
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  const [chatAberto, setChatAberto] = useState<{ numero: string, nome: string } | null>(null);
+  const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
+  const clientesPorPagina = 10;
+  const [modoEdicao, setModoEdicao] = useState(false);
+  const [docIdEdicao, setDocIdEdicao] = useState<string | null>(null);
+  const [statusCRM, setStatusCRM] = useState<string>('todos');
+  const [envioMassa, setEnvioMassa] = useState<EnvioMassaState>({
+    open: false,
+    statusSelecionado: 'novo',
+    mensagem: '',
+    enviando: false,
+    progresso: 0
+  });
+  const [templates, setTemplates] = useState<MessageTemplate[]>(DEFAULT_TEMPLATES);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [newTemplate, setNewTemplate] = useState<MessageTemplate>({ title: '', content: '' });
+  const [openTemplateDialog, setOpenTemplateDialog] = useState(false);
+  const [statusDinamicos, setStatusDinamicos] = useState<string[]>([]);
+  const [statusExtras, setStatusExtras] = useState<StatusExtra[]>([]);
+  const pendentesIA = useIAPendentes();
+  const [ultimasMensagensRecebidas, setUltimasMensagensRecebidas] = useState<{ [numero: string]: string }>({});
+  const [dataHoraAgendada, setDataHoraAgendada] = useState('');
+  const [expandedCards, setExpandedCards] = useState<string[]>([]);
+  
+ const [funis, setFunis] = useState<Funil[]>([]);
+  const [funilAtivoId, setFunilAtivoId] = useState<string>('');
   const [snackbarMsg, setSnackbarMsg] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [funis, setFunis] = useState<Funil[]>([]);
-  const [funilSelecionado, setFunilSelecionado] = useState<string>('');
-  const itensPorPagina = 12;
+
+
+
+
+  const [novoCliente, setNovoCliente] = useState<Cliente>({
+    placa: '',
+    renavam: '',
+    proprietarioatual: '',
+    marca_modelo: '',
+    origem: '',
+    municipio: '',
+    observacao: '',
+    fone_residencial: '',
+    fone_comercial: '',
+    fone_celular: '',
+    usuario: '',
+    statusCRM: 'novo',
+    dataAtualizacao: new Date().toISOString()
+  });
+
+  const funilAtivo = funis.find(f => f.id === funilAtivoId);
+  const clientesFiltrados = funilAtivo?.clientes.filter(c =>
+    (statusCRM === 'todos' || c.statusCRM === statusCRM) &&
+    (
+      (c.placa?.toLowerCase() || '').includes(filtro.toLowerCase()) ||
+      (c.proprietarioatual?.toLowerCase() || '').includes(filtro.toLowerCase()) ||
+      (c.observacao?.toLowerCase() || '').includes(filtro.toLowerCase()) ||
+      (c.municipio?.toLowerCase() || '').includes(filtro.toLowerCase())
+    )
+  ) || [];
+  const totalPaginas = Math.ceil(clientesFiltrados.length / clientesPorPagina);
+  const clientesPaginados = clientesFiltrados.slice(
+    (paginaAtual - 1) * clientesPorPagina,
+    paginaAtual * clientesPorPagina
+  );
+
+  const fetchStatus = async () => {
+    const extras = await getStatusExtras();
+    setStatusExtras(extras);
+    const extrasFormatados = extras.map(e => ({
+      value: e.value,
+      label: e.label,
+      icon: <LocalOffer fontSize="small" />
+    }));
+    setFunis(prev =>
+      prev.map(funil => ({
+        ...funil,
+        statusDisponiveis: [...STATUS_OPTIONS, ...extrasFormatados]
+      }))
+    );
+  };
+
+
+
+const adicionarFunil = async () => {
+  const nome = prompt('Digite o nome do novo funil:');
+  if (!nome) return;
+
+  const db = getFirestore(app);
+
+  try {
+    const docRef = await addDoc(collection(db, 'Funis'), {
+      nome,
+      statusDisponiveis: STATUS_OPTIONS.map(opt => opt.value),
+clientes: [],
+      criadoEm: serverTimestamp(),
+    });
+
+    const novoFunil: Funil = {
+      id: docRef.id,
+      nome,
+      clientes: [],
+      statusDisponiveis: STATUS_OPTIONS,
+    };
+
+    setFunis((prevFunis) => [...prevFunis, novoFunil]);
+    setFunilAtivoId(docRef.id);
+    setSnackbarMsg('Funil adicionado com sucesso!');
+    setSnackbarOpen(true);
+  } catch (error: any) {
+    console.error('Erro ao adicionar funil:', error);
+    setSnackbarMsg(`Erro ao adicionar funil: ${error.message || 'Erro desconhecido'}`);
+    setSnackbarOpen(true);
+  }
+};
+
+
+
+
+
+
 
   useEffect(() => {
-    const carregarFunils = async () => {
-      try {
-        const snapshot = await getDocs(collection(db, 'Funis'));
-        const funisData = snapshot.docs.map(doc => ({
-          id: doc.id,
-          nome: doc.data().nome
-        }));
-        setFunis(funisData);
-        if (funisData.length > 0) {
-          setFunilSelecionado(funisData[0].id);
-        }
-      } catch (error) {
-        console.error('Erro ao carregar funis:', error);
-      }
-    };
-    carregarFunils();
+    fetchStatus();
   }, []);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    setErro(null);
+  useEffect(() => {
+    const buscarUltimasMensagens = async () => {
+      const db = getFirestore(app);
+      const novas: { [numero: string]: string } = {};
+      const clientes = funilAtivo?.clientes || [];
 
-    if (!file) return;
-    if (!file.name.endsWith('.docx')) {
-      setErro('Apenas arquivos .docx são suportados.');
-      return;
+      for (const cliente of clientes) {
+        const numeroRaw = cliente.fone_celular || '';
+        const numero = numeroRaw.replace(/\D/g, '');
+        if (!numero) continue;
+        try {
+          const mensagensRef = collection(db, `mensagensPorContato/${numero}/mensagens`);
+          const q = query(mensagensRef, orderBy('timestamp', 'desc'), limit(1));
+          const snap = await getDocs(q);
+          if (!snap.empty) {
+            const msg = snap.docs[0].data();
+            if (!msg.isFromMe && msg.texto) {
+              novas[numero] = msg.texto;
+            }
+          }
+        } catch (error) {
+          console.error(`❌ Erro ao buscar mensagens para ${numero}:`, error);
+        }
+      }
+      setUltimasMensagensRecebidas(novas);
+    };
+    if (funilAtivo && Array.isArray(funilAtivo.clientes) && funilAtivo.clientes.length > 0) {
+      buscarUltimasMensagens();
     }
+  }, [funilAtivo?.clientes]);
 
-    try {
-      const arrayBuffer = await file.arrayBuffer();
-      const result = await mammoth.extractRawText({ arrayBuffer });
-      const texto = result.value;
-      const blocos = texto.split(/(?=\n?[A-Z]{3}[0-9][A-Z0-9]{3}\s+\d{6,10}\s+)/g);
+  useEffect(() => {
+    fetch('/api/verificaRespostas')
+      .then((res) => res.json())
+      .then((data) => console.log('Respostas verificada:', data));
+  }, []);
 
-      const dados: Cliente[] = blocos.map((bloco) => {
-        const item = bloco.replace(/\n+/g, '\n').trim();
-        const matchCabecalho = item.match(/([A-Z]{3}[0-9][A-Z0-9]{3})\s+(\d{8,10})\s+(.*)/);
-        const placa = matchCabecalho?.[1] || '';
-        const renavam = matchCabecalho?.[2] || '';
-        const proprietarioatual = matchCabecalho?.[3]?.split('\n')[0].trim() || '';
-        const marca_modelo = item.match(/Marca\/Modelo:\s*(.*)/)?.[1]?.trim() || '';
-        const origem = item.match(/Origem:\s*(.*?)\s+Munic/)?.[1]?.trim() || '';
-        const municipio = item.match(/Munic[ií]pio:\s*(.*)/)?.[1]?.trim() || '';
-        const fone_residencial = item.match(/Fone Resid\.:\s*([^\t\n]*)/)?.[1]?.trim() || '';
-        const fone_comercial = item.match(/Fone Com\.:\s*([^\t\n]*)/)?.[1]?.trim() || '';
-        const fone_celular = item.match(/Fone Cel\.:\s*([^\t\n]*)/)?.[1]?.trim() || '';
-        const usuario = item.match(/Usu[áa]rio:\s*(.*)/)?.[1]?.trim() || '';
-        return { 
-          placa, 
-          renavam, 
-          proprietarioatual, 
-          marca_modelo, 
-          origem, 
-          municipio, 
-          fone_residencial, 
-          fone_comercial, 
-          fone_celular, 
-          usuario,
-          statusCRM: 'novo',
-          dataAtualizacao: new Date().toISOString()
+  useEffect(() => {
+  const fetchClientes = async () => {
+    setLoading(true);
+    const db = getFirestore(app);
+    const snapshotFunis = await getDocs(collection(db, 'Funis'));
+    const novosFunis: Funil[] = [];
+
+    for (const funilDoc of snapshotFunis.docs) {
+      const funilData = funilDoc.data();
+      const snapshotClientes = await getDocs(collection(db, `Funis/${funilDoc.id}/Clientes`));
+      const clientes: Cliente[] = snapshotClientes.docs.map(doc => {
+        const data = doc.data();
+        return {
+          placa: data.placa || '',
+          renavam: data.renavam || '',
+          proprietarioatual: data.proprietarioatual || '',
+          marca_modelo: data.marca_modelo || '',
+          origem: data.origem || '',
+          municipio: data.municipio || '',
+          observacao: data.observacao || '',
+          fone_residencial: data.fone_residencial || '',
+          fone_comercial: data.fone_comercial || '',
+          fone_celular: data.fone_celular || '',
+          usuario: data.usuario || '',
+          statusCRM: data.statusCRM || 'novo',
+          dataAtualizacao: data.dataAtualizacao || '',
+          id: doc.id,
+          funnelId: funilDoc.id,
         };
       });
 
-      setClientes(dados.filter((c) => c.placa));
+      novosFunis.push({
+        id: funilDoc.id,
+        nome: funilData.nome,
+        clientes: Object.values(
+          clientes.reduce((acc, cliente) => {
+            if (!acc[cliente.placa]) acc[cliente.placa] = cliente;
+            return acc;
+          }, {} as Record<string, Cliente>)
+        ),
+        statusDisponiveis: (funilData.statusDisponiveis || []).map((value: string) => {
+          const found = STATUS_OPTIONS.find(opt => opt.value === value);
+          return found || { value, label: value ? value.charAt(0).toUpperCase() + value.slice(1) : '' };
+        }),
+      });
+    }
+
+    // 🔥 Adiciona a coleção DadosclientesExtraidos como funil independente
+    const snapshotExtraidos = await getDocs(collection(db, 'DadosclientesExtraidos'));
+    const clientesExtraidos: Cliente[] = snapshotExtraidos.docs.map(doc => {
+      const data = doc.data();
+      return {
+        placa: data.placa || '',
+        renavam: data.renavam || '',
+        proprietarioatual: data.proprietarioatual || '',
+        marca_modelo: data.marca_modelo || '',
+        origem: data.origem || '',
+        municipio: data.municipio || '',
+        observacao: data.observacao || '',
+        fone_residencial: data.fone_residencial || '',
+        fone_comercial: data.fone_comercial || '',
+        fone_celular: data.fone_celular || '',
+        usuario: data.usuario || '',
+        statusCRM: data.statusCRM || 'novo',
+        dataAtualizacao: data.dataAtualizacao || '',
+        id: doc.id,
+        funnelId: 'funil-dados-extraidos',
+      };
+    });
+
+    const statusUnicos = [...new Set(clientesExtraidos.map(c => c.statusCRM))];
+    const statusCompletos = statusUnicos
+      .filter((value): value is string => typeof value === 'string' && value !== undefined)
+      .map((value) => {
+        const found = STATUS_OPTIONS.find(opt => opt.value === value);
+        return found || { value, label: value.charAt(0).toUpperCase() + value.slice(1) };
+      });
+
+    novosFunis.push({
+      id: 'funil-dados-extraidos',
+      nome: 'Importados',
+      clientes: Object.values(
+        clientesExtraidos.reduce((acc, cliente) => {
+          if (!acc[cliente.placa]) acc[cliente.placa] = cliente;
+          return acc;
+        }, {} as Record<string, Cliente>)
+      ),
+      statusDisponiveis: statusCompletos,
+    });
+
+    setFunis(novosFunis.length > 0 ? novosFunis : [{
+      id: 'funil-padrao',
+      nome: 'Funil Padrão',
+      clientes: [],
+      statusDisponiveis: STATUS_OPTIONS.map(opt => ({
+        value: opt.value,
+        label: opt.label,
+        icon: opt.icon
+      }))
+    }]);
+    setFunilAtivoId(novosFunis[0]?.id || 'funil-padrao');
+    setLoading(false);
+  };
+
+  fetchClientes();
+}, []);
+
+
+ 
+
+  const handleStatusChange = (event: ChangeEvent<{ value: unknown }>) => {
+    setStatusCRM(event.target.value as string);
+    setPaginaAtual(1);
+  };
+
+  const atualizarStatusCliente = async (clienteId: string, novoStatus: string, funilId: string) => {
+    const db = getFirestore(app);
+    try {
+      const docRef = doc(db, `Funis/${funilId}/Clientes`, clienteId);
+      await updateDoc(docRef, {
+        statusCRM: novoStatus,
+        dataAtualizacao: new Date().toISOString(),
+      });
+      setFunis(prev =>
+        prev.map(funil =>
+          funil.id === funilId
+            ? {
+                ...funil,
+                clientes: funil.clientes.map(cliente =>
+                  cliente.id === clienteId
+                    ? { ...cliente, statusCRM: novoStatus, dataAtualizacao: new Date().toISOString() }
+                    : cliente
+                ),
+              }
+            : funil
+        )
+      );
+      setSnackbarMsg(`Status atualizado para ${novoStatus}`);
+      setSnackbarOpen(true);
     } catch (error) {
-      console.error('Erro ao ler o arquivo:', error);
-      setErro('Erro ao processar o arquivo.');
+      console.error('Erro ao atualizar status:', error);
+      setSnackbarMsg('Erro ao atualizar status');
+      setSnackbarOpen(true);
     }
   };
 
-  const salvarCliente = async (cliente: Cliente) => {
-    if (!funilSelecionado) {
-      setSnackbarMsg('Selecione um funil antes de salvar');
+  useEffect(() => {
+    const intervalo = setInterval(() => {
+      fetch('/api/processaAgendamentos')
+        .then(res => res.json())
+        .then(data => {
+          if (data.enviados > 0) {
+            console.log('✅ Mensagens enviadas automaticamente:', data.logs);
+          }
+        })
+        .catch(err => console.error('❌ Erro ao processar agendamentos:', err));
+    }, 60000);
+    return () => clearInterval(intervalo);
+  }, []);
+
+  const sendMessage = async (numero: string, mensagem: string) => {
+    try {
+      const numeroFormatado = `+${normalizarTelefoneBrasil(numero)}`;
+      if (!mensagem.trim()) {
+        setSnackbarMsg('Mensagem não pode estar vazia');
+        setSnackbarOpen(true);
+        return false;
+      }
+      const res = await fetch('/api/digisac', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ numero: numeroFormatado, mensagem }),
+      });
+      const json = await res.json();
+      console.log('Resposta da API Digisac:', json);
+      if (!res.ok) throw new Error(json.message || 'Erro desconhecido');
+      setSnackbarMsg(`Mensagem enviada para ${numero}`);
+      setSnackbarOpen(true);
+      return true;
+    } catch (error: any) {
+      console.error('Erro ao enviar mensagem:', error);
+      setSnackbarMsg(`Erro ao enviar para ${numero}: ${error.message}`);
+      setSnackbarOpen(true);
+      return false;
+    }
+  };
+
+  const abrirEnvioMensagem = (numero: string) => {
+    setNumeroDestino(numero);
+    setMensagem('');
+    setOpenMensagem(true);
+  };
+
+  const confirmarEnvioMensagem = () => {
+    sendMessage(numeroDestino, mensagem);
+    setOpenMensagem(false);
+  };
+
+  const abrirEdicao = (cliente: Cliente) => {
+    setNovoCliente({
+      ...cliente,
+      statusCRM: cliente.statusCRM || 'novo'
+    });
+    setDocIdEdicao(cliente.id || null);
+    setModoEdicao(true);
+    setOpenDialog(true);
+  };
+
+  const isTelefoneValido = (numero: string) => {
+    const phone = numero.replace(/\D/g, '');
+    return phone.length >= 10 && phone.length <= 13;
+  };
+
+  const enviarMensagensMassa = async () => {
+    if (!envioMassa.mensagem.trim()) {
+      setSnackbarMsg('Digite uma mensagem para enviar');
       setSnackbarOpen(true);
       return;
     }
-
-    setLoading(true);
-    try {
-      const observacao = observacoes[cliente.placa] || '';
-      const statusCRM = statusCrmPorPlaca[cliente.placa] || 'novo';
-      
-      // Salva no funil selecionado
-      await setDoc(doc(db, `Funis/${funilSelecionado}/Clientes`, cliente.placa), {
-        ...cliente,
-        observacao,
-        statusCRM,
-        dataAtualizacao: serverTimestamp()
-      });
-
-      // Também salva na coleção DadosclientesExtraidos para backup
-      await setDoc(doc(db, 'DadosclientesExtraidos', cliente.placa), {
-        ...cliente,
-        observacao,
-        statusCRM,
-        dataAtualizacao: serverTimestamp(),
-        funnelId: funilSelecionado
-      });
-
-      setClientesSalvos((prev) => [...prev, cliente.placa]);
-      setSnackbarMsg(`Cliente ${cliente.placa} salvo no funil com sucesso!`);
+    const clientesParaEnviar = funilAtivo?.clientes.filter(c =>
+      c.statusCRM === envioMassa.statusSelecionado &&
+      c.fone_celular &&
+      isTelefoneValido(c.fone_celular)
+    ) || [];
+    if (clientesParaEnviar.length === 0) {
+      setSnackbarMsg('Nenhum cliente encontrado com esse status e telefone válido');
       setSnackbarOpen(true);
-    } catch (error) {
-      console.error('Erro ao salvar:', error);
-      setSnackbarMsg('Erro ao salvar cliente');
-      setSnackbarOpen(true);
-    } finally {
-      setLoading(false);
+      return;
     }
-  };
-
-  const clientesFiltrados = useMemo(() => {
-    let lista = clientes.filter((c) => !clientesSalvos.includes(c.placa));
-    if (usuarioFiltro) lista = lista.filter((c) => c.usuario === usuarioFiltro);
-    return lista.filter((c) => {
-      const termo = busca.toLowerCase();
-      return (
-        c.placa.toLowerCase().includes(termo) ||
-        c.renavam.toLowerCase().includes(termo) ||
-        c.proprietarioatual.toLowerCase().includes(termo) ||
-        c.usuario.toLowerCase().includes(termo) ||
-        c.origem.toLowerCase().includes(termo) ||
-        c.fone_residencial.toLowerCase().includes(termo) ||
-        c.municipio.toLowerCase().includes(termo)
+    const agora = new Date();
+    const agendarPara = dataHoraAgendada ? new Date(dataHoraAgendada) : null;
+    const agendamentoFuturo = agendarPara && agendarPara > agora;
+    if (agendamentoFuturo) {
+      try {
+        const db = getFirestore(app);
+        await addDoc(collection(db, 'AgendamentosSMS'), {
+          mensagem: envioMassa.mensagem,
+          statusSelecionado: envioMassa.statusSelecionado,
+          funilId: funilAtivoId,
+          contatos: clientesParaEnviar.map(c => ({
+            id: c.id,
+            numero: c.fone_celular,
+            nome: c.proprietarioatual
+          })),
+          agendarPara: new Date(new Date(dataHoraAgendada).getTime() - (3 * 60 * 60 * 1000)).toISOString(),
+          criadoEm: serverTimestamp()
+        });
+        setSnackbarMsg('✅ Envio agendado com sucesso!');
+        setSnackbarOpen(true);
+        setEnvioMassa(prev => ({ ...prev, open: false, enviando: false }));
+        return;
+      } catch (error) {
+        console.error('Erro ao salvar agendamento:', error);
+        setSnackbarMsg('❌ Erro ao salvar agendamento');
+        setSnackbarOpen(true);
+        return;
+      }
+    }
+    setEnvioMassa(prev => ({ ...prev, enviando: true, progresso: 0 }));
+    let sucessos = 0;
+    for (let i = 0; i < clientesParaEnviar.length; i++) {
+      const cliente = clientesParaEnviar[i];
+      const mensagemPersonalizada = applyTemplate(
+        { title: "Mensagem em Massa", content: envioMassa.mensagem },
+        cliente
       );
-    });
-  }, [clientes, busca, usuarioFiltro, clientesSalvos]);
+      const sucesso = await sendMessage(cliente.fone_celular, mensagemPersonalizada);
+      if (sucesso) sucessos++;
+      setEnvioMassa(prev => ({
+        ...prev,
+        progresso: Math.round(((i + 1) / clientesParaEnviar.length) * 100)
+      }));
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    setEnvioMassa(prev => ({ ...prev, enviando: false }));
+    setSnackbarMsg(`✅ Envio concluído: ${sucessos}/${clientesParaEnviar.length} mensagens enviadas com sucesso`);
+    setSnackbarOpen(true);
+  };
 
-  const usuariosDisponiveis = Array.from(new Set(clientes.map(c => c.usuario)));
+  const applyTemplate = (template: MessageTemplate, cliente: Cliente) => {
+    let message = template.content;
+    message = message.replace(/{nome}/g, cliente.proprietarioatual || 'Cliente');
+    message = message.replace(/{seu_nome}/g, 'Equipe de Vendas');
+    message = message.replace(/{marca_modelo}/g, cliente.marca_modelo || 'o veículo');
+    message = message.replace(/{placa}/g, cliente.placa || '');
+    message = message.replace(/{municipio}/g, cliente.municipio || 'sua cidade');
+    return message;
+  };
 
-  const clientesPaginados = useMemo(() => {
-    const inicio = (pagina - 1) * itensPorPagina;
-    return clientesFiltrados.slice(inicio, inicio + itensPorPagina);
-  }, [clientesFiltrados, pagina]);
+  const handleAddTemplate = () => {
+    if (!newTemplate.title || !newTemplate.content) {
+      setSnackbarMsg('Preencha o título e o conteúdo do template');
+      setSnackbarOpen(true);
+      return;
+    }
+    setTemplates([...templates, newTemplate]);
+    setNewTemplate({ title: '', content: '' });
+    setOpenTemplateDialog(false);
+    setSnackbarMsg('Template adicionado com sucesso');
+    setSnackbarOpen(true);
+  };
 
-  const getStatusClass = (status?: string) => {
-    switch (status) {
-      case 'novo': return classes.statusNovo;
-      case 'contatado': return classes.statusContatado;
-      case 'interessado': return classes.statusInteressado;
-      case 'vendido': return classes.statusVendido;
-      case 'perdido': return classes.statusPerdido;
-      default: return classes.statusPersonalizado;
+  const onDragEnd = async (result: DropResult) => {
+    const { source, destination, draggableId } = result;
+    if (!destination) return;
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) return;
+    try {
+      await atualizarStatusCliente(draggableId, destination.droppableId, funilAtivoId);
+    } catch (error) {
+      console.error('Erro ao mover cliente:', error);
     }
   };
+
+  function gerarMensagemIA(cliente: Cliente): string {
+    const nome = cliente.proprietarioatual || 'cliente';
+    const modelo = cliente.marca_modelo || 'veículo';
+    const placa = cliente.placa || '';
+    const cidade = cliente.municipio || 'sua cidade';
+    const frases = [
+      `📢 Olá ${nome}, tudo bem? Identificamos que o ${modelo} placa ${placa} está com pendências. Podemos resolver com parcelamento fácil e seguro.`,
+      `✅ ${nome}, temos condições exclusivas para regularizar seu ${modelo}. Atendimento rápido e com parcelamento.`,
+      `🚗 Seu ${modelo}, de ${cidade}, pode rodar legalizado. Evite multas e dores de cabeça.`,
+    ];
+    return frases[Math.floor(Math.random() * frases.length)];
+  }
+
+  const toggleCardExpansion = (clienteId: string) => {
+    setExpandedCards(prev =>
+      prev.includes(clienteId)
+        ? prev.filter(id => id !== clienteId)
+        : [...prev, clienteId]
+    );
+  };
+
+ const renderKanbanView = () => (
+  <DragDropContext onDragEnd={onDragEnd}>
+    <Box className={classes.columnContainer}>
+      {funilAtivo?.statusDisponiveis
+        .filter(opt => opt.value !== 'todos')
+        .map((status) => {
+          const clientesPorStatus = clientesFiltrados.filter(
+            c => c.funnelId === funilAtivoId && c.statusCRM === status.value
+          );
+          const clientesPaginadosPorStatus = clientesPorStatus.slice(
+            (paginaAtual - 1) * clientesPorPagina,
+            paginaAtual * clientesPorPagina
+          );
+          return (
+            <Droppable droppableId={status.value} key={status.value}>
+              {(provided) => (
+                <Box className={classes.column}>
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography className={classes.columnTitle}>
+                      {status.icon}
+                      {status.label}
+                      <Chip
+                        label={clientesPorStatus.length}
+                        size="small"
+                        style={{ marginLeft: 8, background: '#34B7F1', color: 'white' }}
+                      />
+                    </Typography>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      style={{ color: '#075E54', borderColor: '#075E54', marginTop: 4 }}
+                      onClick={() => setEnvioMassa({
+                        open: true,
+                        statusSelecionado: status.value,
+                        mensagem: '',
+                        enviando: false,
+                        progresso: 0
+                      })}
+                    >
+                      ✉️ Agendar Envio
+                    </Button>
+                    {statusExtras.find(e => e.value === status.value) && (
+                      <IconButton
+                        size="small"
+                        onClick={async () => {
+                          const confirm = window.confirm("Remover esta coluna?");
+                          if (!confirm) return;
+                          const extra = statusExtras.find(e => e.value === status.value);
+                          if (extra) {
+                            await removeStatusExtra(extra.id);
+                            setStatusExtras(prev => prev.filter(e => e.id !== extra.id));
+                            setFunis(prev =>
+                              prev.map(funil =>
+                                funil.id === funilAtivoId
+                                  ? {
+                                      ...funil,
+                                      statusDisponiveis: funil.statusDisponiveis.filter(s => s.value !== extra.value)
+                                    }
+                                  : funil
+                              )
+                            );
+                          }
+                        }}
+                      >
+                        <Close fontSize="small" />
+                      </IconButton>
+                    )}
+                  </Box>
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={classes.droppableArea}
+                  >
+                    {clientesPaginadosPorStatus.map((cliente, index) => {
+                      const clienteNumero = normalizarTelefoneBrasil(cliente.fone_celular);
+                      const pendenteAtual = pendentesIA.find(p =>
+                        normalizarTelefoneBrasil(p.numero) === clienteNumero
+                      );
+                      const isExpanded = expandedCards.includes(cliente.id!);
+                      return (
+                        <Draggable key={cliente.id} draggableId={String(cliente.id)} index={index}>
+                          {(provided) => (
+                            <Card
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={`${classes.card} ${isExpanded ? classes.cardExpanded : ''}`}
+                              onClick={() => toggleCardExpansion(cliente.id!)}
+                            >
+                              <Box position="relative">
+                                <Chip
+                                  label={status.label}
+                                  size="small"
+                                  className={`${classes.statusChip} ${getStatusClass(classes, status.value)}`}
+                                  style={{ position: 'absolute', top: 8, right: 8 }}
+                                />
+                              </Box>
+                              <CardContent>
+                                <Typography variant="h6" className={classes.cardTitle}>
+                                  {cliente.proprietarioatual}
+                                </Typography>
+                                <Typography variant="body2" className={classes.cardField}>
+                                  <strong>Placa:</strong> {cliente.placa}
+                                </Typography>
+                                {isExpanded && (
+                                  <>
+                                    {pendenteAtual && (
+                                      <Tooltip title="Nova resposta recebida">
+                                        <Chip
+                                          icon={<BugReportIcon style={{ color: '#FF9800' }} />}
+                                          label="IA"
+                                          style={{ backgroundColor: '#FFF3E0', color: '#FF9800', marginBottom: 8 }}
+                                        />
+                                      </Tooltip>
+                                    )}
+                                    {ultimasMensagensRecebidas[cliente.fone_celular.replace(/\D/g, '')] && (
+                                      <Box mt={1}>
+                                        <Typography variant="body2" style={{ fontStyle: 'italic', color: '#333' }}>
+                                          📩 <strong>Última resposta:</strong> {ultimasMensagensRecebidas[cliente.fone_celular.replace(/\D/g, '')]}
+                                        </Typography>
+                                      </Box>
+                                    )}
+                                    <Typography variant="body2" className={classes.cardField}>
+                                      <strong>Renavam:</strong> {cliente.renavam}
+                                    </Typography>
+                                    <Typography variant="body2" className={classes.cardField}>
+                                      <strong>Marca/Modelo:</strong> {cliente.marca_modelo}
+                                    </Typography>
+                                    <Typography variant="body2" className={classes.cardField}>
+                                      <strong>Celular:</strong> {cliente.fone_celular}
+                                    </Typography>
+                                    <Box className={classes.cardActions} mt={2}>
+                                      <Box display="flex" justifyContent="space-between">
+                                        <Button
+                                          variant="contained"
+                                          className={classes.whatsappButton}
+                                          startIcon={<Message />}
+                                          onClick={(e) => { e.stopPropagation(); abrirEnvioMensagem(cliente.fone_celular); }}
+                                          size="small"
+                                        >
+                                          WhatsApp
+                                        </Button>
+                                        <Button
+                                          variant="contained"
+                                          className={classes.editButton}
+                                          startIcon={<Edit />}
+                                          onClick={(e) => { e.stopPropagation(); abrirEdicao(cliente); }}
+                                          size="small"
+                                        >
+                                          Editar
+                                        </Button>
+                                        <Button
+  variant="outlined"
+  size="small"
+  style={{ borderColor: '#8e44ad', color: '#8e44ad', marginTop: 8 }}
+  onClick={(e) => {
+    e.stopPropagation();
+    setClienteSelecionadoParaTroca(cliente); // Novo state
+    setDialogTrocarFunilAberto(true);
+  }}
+>
+  🔁 Mudar Funil
+</Button>
+
+                                      </Box>
+                                      <Box className={classes.quickStatus}>
+                                        {funilAtivo?.statusDisponiveis
+                                          .filter(opt => opt.value !== 'todos')
+                                          .map(option => (
+                                            <Chip
+                                              key={option.value}
+                                              label={option.label}
+                                              size="small"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                cliente.id && atualizarStatusCliente(cliente.id, option.value, funilAtivoId);
+                                              }}
+                                              icon={option.icon}
+                                              variant={cliente.statusCRM === option.value ? 'default' : 'outlined'}
+                                              style={{ cursor: 'pointer' }}
+                                            />
+                                          ))}
+                                      </Box>
+                                      <Button
+                                        variant="outlined"
+                                        size="small"
+                                        style={{ borderColor: '#25D366', color: '#25D366', marginTop: 8 }}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setChatAberto({
+                                            numero: cliente.fone_celular,
+                                            nome: cliente.proprietarioatual,
+                                          });
+                                        }}
+                                      >
+                                        💬 Chat
+                                      </Button>
+                                    </Box>
+                                    {pendenteAtual && (
+                                      <Box mt={2} p={2} bgcolor="#FFF8E1" borderRadius={8}>
+                                        <Typography variant="subtitle2" gutterBottom>
+                                          🧠 Sugestão IA:
+                                        </Typography>
+                                        <Typography variant="body2" style={{ marginBottom: 8 }}>
+                                          {gerarMensagemIA(cliente)}
+                                        </Typography>
+                                        <Box display="flex" style={{ gap: 2 }}>
+                                          <Button
+                                            size="small"
+                                            variant="contained"
+                                            onClick={async (e) => {
+                                              e.stopPropagation();
+                                              const mensagemIA = gerarMensagemIA(cliente);
+                                              try {
+                                                await sendMessage(cliente.fone_celular, mensagemIA);
+                                                const db = getFirestore(app);
+                                                await setDoc(doc(db, 'HistoricoSMSGemini', `${cliente.id}-${Date.now()}`), {
+                                                  numero: cliente.fone_celular,
+                                                  clienteId: cliente.id,
+                                                  mensagem: mensagemIA,
+                                                  respostaAutomatica: true,
+                                                  timestamp: new Date().toISOString(),
+                                                });
+                                                const pendenteRef = doc(db, 'ClientesPendentesIA', pendenteAtual.numero);
+                                                await deleteDoc(pendenteRef);
+                                              } catch (e) {
+                                                console.error('Erro ao enviar resposta IA:', e);
+                                              }
+                                            }}
+                                            style={{ background: '#4CAF50', color: 'white' }}
+                                          >
+                                            Enviar
+                                          </Button>
+                                          <Button
+                                            size="small"
+                                            variant="outlined"
+                                            onClick={async (e) => {
+                                              e.stopPropagation();
+                                              const db = getFirestore(app);
+                                              const pendenteRef = doc(db, 'ClientesPendentesIA', pendenteAtual.numero);
+                                              await deleteDoc(pendenteRef);
+                                            }}
+                                            style={{ color: '#F44336' }}
+                                          >
+                                            Ignorar
+                                          </Button>
+                                        </Box>
+                                      </Box>
+                                    )}
+                                  </>
+                                )}
+                              </CardContent>
+                            </Card>
+                          )}
+                        </Draggable>
+                      );
+                    })}
+                    {provided.placeholder}
+                  </div>
+                </Box>
+              )}
+            </Droppable>
+          );
+        })}
+    </Box>
+    {totalPaginas > 1 && (
+      <Box mt={4} display="flex" justifyContent="center" alignItems="center">
+        <Button
+          className={classes.paginationButton}
+          disabled={paginaAtual === 1}
+          onClick={() => setPaginaAtual(p => p - 1)}
+        >
+          &lt;
+        </Button>
+        {Array.from({ length: Math.min(5, totalPaginas) }, (item, index: number) => {
+          let pageNum: number;
+          if (totalPaginas <= 5) {
+            pageNum = index + 1;
+          } else if (paginaAtual <= 3) {
+            pageNum = index + 1;
+          } else if (paginaAtual >= totalPaginas - 2) {
+            pageNum = totalPaginas - 4 + index;
+          } else {
+            pageNum = paginaAtual - 2 + index;
+          }
+          return (
+            <Button
+              key={pageNum}
+              className={`${classes.paginationButton} ${paginaAtual === pageNum ? classes.activePage : ''}`}
+              onClick={() => setPaginaAtual(pageNum)}
+            >
+              {pageNum}
+            </Button>
+          );
+        })}
+        <Button
+          className={classes.paginationButton}
+          disabled={paginaAtual === totalPaginas}
+          onClick={() => setPaginaAtual(p => p + 1)}
+        >
+          &gt;
+        </Button>
+      </Box>
+    )}
+  </DragDropContext>
+);
+
+
+  const renderListView = () => (
+    <TableContainer component={Box} sx={{ bgcolor: 'white', borderRadius: 8, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+      <Table className={classes.table}>
+        <TableHead>
+          <TableRow>
+            <TableCell className={classes.tableCell}>Proprietário</TableCell>
+            <TableCell className={classes.tableCell}>Placa</TableCell>
+            <TableCell className={classes.tableCell}>Marca/Modelo</TableCell>
+            <TableCell className={classes.tableCell}>Celular</TableCell>
+            <TableCell className={classes.tableCell}>Status</TableCell>
+            <TableCell className={classes.tableCell}>Ações</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {clientesPaginados.map((cliente) => (
+            <TableRow key={cliente.id}>
+              <TableCell className={classes.tableCell}>{cliente.proprietarioatual}</TableCell>
+              <TableCell className={classes.tableCell}>{cliente.placa}</TableCell>
+              <TableCell className={classes.tableCell}>{cliente.marca_modelo}</TableCell>
+              <TableCell className={classes.tableCell}>{cliente.fone_celular}</TableCell>
+              <TableCell className={classes.tableCell}>
+                <Chip
+                  label={funilAtivo?.statusDisponiveis.find(s => s.value === cliente.statusCRM)?.label || 'Novo'}
+                  size="small"
+                  className={`${classes.statusChip} ${getStatusClass(classes, cliente.statusCRM)}`}
+                />
+              </TableCell>
+              <TableCell className={classes.tableCell}>
+                <Button
+                  variant="contained"
+                  className={classes.whatsappButton}
+                  startIcon={<Message />}
+                  onClick={() => abrirEnvioMensagem(cliente.fone_celular)}
+                  size="small"
+                >
+                  WhatsApp
+                </Button>
+                <Button
+                  variant="contained"
+                  className={classes.editButton}
+                  startIcon={<Edit />}
+                  onClick={() => abrirEdicao(cliente)}
+                  size="small"
+                  style={{ marginLeft: 8 }}
+                >
+                  Editar
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  style={{ borderColor: '#25D366', color: '#25D366', marginLeft: 8 }}
+                  onClick={() => setChatAberto({ numero: cliente.fone_celular, nome: cliente.proprietarioatual })}
+                >
+                  💬 Chat
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+        <CircularProgress style={{ color: '#25D366' }} />
+      </Box>
+    );
+  }
 
   return (
-    <Paper className={classes.container}>
-      <Typography variant="h5" gutterBottom>
-        Upload de Arquivo .docx com Dados de Clientes
-      </Typography>
+    <Box className={classes.pageWrapper}>
+      <Box maxWidth={1400} margin="0 auto">
+        <Box mb={4}>
+          <Typography variant="h4" className={classes.sectionHeader} style={{ color: '#075E54' }}>
+            Lista de Contatos
+            <Chip
+              label={`${clientesFiltrados.length} contatos`}
+              size="small"
+              style={{ marginLeft: 16, background: '#34B7F1', color: 'white' }}
+            />
+            <Box p={2}>
+      <Button
+        variant="contained"
+        color="primary"
+        startIcon={<Add />}
+        onClick={adicionarFunil}
+      >
+        Adicionar Funil
+      </Button>
 
-      <input 
-        accept=".docx" 
-        type="file" 
-        onChange={handleFileUpload} 
-        style={{ marginBottom: 16 }} 
-      />
-
-      <Box display="flex" alignItems="center" mb={2}>
-        <FormControl variant="outlined" style={{ minWidth: 200, marginRight: 16 }}>
-          <InputLabel>Selecionar Funil</InputLabel>
-          <Select
-            value={funilSelecionado}
-            onChange={(e) => setFunilSelecionado(e.target.value as string)}
-            label="Selecionar Funil"
-          >
-            {funis.map(funil => (
-              <MenuItem key={funil.id} value={funil.id}>
-                {funil.nome}
-              </MenuItem>
+      {funis.map((funil) => (
+        <Box key={funil.id} mt={3}>
+          <Typography variant="h6">{funil.nome}</Typography>
+          <Box display="flex" style={{ gap: 2 }} mt={1}>
+            {funil.statusDisponiveis.map((status) => (
+              <Chip key={status.value} label={status.label} />
             ))}
-          </Select>
-        </FormControl>
-
-        <TextField
-          fullWidth
-          variant="outlined"
-          label="Buscar cliente, placa, renavam, usuário ou município"
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-        />
-      </Box>
-
-      {erro && <Typography color="error">{erro}</Typography>}
-
-      <Box display="flex" flexWrap="wrap" style={{ gap: 8 }} mb={2}>
-        {usuariosDisponiveis.map((user) => (
-          <Button
-            key={user}
-            variant={usuarioFiltro === user ? 'contained' : 'outlined'}
-            color="primary"
-            size="small"
-            onClick={() => setUsuarioFiltro(user === usuarioFiltro ? null : user)}
-          >
-            Usuário: {user}
-          </Button>
-        ))}
-      </Box>
-
-      <Box mb={2}>
-        <Pagination
-          count={Math.ceil(clientesFiltrados.length / itensPorPagina)}
-          page={pagina}
-          onChange={(_, value) => setPagina(value)}
-          color="primary"
-        />
-      </Box>
-
-      {loading && (
-        <Box display="flex" justifyContent="center" mb={2}>
-          <CircularProgress />
+          </Box>
         </Box>
-      )}
-
-      <Grid container spacing={2}>
-        {clientesPaginados.map((cliente) => (
-          <Grid item xs={12} sm={6} md={4} key={cliente.placa}>
-            <Card className={classes.card}>
-              <CardContent>
-                <Typography variant="subtitle1"><strong>Placa:</strong> {cliente.placa}</Typography>
-                <Typography variant="body2"><strong>Renavam:</strong> {cliente.renavam}</Typography>
-                <Typography variant="body2"><strong>Proprietário:</strong> {cliente.proprietarioatual}</Typography>
-                <Typography variant="body2"><strong>Marca/Modelo:</strong> {cliente.marca_modelo}</Typography>
-                <Typography variant="body2"><strong>Origem:</strong> {cliente.origem}</Typography>
-                <Typography variant="body2"><strong>Município:</strong> {cliente.municipio}</Typography>
-                <Typography variant="body2"><strong>Fone Cel.:</strong> {cliente.fone_celular}</Typography>
-                <Typography variant="body2"><strong>Usuário:</strong> {cliente.usuario}</Typography>
-
-                <Box mt={2}>
-                  <FormControl fullWidth variant="outlined" size="small" style={{ marginBottom: 8 }}>
-                    <InputLabel>Status CRM</InputLabel>
-                    <Select
-                      value={statusCrmPorPlaca[cliente.placa] || 'novo'}
-                      onChange={(e) =>
-                        setStatusCrmPorPlaca({ ...statusCrmPorPlaca, [cliente.placa]: e.target.value as string })
-                      }
-                      label="Status CRM"
-                    >
-                      {STATUS_OPTIONS.map((status) => (
-                        <MenuItem key={status.value} value={status.value}>
-                          {status.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-
-                  <Box mb={1}>
-                    <Chip
-                      label={STATUS_OPTIONS.find(s => s.value === (statusCrmPorPlaca[cliente.placa] || 'novo'))?.label || 'Novo'}
-                      size="small"
-                      className={getStatusClass(statusCrmPorPlaca[cliente.placa])}
-                      style={{ width: '100%', justifyContent: 'center' }}
-                    />
-                  </Box>
-
-                  <TextField
-                    label="Observação"
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                    multiline
-                    rows={2}
-                    value={observacoes[cliente.placa] || ''}
-                    onChange={(e) =>
-                      setObservacoes({ ...observacoes, [cliente.placa]: e.target.value })
-                    }
-                    style={{ marginBottom: 8 }}
-                  />
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="small"
-                    fullWidth
-                    onClick={() => salvarCliente(cliente)}
-                    disabled={loading}
-                  >
-                    Salvar no Firebase
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      ))}
 
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={6000}
+        autoHideDuration={3000}
         onClose={() => setSnackbarOpen(false)}
         message={snackbarMsg}
-        action={
-          <IconButton size="small" color="inherit" onClick={() => setSnackbarOpen(false)}>
-            <Close fontSize="small" />
-          </IconButton>
-        }
       />
-    </Paper>
+    </Box>
+            <Button
+              variant="outlined"
+              style={{ borderColor: '#075E54', color: '#075E54', marginLeft: 16 }}
+              onClick={async () => {
+                const novo = prompt("Digite o nome do novo status:");
+                if (novo) {
+                  const novoId = novo.toLowerCase().replace(/\s+/g, '-');
+                  const jaExiste = funilAtivo?.statusDisponiveis.some(s => s.value === novoId);
+                  if (jaExiste) {
+                    alert("Esse status já existe!");
+                    return;
+                  }
+                  const db = getFirestore(app);
+const funilRef = doc(db, 'Funis', funilAtivoId);
+
+await updateDoc(funilRef, {
+  statusDisponiveis: [...(funilAtivo?.statusDisponiveis.map(s => s.value) || []), novoId]
+});
+
+setFunis(prev => prev.map(funil =>
+  funil.id === funilAtivoId
+    ? {
+        ...funil,
+        statusDisponiveis: [
+          ...funil.statusDisponiveis,
+          {
+            value: novoId,
+            label: novo,
+            icon: <LocalOffer fontSize="small" />
+          }
+        ]
+      }
+    : funil
+));
+
+                  fetchStatus();
+                }
+              }}
+            >
+              + Adicionar Coluna
+            </Button>
+          </Typography>
+          <Box display="flex" flexDirection={isMobile ? 'column' : 'row'} style={{ gap: 16 }}>
+            <FormControl variant="outlined" className={classes.statusSelect}>
+              <InputLabel>Selecionar Funil</InputLabel>
+              <Select
+                value={funilAtivoId}
+                onChange={(e) => setFunilAtivoId(e.target.value as string)}
+                label="Selecionar Funil"
+              >
+                {funis.map(funil => (
+                  <MenuItem key={funil.id} value={funil.id}>
+                    {funil.nome}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="🔍 Filtrar por placa, nome ou município"
+              value={filtro}
+              onChange={(e) => setFiltro(e.target.value)}
+              className={classes.filterBox}
+              InputProps={{
+                style: {
+                  borderRadius: 50,
+                  backgroundColor: 'white',
+                }
+              }}
+            />
+            <FormControl variant="outlined" className={classes.statusSelect}>
+              <InputLabel>Status CRM</InputLabel>
+              <Select
+                value={statusCRM}
+                onChange={handleStatusChange}
+                label="Status CRM"
+              >
+                {funilAtivo?.statusDisponiveis.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    <Box display="flex" alignItems="center">
+                      {option.icon && React.cloneElement(option.icon, { style: { marginRight: 8 } })}
+                      {option.label}
+                    </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Button
+              variant="contained"
+              startIcon={viewMode === 'kanban' ? <ListIcon /> : <ViewModule />}
+              onClick={() => setViewMode(viewMode === 'kanban' ? 'list' : 'kanban')}
+            >
+              {viewMode === 'kanban' ? 'Lista' : 'Kanban'}
+            </Button>
+            <Button
+              variant="contained"
+              className={classes.massSendButton}
+              startIcon={<Send />}
+              onClick={() => setEnvioMassa(prev => ({ ...prev, open: true }))}
+            >
+              Enviar em Massa
+            </Button>
+            <Button
+              variant="contained"
+              style={{
+                backgroundColor: localStorage.getItem('iaAtiva') === 'true' ? '#4CAF50' : '#F44336',
+                color: 'white',
+                marginTop: 8,
+                marginBottom: 16
+              }}
+              onClick={() => {
+                const novaIA = localStorage.getItem('iaAtiva') !== 'true';
+                localStorage.setItem('iaAtiva', String(novaIA));
+                window.location.reload();
+              }}
+            >
+              {localStorage.getItem('iaAtiva') === 'true' ? '🧠 Desativar IA' : '🤖 Ativar IA'}
+            </Button>
+          </Box>
+        </Box>
+        {viewMode === 'kanban' ? renderKanbanView() : renderListView()}
+        <Fab color="primary" className={classes.addButton} onClick={() => {
+          setNovoCliente({
+            placa: '',
+            renavam: '',
+            proprietarioatual: '',
+            marca_modelo: '',
+            origem: '',
+            municipio: '',
+            fone_residencial: '',
+            fone_comercial: '',
+            fone_celular: '',
+            usuario: '',
+            statusCRM: 'novo',
+            dataAtualizacao: new Date().toISOString()
+          });
+          setModoEdicao(false);
+          setDocIdEdicao(null);
+          setOpenDialog(true);
+        }}>
+          <Add />
+        </Fab>
+        <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth maxWidth="sm">
+          <DialogTitle className={classes.dialogTitle}>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Typography variant="h6">{modoEdicao ? 'Editar Contato' : 'Adicionar Novo Contato'}</Typography>
+              <IconButton onClick={() => setOpenDialog(false)} style={{ color: 'white' }}>
+                <Close />
+              </IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent className={classes.dialogContent} style={{ padding: 24 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <FormControl fullWidth variant="outlined">
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    value={novoCliente.statusCRM || 'novo'}
+                    onChange={(e) => setNovoCliente({...novoCliente, statusCRM: e.target.value as string})}
+                    label="Status"
+                  >
+                    {funilAtivo?.statusDisponiveis.filter(opt => opt.value !== 'todos').map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        <Box display="flex" alignItems="center">
+                          {option.icon && React.cloneElement(option.icon, { style: { marginRight: 8 } })}
+                          {option.label}
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              {Object.entries(novoCliente).map(([chave, valor]) => {
+                if (chave === 'id' || chave === 'statusCRM' || chave === 'dataAtualizacao') return null;
+                return (
+                  <Grid item xs={12} sm={6} key={chave}>
+                    <TextField
+                      fullWidth
+                      label={chave.replace(/_/g, ' ')}
+                      value={valor}
+                      variant="outlined"
+                      onChange={(e) => setNovoCliente({ ...novoCliente, [chave]: e.target.value })}
+                      {...(chave === 'fone_celular' && {
+                        helperText: isTelefoneValido(novoCliente.fone_celular)
+                          ? 'Digite o número com DDD. Ex: 48999999999'
+                          : 'Número deve ter 11 dígitos.',
+                        error: novoCliente.fone_celular !== '' && !isTelefoneValido(novoCliente.fone_celular),
+                      })}
+                      style={{ marginBottom: 16 }}
+                    />
+                  </Grid>
+                );
+              })}
+            </Grid>
+          </DialogContent>
+          <DialogActions className={classes.dialogActions}>
+            <Button onClick={() => setOpenDialog(false)} style={{ color: '#555' }}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={async () => {
+                const db = getFirestore(app);
+                try {
+                  const { id, ...clienteSemId } = novoCliente;
+                  if (modoEdicao && docIdEdicao) {
+                    const docRef = doc(db, `Funis/${funilAtivoId}/Clientes`, docIdEdicao);
+                    await updateDoc(docRef, clienteSemId);
+                    setFunis(prev =>
+                      prev.map(funil =>
+                        funil.id === funilAtivoId
+                          ? {
+                              ...funil,
+                              clientes: funil.clientes.map(c => c.id === docIdEdicao ? { ...novoCliente, id: docIdEdicao } : c)
+                            }
+                          : funil
+                      )
+                    );
+                    setSnackbarMsg('Cliente atualizado com sucesso!');
+                  } else {
+                    const newDocRef = await addDoc(collection(db, `Funis/${funilAtivoId}/Clientes`), {
+                      ...clienteSemId,
+                      dataAtualizacao: new Date().toISOString()
+                    });
+                    setFunis(prev =>
+                      prev.map(funil =>
+                        funil.id === funilAtivoId
+                          ? {
+                              ...funil,
+                              clientes: [...funil.clientes, { ...clienteSemId, id: newDocRef.id }]
+                            }
+                          : funil
+                      )
+                    );
+                    setSnackbarMsg('Cliente adicionado com sucesso!');
+                  }
+                  setSnackbarOpen(true);
+                  setOpenDialog(false);
+                } catch {
+                  setSnackbarMsg('Erro ao salvar cliente');
+                  setSnackbarOpen(true);
+                }
+              }}
+              color="primary"
+              variant="contained"
+              style={{ background: '#25D366' }}
+            >
+              Salvar
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+  open={dialogTrocarFunilAberto}
+  onClose={() => setDialogTrocarFunilAberto(false)}
+  fullWidth
+  maxWidth="xs"
+>
+  <DialogTitle className={classes.dialogTitle}>
+    Mudar Cliente de Funil
+  </DialogTitle>
+  <DialogContent className={classes.dialogContent}>
+    <FormControl fullWidth variant="outlined">
+      <InputLabel>Selecionar Novo Funil</InputLabel>
+      <Select
+        value={novoFunilSelecionado}
+        onChange={(e) => setNovoFunilSelecionado(e.target.value as string)}
+        label="Selecionar Novo Funil"
+      >
+        {funis
+          .filter(f => f.id !== funilAtivoId)
+          .map(funil => (
+            <MenuItem key={funil.id} value={funil.id}>
+              {funil.nome}
+            </MenuItem>
+          ))}
+      </Select>
+    </FormControl>
+  </DialogContent>
+  <DialogActions className={classes.dialogActions}>
+    <Button onClick={() => setDialogTrocarFunilAberto(false)} style={{ color: '#555' }}>
+      Cancelar
+    </Button>
+    <Button
+      onClick={async () => {
+        if (!clienteSelecionadoParaTroca || !novoFunilSelecionado) return;
+
+        const db = getFirestore(app);
+
+        try {
+          // Remove do funil atual
+          await deleteDoc(doc(db, `Funis/${funilAtivoId}/Clientes`, clienteSelecionadoParaTroca.id!));
+
+          // Adiciona ao novo funil
+          await setDoc(doc(db, `Funis/${novoFunilSelecionado}/Clientes`, clienteSelecionadoParaTroca.id!), {
+            ...clienteSelecionadoParaTroca,
+            dataAtualizacao: new Date().toISOString(),
+            statusCRM: 'novo', // ou mantenha o status atual
+          });
+
+          setSnackbarMsg('Cliente movido para outro funil com sucesso!');
+          setSnackbarOpen(true);
+
+          // Atualiza localmente os estados
+          setFunis(prev => prev.map(funil => {
+            if (funil.id === funilAtivoId) {
+              return {
+                ...funil,
+                clientes: funil.clientes.filter(c => c.id !== clienteSelecionadoParaTroca.id)
+              };
+            } else if (funil.id === novoFunilSelecionado) {
+              return {
+                ...funil,
+                clientes: [...funil.clientes, { ...clienteSelecionadoParaTroca }]
+              };
+            }
+            return funil;
+          }));
+
+        } catch (err) {
+          console.error('Erro ao mover cliente:', err);
+          setSnackbarMsg('Erro ao mover cliente de funil');
+          setSnackbarOpen(true);
+        }
+
+        setDialogTrocarFunilAberto(false);
+        setClienteSelecionadoParaTroca(null);
+        setNovoFunilSelecionado('');
+      }}
+      variant="contained"
+      style={{ background: '#8e44ad', color: '#fff' }}
+    >
+      Confirmar
+    </Button>
+  </DialogActions>
+</Dialog>
+
+        <Dialog open={openMensagem} onClose={() => setOpenMensagem(false)} className={classes.messageDialog} fullWidth maxWidth="sm">
+          <Box className={classes.messageHeader}>
+            <Typography variant="h6">Enviar Mensagem WhatsApp</Typography>
+            <IconButton onClick={() => setOpenMensagem(false)} style={{ color: 'white' }}>
+              <Close />
+            </IconButton>
+          </Box>
+          <Box className={classes.messageContent}>
+            <Typography variant="body1" gutterBottom>
+              Enviando para: {numeroDestino}
+            </Typography>
+            <TextField
+              fullWidth
+              multiline
+              label="Digite sua mensagem"
+              rows={6}
+              value={mensagem}
+              onChange={(e) => setMensagem(e.target.value)}
+              variant="outlined"
+              className={classes.messageInput}
+            />
+            <Box className={classes.templatesContainer}>
+              <Box
+                className={classes.templateHeader}
+                onClick={() => setTemplatesOpen(!templatesOpen)}
+              >
+                <Typography variant="subtitle1">
+                  <InsertDriveFile style={{ verticalAlign: 'middle', marginRight: 8 }} />
+                  Modelos de Mensagem
+                </Typography>
+                {templatesOpen ? <ExpandLess /> : <ExpandMore />}
+              </Box>
+              <Collapse in={templatesOpen}>
+                <List className={classes.templateList} dense>
+                  {templates.map((template, index) => (
+                    <React.Fragment key={index}>
+                      <ListItem
+                        className={classes.templateItem}
+                        onClick={() => {
+                          const clienteAtual = funilAtivo?.clientes.find(c => c.fone_celular === numeroDestino);
+                          if (clienteAtual) {
+                            setMensagem(applyTemplate(template, clienteAtual));
+                          }
+                        }}
+                      >
+                        <ListItemText
+                          primary={template.title}
+                          secondary={template.content.length > 50
+                            ? `${template.content.substring(0, 50)}...`
+                            : template.content}
+                        />
+                      </ListItem>
+                      {index < templates.length - 1 && <Divider />}
+                    </React.Fragment>
+                  ))}
+                </List>
+              </Collapse>
+            </Box>
+            <Box className={classes.templateActions}>
+              <Button
+                variant="outlined"
+                color="primary"
+                size="small"
+                onClick={() => setOpenTemplateDialog(true)}
+                className={classes.addTemplateButton}
+              >
+                Adicionar Modelo
+              </Button>
+            </Box>
+          </Box>
+          <DialogActions className={classes.dialogActions}>
+            <Button onClick={() => setOpenMensagem(false)} style={{ color: '#555' }}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={confirmarEnvioMensagem}
+              variant="contained"
+              startIcon={<Send />}
+              style={{ background: '#25D366', color: 'white' }}
+            >
+              Enviar
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={envioMassa.open}
+          onClose={() => !envioMassa.enviando && setEnvioMassa(prev => ({ ...prev, open: false }))}
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle className={classes.dialogTitle}>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Typography variant="h6">Enviar Mensagem em Massa</Typography>
+              <IconButton
+                onClick={() => !envioMassa.enviando && setEnvioMassa(prev => ({ ...prev, open: false }))}
+                style={{ color: 'white' }}
+                disabled={envioMassa.enviando}
+              >
+                <Close />
+              </IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent className={classes.dialogContent} style={{ padding: 24 }}>
+            <TextField
+              label="Agendar para"
+              type="datetime-local"
+              fullWidth
+              value={dataHoraAgendada}
+              onChange={(e) => setDataHoraAgendada(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              margin="normal"
+              disabled={envioMassa.enviando}
+            />
+            <FormControl fullWidth variant="outlined" margin="normal">
+              <InputLabel>Status dos Clientes</InputLabel>
+              <Select
+                value={envioMassa.statusSelecionado}
+                onChange={(e) => setEnvioMassa(prev => ({ ...prev, statusSelecionado: e.target.value as string }))}
+                label="Status dos Clientes"
+                disabled={envioMassa.enviando}
+              >
+                {funilAtivo?.statusDisponiveis.filter(opt => opt.value !== 'todos').map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    <Box display="flex" alignItems="center">
+                      {option.icon && React.cloneElement(option.icon, { style: { marginRight: 8 } })}
+                      {option.label}
+                    </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              fullWidth
+              multiline
+              label="Mensagem para enviar"
+              rows={6}
+              value={envioMassa.mensagem}
+              onChange={(e) => setEnvioMassa(prev => ({ ...prev, mensagem: e.target.value }))}
+              variant="outlined"
+              className={classes.messageInput}
+              disabled={envioMassa.enviando}
+              margin="normal"
+            />
+            <Box className={classes.templatesContainer}>
+              <Box
+                className={classes.templateHeader}
+                onClick={() => !envioMassa.enviando && setTemplatesOpen(!templatesOpen)}
+              >
+                <Typography variant="subtitle1">
+                  <InsertDriveFile style={{ verticalAlign: 'middle', marginRight: 8 }} />
+                  Modelos de Mensagem
+                </Typography>
+                {templatesOpen ? <ExpandLess /> : <ExpandMore />}
+              </Box>
+              <Collapse in={templatesOpen}>
+                <List className={classes.templateList} dense>
+                  {templates.map((template, index) => (
+                    <React.Fragment key={index}>
+                      <ListItem
+                        className={classes.templateItem}
+                        onClick={() => {
+                          if (!envioMassa.enviando) {
+                            setEnvioMassa(prev => ({ ...prev, mensagem: template.content }));
+                          }
+                        }}
+                      >
+                        <ListItemText
+                          primary={template.title}
+                          secondary={template.content.length > 50
+                            ? `${template.content.substring(0, 50)}...`
+                            : template.content}
+                        />
+                      </ListItem>
+                      {index < templates.length - 1 && <Divider />}
+                    </React.Fragment>
+                  ))}
+                </List>
+              </Collapse>
+            </Box>
+            {envioMassa.enviando && (
+              <Box className={classes.progressContainer}>
+                <Typography variant="body2" gutterBottom>
+                  Enviando mensagens... {envioMassa.progresso}%
+                </Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={envioMassa.progresso}
+                  style={{ height: 8, borderRadius: 4 }}
+                />
+              </Box>
+            )}
+          </DialogContent>
+          <DialogActions className={classes.dialogActions}>
+            <Button
+              onClick={() => !envioMassa.enviando && setEnvioMassa(prev => ({ ...prev, open: false }))}
+              style={{ color: '#555' }}
+              disabled={envioMassa.enviando}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={enviarMensagensMassa}
+              variant="contained"
+              startIcon={<Send />}
+              style={{ background: '#25D366', color: 'white' }}
+              disabled={envioMassa.enviando || !envioMassa.mensagem.trim()}
+            >
+              {envioMassa.enviando ? 'Enviando...' : 'Iniciar Envio em Massa'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={openTemplateDialog}
+          onClose={() => setOpenTemplateDialog(false)}
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle className={classes.dialogTitle}>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Typography variant="h6">Adicionar Novo Modelo</Typography>
+              <IconButton onClick={() => setOpenTemplateDialog(false)} style={{ color: 'white' }}>
+                <Close />
+              </IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent className={classes.dialogContent} style={{ padding: 24 }}>
+            <TextField
+              fullWidth
+              label="Título do Modelo"
+              value={newTemplate.title}
+              onChange={(e) => setNewTemplate({...newTemplate, title: e.target.value})}
+              variant="outlined"
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              multiline
+              label="Conteúdo do Modelo"
+              rows={6}
+              value={newTemplate.content}
+              onChange={(e) => setNewTemplate({...newTemplate, content: e.target.value})}
+              variant="outlined"
+              margin="normal"
+              helperText="Você pode usar placeholders como {nome}, {placa}, {marca_modelo}, etc."
+            />
+          </DialogContent>
+          <DialogActions className={classes.dialogActions}>
+            <Button onClick={() => setOpenTemplateDialog(false)} style={{ color: '#555' }}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleAddTemplate}
+              variant="contained"
+              style={{ background: '#25D366', color: 'white' }}
+            >
+              Salvar Modelo
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={6000}
+          onClose={() => setSnackbarOpen(false)}
+          message={snackbarMsg}
+          action={
+            <IconButton size="small" color="inherit" onClick={() => setSnackbarOpen(false)}>
+              <Close fontSize="small" />
+            </IconButton>
+          }
+        />
+        {chatAberto && (
+          <ChatFlutuante
+            numero={chatAberto.numero}
+            nome={chatAberto.nome}
+            onClose={() => setChatAberto(null)}
+          />
+        )}
+      </Box>
+    </Box>
   );
 };
 
-export default UpClientePage;
+
+export default ListaContatosPage;
