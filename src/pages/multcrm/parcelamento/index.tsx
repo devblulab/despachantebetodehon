@@ -608,7 +608,7 @@ const adicionarFunil = async () => {
   const db = getFirestore(app);
 
   try {
-    const docRef = await addDoc(collection(db, 'Funis'), {
+    const docRef = await addDoc(collection(db, 'FunisParcelamento'), {
       nome,
       statusDisponiveis: STATUS_OPTIONS.map(opt => opt.value),
 clientes: [],
@@ -684,12 +684,12 @@ clientes: [],
   const fetchClientes = async () => {
     setLoading(true);
     const db = getFirestore(app);
-    const snapshotFunis = await getDocs(collection(db, 'Funis'));
+    const snapshotFunis = await getDocs(collection(db, 'FunisParcelamento'));
     const novosFunis: Funil[] = [];
 
     for (const funilDoc of snapshotFunis.docs) {
       const funilData = funilDoc.data();
-      const snapshotClientes = await getDocs(collection(db, `Funis/${funilDoc.id}/Clientes`));
+      const snapshotClientes = await getDocs(collection(db, `FunisParcelamento/${funilDoc.id}/Clientes`));
       const clientes: Cliente[] = snapshotClientes.docs.map(doc => {
         const data = doc.data();
         return {
