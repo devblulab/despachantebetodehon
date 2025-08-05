@@ -109,7 +109,7 @@ const UpClientePage = () => {
   useEffect(() => {
     const carregarFunils = async () => {
       try {
-        const snapshot = await getDocs(collection(db, 'Funis'));
+        const snapshot = await getDocs(collection(db, 'FunisParcelamento'));
         const funisData = snapshot.docs.map(doc => ({
           id: doc.id,
           nome: doc.data().nome
@@ -190,7 +190,7 @@ const UpClientePage = () => {
       const statusCRM = statusCrmPorPlaca[cliente.placa] || 'novo';
       
       // Salva no funil selecionado
-      await setDoc(doc(db, `Funis/${funilSelecionado}/Clientes`, cliente.placa), {
+      await setDoc(doc(db, `FunisParcelamento/${funilSelecionado}/Clientes`, cliente.placa), {
         ...cliente,
         observacao,
         statusCRM,
