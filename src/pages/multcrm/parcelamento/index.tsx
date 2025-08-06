@@ -728,47 +728,7 @@ clientes: [],
     }
 
     // 🔥 Adiciona a coleção DadosclientesExtraidos como funil independente
-    const snapshotExtraidos = await getDocs(collection(db, 'DadosclientesExtraidos'));
-    const clientesExtraidos: Cliente[] = snapshotExtraidos.docs.map(doc => {
-      const data = doc.data();
-      return {
-        placa: data.placa || '',
-        renavam: data.renavam || '',
-        proprietarioatual: data.proprietarioatual || '',
-        marca_modelo: data.marca_modelo || '',
-        origem: data.origem || '',
-        municipio: data.municipio || '',
-        observacao: data.observacao || '',
-        fone_residencial: data.fone_residencial || '',
-        fone_comercial: data.fone_comercial || '',
-        fone_celular: data.fone_celular || '',
-        usuario: data.usuario || '',
-        statusCRM: data.statusCRM || 'novo',
-        dataAtualizacao: data.dataAtualizacao || '',
-        id: doc.id,
-        funnelId: 'funil-dados-extraidos',
-      };
-    });
-
-    const statusUnicos = [...new Set(clientesExtraidos.map(c => c.statusCRM))];
-    const statusCompletos = statusUnicos
-      .filter((value): value is string => typeof value === 'string' && value !== undefined)
-      .map((value) => {
-        const found = STATUS_OPTIONS.find(opt => opt.value === value);
-        return found || { value, label: value.charAt(0).toUpperCase() + value.slice(1) };
-      });
-
-    novosFunis.push({
-      id: 'funil-dados-extraidos',
-      nome: 'Importados',
-      clientes: Object.values(
-        clientesExtraidos.reduce((acc, cliente) => {
-          if (!acc[cliente.placa]) acc[cliente.placa] = cliente;
-          return acc;
-        }, {} as Record<string, Cliente>)
-      ),
-      statusDisponiveis: statusCompletos,
-    });
+   
 
     setFunis(novosFunis.length > 0 ? novosFunis : [{
       id: 'funil-padrao',
@@ -798,7 +758,7 @@ clientes: [],
   const atualizarStatusCliente = async (clienteId: string, novoStatus: string, funilId: string) => {
     const db = getFirestore(app);
     try {
-      const docRef = doc(db, `Funis/${funilId}/Clientes`, clienteId);
+      const docRef = doc(db, `FunisParcelamento/${funilId}/Clientes`, clienteId);
       await updateDoc(docRef, {
         statusCRM: novoStatus,
         dataAtualizacao: new Date().toISOString(),
@@ -1641,7 +1601,7 @@ setFunis(prev => prev.map(funil =>
                 try {
                   const { id, ...clienteSemId } = novoCliente;
                   if (modoEdicao && docIdEdicao) {
-                    const docRef = doc(db, `Funis/${funilAtivoId}/Clientes`, docIdEdicao);
+                    const docRef = doc(db, `FunisParcelamento/${funilAtivoId}/Clientes`, docIdEdicao);
                     await updateDoc(docRef, clienteSemId);
                     setFunis(prev =>
                       prev.map(funil =>
@@ -1655,7 +1615,7 @@ setFunis(prev => prev.map(funil =>
                     );
                     setSnackbarMsg('Cliente atualizado com sucesso!');
                   } else {
-                    const newDocRef = await addDoc(collection(db, `Funis/${funilAtivoId}/Clientes`), {
+                    const newDocRef = await addDoc(collection(db, `FunisParcelamento/${funilAtivoId}/Clientes`), {
                       ...clienteSemId,
                       dataAtualizacao: new Date().toISOString()
                     });
@@ -1725,10 +1685,10 @@ setFunis(prev => prev.map(funil =>
 
         try {
           // Remove do funil atual
-          await deleteDoc(doc(db, `Funis/${funilAtivoId}/Clientes`, clienteSelecionadoParaTroca.id!));
+          await deleteDoc(doc(db, `FunisParcelamento/${funilAtivoId}/Clientes`, clienteSelecionadoParaTroca.id!));
 
           // Adiciona ao novo funil
-          await setDoc(doc(db, `Funis/${novoFunilSelecionado}/Clientes`, clienteSelecionadoParaTroca.id!), {
+          await setDoc(doc(db, `FunisParcelamento/${novoFunilSelecionado}/Clientes`, clienteSelecionadoParaTroca.id!), {
             ...clienteSelecionadoParaTroca,
             dataAtualizacao: new Date().toISOString(),
             statusCRM: 'novo', // ou mantenha o status atual
