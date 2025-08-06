@@ -50,8 +50,27 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(4),
   },
   container: {
-    padding: theme.spacing(3),
-  },
+    paddingTop: theme.spacing(3),
+    paddingBottom: theme.spacing(3),
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+    [theme.breakpoints.up('sm')]: {
+      paddingLeft: theme.spacing(3),
+      paddingRight: theme.spacing(3),
+    },
+    [theme.breakpoints.up('md')]: {
+      paddingLeft: theme.spacing(6),
+      paddingRight: theme.spacing(6),
+    },
+    [theme.breakpoints.up('lg')]: {
+      paddingLeft: theme.spacing(8),
+      paddingRight: theme.spacing(8),
+    },
+    [theme.breakpoints.up('xl')]: {
+      paddingLeft: theme.spacing(10),
+      paddingRight: theme.spacing(10),
+    },
+},
   searchBox: {
     marginBottom: theme.spacing(3),
   },
@@ -198,7 +217,7 @@ const UpClientePage = () => {
       });
 
       // Também salva na coleção DadosclientesExtraidos para backup
-      await setDoc(doc(db, 'DadosclientesExtraidos', cliente.placa), {
+      await setDoc(doc(db, 'Bancodecontatos', cliente.placa), {
         ...cliente,
         observacao,
         statusCRM,
@@ -254,6 +273,7 @@ const UpClientePage = () => {
   };
 
   return (
+     <Box px={2}>
     <Paper className={classes.container}>
       <Typography variant="h5" gutterBottom>
         Upload de Arquivo .docx com Dados de Clientes
@@ -405,6 +425,7 @@ const UpClientePage = () => {
         }
       />
     </Paper>
+    </Box>
   );
 };
 
