@@ -1498,6 +1498,17 @@ setFunis(prev => prev.map(funil =>
             >
               Enviar em Massa
             </Button>
+          
+              <Button
+                variant="outlined"
+                color="primary"
+                size="small"
+                onClick={() => setOpenTemplateDialog(true)}
+                className={classes.massSendButton}
+              >
+                Adicionar Modelo SMS
+              </Button>
+            
             <Button
               variant="contained"
               style={{
@@ -1567,6 +1578,21 @@ setFunis(prev => prev.map(funil =>
                     ))}
                   </Select>
                 </FormControl>
+                <FormControl fullWidth variant="outlined" style={{ marginTop: 24, marginBottom: 16 }}>
+
+  <InputLabel>Selecionar Funil</InputLabel>
+  <Select
+    value={funilAtivoId}
+    onChange={(e) => setFunilAtivoId(e.target.value as string)}
+    label="Selecionar Funil"
+  >
+    {funis.map((funil) => (
+      <MenuItem key={funil.id} value={funil.id}>
+        {funil.nome}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
               </Grid>
               {Object.entries(novoCliente).map(([chave, valor]) => {
                 if (chave === 'id' || chave === 'statusCRM' || chave === 'dataAtualizacao') return null;
