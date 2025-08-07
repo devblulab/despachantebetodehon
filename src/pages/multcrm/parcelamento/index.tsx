@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
     position: 'fixed',
     bottom: theme.spacing(5),
     right: theme.spacing(5),
-    background: 'linear-gradient(135deg, #1a6e3dff 0%, #1c8146ff 100%)',
+    background: 'linear-gradient(135deg, #218f4fff 0%, #1ca555ff 100%)',
     color: '#fff',
     borderRadius: 28,
     left: 32,
@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
     transition: 'all 0.3s ease',
     '&:hover': {
-      background: 'linear-gradient(135deg, #27AE60 0%, #219653 100%)',
+      background: 'linear-gradient(135deg, #2eb666ff 0%rgba(32, 163, 89, 1)53 100%)',
       boxShadow: '0 6px 16px rgba(0, 0, 0, 0.3)',
       transform: 'translateY(-2px)',
     },
@@ -371,7 +371,7 @@ const useStyles = makeStyles((theme) => ({
   },
   viewToggle: {
     marginLeft: theme.spacing(3),
-    color: '#1d5722ff',
+    color: '#22832aff',
   },
   table: {
     minWidth: 700,
@@ -1439,25 +1439,56 @@ clientes: [],
       >
         Adicionar Funil
       </Button>
+{/* Barra de seleção dos funis (lado a lado) */}
+<Box display="flex" style={{ gap: 2 }} mb={3} flexWrap="wrap">
+  {funis.map((funil) => {
+    const isAtivo = funil.id === funilAtivoId;
 
+    return (
+      <Button
+        key={funil.id}
+        onClick={() => setFunilAtivoId(funil.id)}
+        variant={isAtivo ? 'contained' : 'outlined'}
+        color={isAtivo ? 'primary' : 'default'}
+        style={{
+          fontWeight: isAtivo ? 'bold' : 'normal',
+          textTransform: 'none',
+          borderRadius: 20,
+        }}
+      >
+        {funil.nome}
+      </Button>
+    );
+  })}
+</Box>
+
+{/* Conteúdo do funil ativo */}
 {funis.map((funil) => {
   const isAtivo = funil.id === funilAtivoId;
   const expandido = funisExpandido[funil.id] ?? false;
+
+  if (!isAtivo) return null;
+
   return (
-    <Box key={funil.id} mt={3}>
-      <Box display="flex" alignItems="center" justifyContent="space-between">
-        <Typography variant="h6">{funil.nome}</Typography>
-        {isAtivo && (
-          <IconButton onClick={() => toggleExpandido(funil.id)}>
-            {expandido ? <ExpandLess /> : <ExpandMore />}
-          </IconButton>
-        )}
+    <Box key={funil.id} mt={2} p={2} borderRadius={8} boxShadow={3} bgcolor="#f9f9f9">
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+        
+        <IconButton onClick={() => toggleExpandido(funil.id)} size="small">
+          {expandido ? <ExpandLess /> : <ExpandMore />}
+        </IconButton>
       </Box>
-      
-      <Collapse in={isAtivo && expandido}>
-        <Box display="flex" flexWrap="wrap" style={{ gap: 8 }} mt={1}>
+
+      <Collapse in={expandido} timeout="auto" unmountOnExit>
+        <Box display="flex" flexWrap="wrap" style={{ gap: 1.5, marginTop: 2, paddingBottom: 1 }}>
           {funil.statusDisponiveis.map((status) => (
-            <Chip key={status.value} label={status.label} />
+            <Chip
+              key={status.value}
+              label={status.label}
+              variant="outlined"
+              color="primary"
+              clickable
+              style={{ fontWeight: 500 }}
+            />
           ))}
         </Box>
       </Collapse>
@@ -1475,7 +1506,7 @@ clientes: [],
     </Box>
             <Button
               variant="outlined"
-              style={{ borderColor: '#075E54', color: '#075E54', marginLeft: 16 }}
+              style={{ borderColor: '#44a70bff', color: '#075E54', marginLeft: 16 }}
               onClick={async () => {
                 const novo = prompt("Digite o nome do novo status:");
                 if (novo) {
@@ -1516,20 +1547,7 @@ setFunis(prev => prev.map(funil =>
             </Button>
           </Typography>
           <Box display="flex" flexDirection={isMobile ? 'column' : 'row'} style={{ gap: 16 }}>
-            <FormControl variant="outlined" className={classes.statusSelect}>
-              <InputLabel>Selecionar Funil</InputLabel>
-              <Select
-                value={funilAtivoId}
-                onChange={(e) => setFunilAtivoId(e.target.value as string)}
-                label="Selecionar Funil"
-              >
-                {funis.map(funil => (
-                  <MenuItem key={funil.id} value={funil.id}>
-                    {funil.nome}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+           
             <TextField
               fullWidth
               variant="outlined"
