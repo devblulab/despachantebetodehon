@@ -9,7 +9,7 @@ import {
   Add, Message, Edit, Close, Send, Check, Business, Person, LocalOffer,
   ExpandMore, ExpandLess, InsertDriveFile, List as ListIcon, ViewModule
 } from '@material-ui/icons';
-import { collection, getDocs, writeBatch, getFirestore, addDoc, updateDoc, doc, setDoc, deleteDoc, query, orderBy, limit, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, writeBatch,onSnapshot, getFirestore, addDoc, updateDoc, doc, setDoc, deleteDoc, query, orderBy, limit, serverTimestamp } from 'firebase/firestore';
 import { app } from '@/logic/firebase/config/app';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { getStatusExtras, addStatusExtra, removeStatusExtra } from '@/logic/firebase/services/status';
@@ -67,6 +67,7 @@ const useStyles = makeStyles((theme) => ({
     borderBottom: '1px solid #E8ECEF',
     background: '#fff',
     '&:first-child': {
+      
       borderLeft: '1px solid #E8ECEF',
     },
     '&:last-child': {
@@ -501,6 +502,7 @@ export function normalizarTelefoneBrasil(numero: string): string {
 }
 
 const ListaContatosPage = () => {
+
   const classes = useStyles();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -547,28 +549,53 @@ const [novoFunilSelecionado, setNovoFunilSelecionado] = useState<string>('');
   const [funilAtivoId, setFunilAtivoId] = useState<string>('');
   const [snackbarMsg, setSnackbarMsg] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+const [iaAtiva, setIaAtiva] = useState(
+  typeof window !== 'undefined' && localStorage.getItem('iaAtiva') === 'true');
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    const ativada = localStorage.getItem('iaAtiva') === 'true';
+    setIaAtiva(ativada);
+  }, 2000); // checa a cada 2s
+
+  return () => clearInterval(interval);
+}, []);
+
+
+const funilAtivo = funis.find(f => f.id === funilAtivoId);
+
+const clientesIA = iaAtiva && funilAtivo?.clientes?.length ? funilAtivo.clientes : [];
+useIAParcelamento(clientesIA);
+
+const [funisExpandido, setFunisExpandido] = useState<{ [funilId: string]: boolean }>({});
+
+const toggleExpandido = (funilId: string) => {
+  setFunisExpandido((prev) => ({
+    ...prev,
+    [funilId]: !prev[funilId],
+  }));
+};
 
 
 
 
-  const [novoCliente, setNovoCliente] = useState<Cliente>({
-    placa: '',
-    renavam: '',
-    proprietarioatual: '',
-    marca_modelo: '',
-    origem: '',
-    municipio: '',
-    observacao: '',
-    fone_residencial: '',
-    fone_comercial: '',
-    fone_celular: '',
-    usuario: '',
-    statusCRM: 'novo',
-    dataAtualizacao: new Date().toISOString()
-  });
+const [novoCliente, setNovoCliente] = useState<Cliente>({
+  placa: '',
+  renavam: '',
+  proprietarioatual: '',
+  marca_modelo: '',
+  origem: '',
+  municipio: '',
+  observacao: '',
+  fone_residencial: '',
+  fone_comercial: '',
+  fone_celular: '',
+  usuario: '',
+  statusCRM: 'novo',
+  dataAtualizacao: new Date().toISOString()
+});
 
-  const funilAtivo = funis.find(f => f.id === funilAtivoId);
-  const clientesFiltrados = funilAtivo?.clientes.filter(c =>
+const clientesFiltrados = funilAtivo?.clientes.filter(c =>
     (statusCRM === 'todos' || c.statusCRM === statusCRM) &&
     (
       (c.placa?.toLowerCase() || '').includes(filtro.toLowerCase()) ||
@@ -681,72 +708,97 @@ clientes: [],
   }, []);
 
   useEffect(() => {
-  const fetchClientes = async () => {
-    setLoading(true);
-    const db = getFirestore(app);
-    const snapshotFunis = await getDocs(collection(db, 'FunisParcelamento'));
+  const db = getFirestore(app);
+  setLoading(true);
+
+  const unsubscribeFunis = onSnapshot(collection(db, 'FunisParcelamento'), (snapshotFunis) => {
     const novosFunis: Funil[] = [];
+    const funisProcessados: Record<string, boolean> = {};
 
-    for (const funilDoc of snapshotFunis.docs) {
+    snapshotFunis.forEach((funilDoc) => {
+      const funilId = funilDoc.id;
       const funilData = funilDoc.data();
-      const snapshotClientes = await getDocs(collection(db, `FunisParcelamento/${funilDoc.id}/Clientes`));
-      const clientes: Cliente[] = snapshotClientes.docs.map(doc => {
-        const data = doc.data();
-        return {
-          placa: data.placa || '',
-          renavam: data.renavam || '',
-          proprietarioatual: data.proprietarioatual || '',
-          marca_modelo: data.marca_modelo || '',
-          origem: data.origem || '',
-          municipio: data.municipio || '',
-          observacao: data.observacao || '',
-          fone_residencial: data.fone_residencial || '',
-          fone_comercial: data.fone_comercial || '',
-          fone_celular: data.fone_celular || '',
-          usuario: data.usuario || '',
-          statusCRM: data.statusCRM || 'novo',
-          dataAtualizacao: data.dataAtualizacao || '',
-          id: doc.id,
-          funnelId: funilDoc.id,
-        };
-      });
 
-      novosFunis.push({
-        id: funilDoc.id,
-        nome: funilData.nome,
-        clientes: Object.values(
-          clientes.reduce((acc, cliente) => {
-            if (!acc[cliente.placa]) acc[cliente.placa] = cliente;
-            return acc;
-          }, {} as Record<string, Cliente>)
-        ),
-        statusDisponiveis: (funilData.statusDisponiveis || []).map((value: string) => {
-          const found = STATUS_OPTIONS.find(opt => opt.value === value);
-          return found || { value, label: value ? value.charAt(0).toUpperCase() + value.slice(1) : '' };
-        }),
-      });
+      const unsubscribeClientes = onSnapshot(
+        collection(db, `FunisParcelamento/${funilId}/Clientes`),
+        (snapshotClientes) => {
+          const clientes: Cliente[] = snapshotClientes.docs.map((doc) => {
+            const data = doc.data();
+            return {
+              placa: data.placa || '',
+              renavam: data.renavam || '',
+              proprietarioatual: data.proprietarioatual || '',
+              marca_modelo: data.marca_modelo || '',
+              origem: data.origem || '',
+              municipio: data.municipio || '',
+              observacao: data.observacao || '',
+              fone_residencial: data.fone_residencial || '',
+              fone_comercial: data.fone_comercial || '',
+              fone_celular: data.fone_celular || '',
+              usuario: data.usuario || '',
+              statusCRM: data.statusCRM || 'novo',
+              dataAtualizacao: data.dataAtualizacao || '',
+              id: doc.id,
+              funnelId: funilId,
+            };
+          });
+
+          const statusFormatados = (funilData.statusDisponiveis || []).map((value: string) => {
+            const found = STATUS_OPTIONS.find((opt) => opt.value === value);
+            return found || {
+              value,
+              label: value ? value.charAt(0).toUpperCase() + value.slice(1) : '',
+            };
+          });
+
+          const funilAtualizado: Funil = {
+            id: funilId,
+            nome: funilData.nome,
+            clientes: Object.values(
+              clientes.reduce((acc, cliente) => {
+                if (!acc[cliente.placa]) acc[cliente.placa] = cliente;
+                return acc;
+              }, {} as Record<string, Cliente>)
+            ),
+            statusDisponiveis: statusFormatados,
+          };
+
+          const indiceExistente = novosFunis.findIndex((f) => f.id === funilId);
+          if (indiceExistente !== -1) {
+            novosFunis[indiceExistente] = funilAtualizado;
+          } else {
+            novosFunis.push(funilAtualizado);
+          }
+
+          setFunis([...novosFunis]);
+          setFunilAtivoId(novosFunis[0]?.id || 'funil-padrao');
+          setLoading(false);
+        }
+      );
+
+      funisProcessados[funilId] = true;
+    });
+
+    if (Object.keys(funisProcessados).length === 0) {
+      setFunis([{
+        id: 'funil-padrao',
+        nome: 'Funil Padrão',
+        clientes: [],
+        statusDisponiveis: STATUS_OPTIONS.map(opt => ({
+          value: opt.value,
+          label: opt.label,
+          icon: opt.icon,
+        })),
+      }]);
+      setFunilAtivoId('funil-padrao');
+      setLoading(false);
     }
+  });
 
-    // 🔥 Adiciona a coleção DadosclientesExtraidos como funil independente
-   
-
-    setFunis(novosFunis.length > 0 ? novosFunis : [{
-      id: 'funil-padrao',
-      nome: 'Funil Padrão',
-      clientes: [],
-      statusDisponiveis: STATUS_OPTIONS.map(opt => ({
-        value: opt.value,
-        label: opt.label,
-        icon: opt.icon
-      }))
-    }]);
-    setFunilAtivoId(novosFunis[0]?.id || 'funil-padrao');
-    setLoading(false);
+  return () => {
+    unsubscribeFunis();
   };
-
-  fetchClientes();
 }, []);
-
 
  
 
@@ -1356,6 +1408,17 @@ clientes: [],
     );
   }
 
+  // Atualiza os clientes do funil ativo no estado
+  function setClientes(novosClientes: Cliente[]) {
+    setFunis(prev =>
+      prev.map(funil =>
+        funil.id === funilAtivoId
+          ? { ...funil, clientes: novosClientes }
+          : funil
+      )
+    );
+  }
+
   return (
     <Box className={classes.pageWrapper}>
       <Box maxWidth={1400} margin="0 auto">
@@ -1377,17 +1440,32 @@ clientes: [],
         Adicionar Funil
       </Button>
 
-      {funis.map((funil) => (
-        <Box key={funil.id} mt={3}>
-          <Typography variant="h6">{funil.nome}</Typography>
-          <Box display="flex" style={{ gap: 2 }} mt={1}>
-            {funil.statusDisponiveis.map((status) => (
-              <Chip key={status.value} label={status.label} />
-            ))}
-          </Box>
+{funis.map((funil) => {
+  const isAtivo = funil.id === funilAtivoId;
+  const expandido = funisExpandido[funil.id] ?? false;
+  return (
+    <Box key={funil.id} mt={3}>
+      <Box display="flex" alignItems="center" justifyContent="space-between">
+        <Typography variant="h6">{funil.nome}</Typography>
+        {isAtivo && (
+          <IconButton onClick={() => toggleExpandido(funil.id)}>
+            {expandido ? <ExpandLess /> : <ExpandMore />}
+          </IconButton>
+        )}
+      </Box>
+      
+      <Collapse in={isAtivo && expandido}>
+        <Box display="flex" flexWrap="wrap" style={{ gap: 8 }} mt={1}>
+          {funil.statusDisponiveis.map((status) => (
+            <Chip key={status.value} label={status.label} />
+          ))}
         </Box>
-      ))}
+      </Collapse>
+    </Box>
+  );
+})}
 
+      
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
@@ -1408,7 +1486,7 @@ clientes: [],
                     return;
                   }
                   const db = getFirestore(app);
-const funilRef = doc(db, 'Funis', funilAtivoId);
+const funilRef = doc(db, 'FunisParcelamento', funilAtivoId);
 
 await updateDoc(funilRef, {
   statusDisponiveis: [...(funilAtivo?.statusDisponiveis.map(s => s.value) || []), novoId]
@@ -1622,54 +1700,91 @@ setFunis(prev => prev.map(funil =>
               Cancelar
             </Button>
             <Button
-              onClick={async () => {
-                const db = getFirestore(app);
-                try {
-                  const { id, ...clienteSemId } = novoCliente;
-                  if (modoEdicao && docIdEdicao) {
-                    const docRef = doc(db, `FunisParcelamento/${funilAtivoId}/Clientes`, docIdEdicao);
-                    await updateDoc(docRef, clienteSemId);
-                    setFunis(prev =>
-                      prev.map(funil =>
-                        funil.id === funilAtivoId
-                          ? {
-                              ...funil,
-                              clientes: funil.clientes.map(c => c.id === docIdEdicao ? { ...novoCliente, id: docIdEdicao } : c)
-                            }
-                          : funil
-                      )
-                    );
-                    setSnackbarMsg('Cliente atualizado com sucesso!');
-                  } else {
-                    const newDocRef = await addDoc(collection(db, `FunisParcelamento/${funilAtivoId}/Clientes`), {
-                      ...clienteSemId,
-                      dataAtualizacao: new Date().toISOString()
-                    });
-                    setFunis(prev =>
-                      prev.map(funil =>
-                        funil.id === funilAtivoId
-                          ? {
-                              ...funil,
-                              clientes: [...funil.clientes, { ...clienteSemId, id: newDocRef.id }]
-                            }
-                          : funil
-                      )
-                    );
-                    setSnackbarMsg('Cliente adicionado com sucesso!');
-                  }
-                  setSnackbarOpen(true);
-                  setOpenDialog(false);
-                } catch {
-                  setSnackbarMsg('Erro ao salvar cliente');
-                  setSnackbarOpen(true);
+  onClick={async () => {
+    const db = getFirestore(app);
+    try {
+      const { id, ...clienteSemId } = novoCliente;
+      const timestamp = new Date().toISOString();
+
+      if (modoEdicao && docIdEdicao) {
+        // 🔄 Atualizar em DadosclientesExtraidos
+        const docRef1 = doc(db, 'DadosclientesExtraidos', docIdEdicao);
+        await updateDoc(docRef1, clienteSemId);
+
+        // 🔄 Atualizar em FunisParcelamento/{funilId}/Clientes
+        const docRef2 = doc(db, `FunisParcelamento/${funilAtivoId}/Clientes`, docIdEdicao);
+        await updateDoc(docRef2, clienteSemId);
+
+        // Atualiza o estado local dos clientes e do funil
+       setClientes(
+  (funilAtivo?.clientes || []).map(c =>
+    c.id === docIdEdicao ? { ...novoCliente, id: docIdEdicao } : c
+  )
+);
+
+        setFunis(prev =>
+          prev.map(funil =>
+            funil.id === funilAtivoId
+              ? {
+                  ...funil,
+                  clientes: funil.clientes.map(c =>
+                    c.id === docIdEdicao ? { ...novoCliente, id: docIdEdicao } : c
+                  )
                 }
-              }}
-              color="primary"
-              variant="contained"
-              style={{ background: '#25D366' }}
-            >
-              Salvar
-            </Button>
+              : funil
+          )
+        );
+
+        setSnackbarMsg('Cliente atualizado com sucesso!');
+      } else {
+        // ➕ Adicionar em DadosclientesExtraidos
+        const newDocRef1 = await addDoc(collection(db, 'DadosclientesExtraidos'), {
+          ...clienteSemId,
+          dataAtualizacao: timestamp
+        });
+
+        // ➕ Adicionar em FunisParcelamento/{funilId}/Clientes
+        const newDocRef2 = await addDoc(collection(db, `FunisParcelamento/${funilAtivoId}/Clientes`), {
+          ...clienteSemId,
+          dataAtualizacao: timestamp
+        });
+
+        // Atualiza o estado local dos clientes e do funil
+       setClientes(
+  (funilAtivo?.clientes || []).map(c =>
+    c.id === docIdEdicao ? { ...novoCliente, id: docIdEdicao } : c
+  )
+);
+
+        setFunis(prev =>
+          prev.map(funil =>
+            funil.id === funilAtivoId
+              ? {
+                  ...funil,
+                  clientes: [...funil.clientes, { ...clienteSemId, id: newDocRef2.id }]
+                }
+              : funil
+          )
+        );
+
+        setSnackbarMsg('Cliente adicionado com sucesso!');
+      }
+
+      setSnackbarOpen(true);
+      setOpenDialog(false);
+    } catch (error) {
+      console.error('Erro ao salvar cliente:', error);
+      setSnackbarMsg('Erro ao salvar cliente');
+      setSnackbarOpen(true);
+    }
+  }}
+  color="primary"
+  variant="contained"
+  style={{ background: '#25D366' }}
+>
+  Salvar
+</Button>
+
           </DialogActions>
         </Dialog>
         <Dialog
