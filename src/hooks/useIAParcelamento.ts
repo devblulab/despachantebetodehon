@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Cliente } from '@/types/Cliente';
 import {
   getFirestore,
@@ -8,11 +8,11 @@ import {
   collection,
   updateDoc,
   doc,
-  getDocs
+  getDocs,
+  getDoc,
 } from 'firebase/firestore';
 import { app } from '@/logic/firebase/config/app';
 
-// 🔁 Normaliza número para formato 55 + DDD + número com 9
 function normalizarTelefoneBrasil(numero: string): string {
   let phone = numero.replace(/\D/g, '');
   if (phone.startsWith('55')) phone = phone.slice(2);
@@ -20,7 +20,6 @@ function normalizarTelefoneBrasil(numero: string): string {
   return `55${phone.slice(0, 11)}`;
 }
 
-// 💬 Gera mensagens variadas para SMS
 function gerarMensagemIA(cliente: Cliente): string {
   const nome = cliente.proprietarioatual || 'cliente';
   const modelo = cliente.marca_modelo || 'veículo';
@@ -33,19 +32,14 @@ function gerarMensagemIA(cliente: Cliente): string {
     `🚗 Seu ${modelo}, de ${cidade}, está pronto para rodar legalizado. Evite multas e dores de cabeça — parcelamos com ou sem IPVA.`,
     `📊 Trabalhamos com as melhores soluções de licenciamento. O ${modelo} placa ${placa} pode ser regularizado hoje mesmo. Você escolhe como pagar.`,
     `💡 Sabia que regularizar seu veículo agora evita aumento de encargos? Parcelamos de forma inteligente e personalizada. É só me responder aqui.`
-  
-  
-  
   ];
 
   return frases[Math.floor(Math.random() * frases.length)];
 }
 
-// 📤 Envia SMS via Digisac
 async function enviarSMS(numeroOriginal: string, mensagem: string): Promise<boolean> {
   try {
     const numeroFormatado = `+${normalizarTelefoneBrasil(numeroOriginal)}`;
-
     const res = await fetch('/api/digisac', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -61,11 +55,24 @@ async function enviarSMS(numeroOriginal: string, mensagem: string): Promise<bool
   }
 }
 
-// 🔁 Hook principal que ativa IA de envio e verificação
 export const useIAParcelamento = (clientes: Cliente[]) => {
+  const [iaAtiva, setIaAtiva] = useState(
+    typeof window !== 'undefined' && localStorage.getItem('iaAtiva') === 'true'
+  );
+
+  // Escuta mudanças no localStorage de outros componentes
   useEffect(() => {
-    const iaAtiva = typeof window !== 'undefined' && localStorage.getItem('iaAtiva') === 'true';
-    if (!iaAtiva) return;
+    const listener = (e: StorageEvent) => {
+      if (e.key === 'iaAtiva') {
+        setIaAtiva(e.newValue === 'true');
+      }
+    };
+    window.addEventListener('storage', listener);
+    return () => window.removeEventListener('storage', listener);
+  }, []);
+
+  useEffect(() => {
+    if (!iaAtiva || clientes.length === 0) return;
 
     const executarIA = async () => {
       const db = getFirestore(app);
@@ -74,33 +81,53 @@ export const useIAParcelamento = (clientes: Cliente[]) => {
         const numeroFormatado = normalizarTelefoneBrasil(cliente.fone_celular || '');
         if (!cliente.id || numeroFormatado.length !== 13) continue;
 
-        const docRef = doc(db, 'DadosclientesExtraidos', cliente.id);
+        const docRefExtraido = doc(db, 'DadosclientesExtraidos', cliente.id);
+        const docRefCRM = cliente.funnelId
+          ? doc(db, 'Funis', cliente.funnelId, 'Clientes', cliente.id)
+          : null;
+        const docRefParcelamento = cliente.funnelId
+          ? doc(db, 'FunisParcelamento', cliente.funnelId, 'Clientes', cliente.id)
+          : null;
 
-        // 🧠 Verifica se já respondeu (respostas recebidas)
-        const mensagensSnap = await getDocs(collection(db, `mensagensPorContato/${numeroFormatado}/mensagens`));
+        const mensagensSnap = await getDocs(
+          collection(db, `mensagensPorContato/${numeroFormatado}/mensagens`)
+        );
         const mensagens = mensagensSnap.docs.map(doc => doc.data());
         const mensagensRecebidas = mensagens.filter((msg) => !msg.isFromMe && msg.texto);
 
-        // 👥 Se respondeu e está contatado, vira interessado
         if (mensagensRecebidas.length > 0 && cliente.statusCRM === 'contatado') {
-          await updateDoc(docRef, {
+          const updates = {
             statusCRM: 'interessado',
             atualizadoPor: 'verificadorIA',
             dataAtualizacao: new Date().toISOString(),
-          });
-          continue; // não envia nova mensagem
+          };
+
+          const refs = [docRefExtraido, docRefCRM, docRefParcelamento];
+          for (const ref of refs) {
+            if (!ref) continue;
+            const snap = await getDoc(ref);
+            if (snap.exists()) await updateDoc(ref, updates);
+          }
+
+          continue;
         }
 
-        // ✉️ Se for novo, envia mensagem e marca como contatado
         if (cliente.statusCRM === 'novo') {
           const mensagem = gerarMensagemIA(cliente);
           const sucesso = await enviarSMS(cliente.fone_celular, mensagem);
 
           if (sucesso) {
-            await updateDoc(docRef, {
+            const updates = {
               statusCRM: 'contatado',
               dataAtualizacao: new Date().toISOString(),
-            });
+            };
+
+            const refs = [docRefExtraido, docRefCRM, docRefParcelamento];
+            for (const ref of refs) {
+              if (!ref) continue;
+              const snap = await getDoc(ref);
+              if (snap.exists()) await updateDoc(ref, updates);
+            }
 
             await addDoc(collection(db, 'HistoricoSMSGemini'), {
               clienteId: cliente.id,
@@ -112,14 +139,12 @@ export const useIAParcelamento = (clientes: Cliente[]) => {
               timestamp: new Date().toISOString(),
             });
 
-            await new Promise((r) => setTimeout(r, 800)); // evita spam
+            await new Promise((r) => setTimeout(r, 800));
           }
         }
       }
     };
 
-    if (clientes.length > 0) {
-      executarIA();
-    }
-  }, [clientes]);
+    executarIA();
+  }, [iaAtiva, clientes]);
 };
