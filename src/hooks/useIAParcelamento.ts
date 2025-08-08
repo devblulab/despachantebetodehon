@@ -10,6 +10,7 @@ import {
   doc,
   getDocs,
   getDoc,
+  setDoc,serverTimestamp,
 } from 'firebase/firestore';
 import { app } from '@/logic/firebase/config/app';
 
@@ -60,7 +61,6 @@ export const useIAParcelamento = (clientes: Cliente[]) => {
     typeof window !== 'undefined' && localStorage.getItem('iaAtiva') === 'true'
   );
 
-  // Escuta mudanças no localStorage de outros componentes
   useEffect(() => {
     const listener = (e: StorageEvent) => {
       if (e.key === 'iaAtiva') {
@@ -95,11 +95,12 @@ export const useIAParcelamento = (clientes: Cliente[]) => {
         const mensagens = mensagensSnap.docs.map(doc => doc.data());
         const mensagensRecebidas = mensagens.filter((msg) => !msg.isFromMe && msg.texto);
 
+        // 🟢 Se respondeu e está como 'contatado' → vira 'interessado'
         if (mensagensRecebidas.length > 0 && cliente.statusCRM === 'contatado') {
           const updates = {
             statusCRM: 'interessado',
             atualizadoPor: 'verificadorIA',
-            dataAtualizacao: new Date().toISOString(),
+            dataAtualizacao: serverTimestamp(),
           };
 
           const refs = [docRefExtraido, docRefCRM, docRefParcelamento];
@@ -109,9 +110,21 @@ export const useIAParcelamento = (clientes: Cliente[]) => {
             if (snap.exists()) await updateDoc(ref, updates);
           }
 
+          // Histórico
+          await addDoc(collection(db, 'HistoricoSMSGemini'), {
+            clienteId: cliente.id,
+            numero: numeroFormatado,
+            mensagem: '[Cliente respondeu à IA]',
+            statusAntes: 'contatado',
+            statusDepois: 'interessado',
+            respostaDetectada: true,
+            timestamp: serverTimestamp(),
+          });
+
           continue;
         }
 
+        // 🟡 Enviar primeira mensagem se for 'novo'
         if (cliente.statusCRM === 'novo') {
           const mensagem = gerarMensagemIA(cliente);
           const sucesso = await enviarSMS(cliente.fone_celular, mensagem);
@@ -119,7 +132,7 @@ export const useIAParcelamento = (clientes: Cliente[]) => {
           if (sucesso) {
             const updates = {
               statusCRM: 'contatado',
-              dataAtualizacao: new Date().toISOString(),
+              dataAtualizacao: serverTimestamp(),
             };
 
             const refs = [docRefExtraido, docRefCRM, docRefParcelamento];
@@ -136,7 +149,18 @@ export const useIAParcelamento = (clientes: Cliente[]) => {
               statusAntes: 'novo',
               statusDepois: 'contatado',
               sugestaoIA: true,
-              timestamp: new Date().toISOString(),
+              criadoEm: serverTimestamp(),
+            });
+
+            await setDoc(doc(db, 'MonitoramentoIA', numeroFormatado), {
+              numero: numeroFormatado,
+              clienteId: cliente.id,
+              funilId: cliente.funnelId || '',
+              status: 'em_andamento',
+              respondeu: false,
+              tentativas: 1,
+              ultimaTentativa: serverTimestamp(),
+              criadoEm: serverTimestamp(),
             });
 
             await new Promise((r) => setTimeout(r, 800));
